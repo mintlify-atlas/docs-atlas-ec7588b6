@@ -1,0 +1,411 @@
+---
+title: Teoría - Software y Actualizaciones
+description: Conceptos teóricos sobre gestión de software y actualizaciones
+---
+
+# Teoría - Software y Actualizaciones
+
+## Características del Software
+
+### Dependencias
+
+Un software normalmente no funciona si no tiene una serie de librerías o programas de apoyo que el propio software usa para no tener que implementar todas las funciones.
+
+<Note>
+  **Importante**: Es tarea de los programadores del software indicar las dependencias del mismo. Sin embargo, al igual que hay errores en el código, a veces ocurren errores en la definición de las dependencias y será tarea de los administradores hacer que el software funcione.
+</Note>
+
+Si una dependencia no está instalada, el software puede:
+- No funcionar correctamente
+- No funcionar en absoluto
+
+La **resolución de dependencias** es el proceso de instalar las dependencias y las dependencias de las mismas en el orden correcto.
+
+### Versionado de Software
+
+El versionado es el proceso de asignación de un nombre, código o número único para indicar el nivel de desarrollo.
+
+**Formato**: `mayor.menor.micro-fase`
+
+Se aumenta el número cuando:
+
+- **Mayor**: El software sufre grandes cambios y mejoras
+- **Menor**: El software sufre pequeños cambios y/o correcciones de errores  
+- **Micro**: Se aplica una corrección al software con pocos cambios
+- **Fase**: Indica fase de desarrollo (alpha, beta, rc)
+
+### Seguridad y Actualizaciones
+
+<Warning>
+  Las versiones del software son siempre "crecientes" en el tiempo. Mantener el software actualizado es especialmente importante en servidores y estaciones críticas, ya que un software desactualizado es un software vulnerable.
+</Warning>
+
+#### Parches
+
+Un **parche** es un pequeño trozo de código que modifica un software previamente instalado:
+
+- Arreglando un error
+- Ampliando funcionalidad
+- Modificando su comportamiento
+
+Los parches pueden llegar como:
+
+1. **Código fuente** - Para compilar e incluir
+2. **Revisión de software** - Versión menor (Actualización)
+3. **ServicePacks o Releases** - Actualización mayor
+
+## Instalación en GNU/Linux
+
+### Archivos Binarios (.bin)
+
+Los archivos con extensión `.bin` son archivos binarios ejecutables. Normalmente se distribuyen programas comerciales bajo este sistema.
+
+<Steps>
+  <Step title="Dar permisos de ejecución">
+    ```bash
+    sudo chmod +x nombre_binario.bin
+    ```
+  </Step>
+  
+  <Step title="Ejecutar el instalador">
+    ```bash
+    sudo ./nombre_binario.bin
+    ```
+  </Step>
+</Steps>
+
+### Scripts Shell (.sh)
+
+Los archivos `.sh` son scripts de shell.
+
+```bash
+# Método 1
+bash nombre-paquete.sh
+
+# Método 2 (tradicional)
+cd RutaAlDirectorio/
+chmod +x nombrepaquete.sh
+./nombrepaquete.sh
+
+# Con privilegios
+sudo ./nombrepaquete.sh
+```
+
+### Archivos de Asistente (.run)
+
+Asistentes normalmente gráficos para la instalación.
+
+```bash
+sh ./archivo.run
+
+# Con privilegios
+sudo sh ./archivo.run
+```
+
+### Compilación desde Código Fuente
+
+<Steps>
+  <Step title="Instalar herramientas de compilación">
+    ```bash
+    sudo apt update
+    sudo apt install build-essential
+    sudo apt install linux-headers-$(uname -r)
+    ```
+  </Step>
+  
+  <Step title="Descomprimir el código">
+    ```bash
+    # Extraer archivo .tar.gz o .tar.bz2
+    tar -xzf archivo.tar.gz
+    cd carpeta_descomprimida
+    ```
+  </Step>
+  
+  <Step title="Configurar la compilación">
+    ```bash
+    ./configure
+    ```
+  </Step>
+  
+  <Step title="Compilar">
+    ```bash
+    make
+    ```
+  </Step>
+  
+  <Step title="Instalar">
+    ```bash
+    sudo make install
+    # O mejor aún, usar checkinstall
+    sudo apt install checkinstall
+    sudo checkinstall
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  **Ventaja de checkinstall**: El sistema tendrá constancia de los programas instalados, facilitando su desinstalación.
+</Note>
+
+## Gestión de Paquetes en Debian/Ubuntu
+
+### dpkg - Herramienta Base
+
+`dpkg` es el programa base para manejar paquetes Debian (.deb). Tiene una visión parcial del universo Debian: sabe lo que está instalado y lo que se le provee en la línea de comandos, pero no conoce otros paquetes disponibles.
+
+<Warning>
+  `dpkg` fallará si no se satisface una dependencia. Para instalaciones complejas, es mejor usar `apt`.
+</Warning>
+
+#### Comandos Principales
+
+| Comando | Acción |
+|---------|--------|
+| `dpkg -I paquete.deb` | Muestra información del paquete |
+| `dpkg -i paquete.deb` | Instala el paquete |
+| `dpkg -r paquete` | Desinstala el paquete (mantiene configuración) |
+| `dpkg -P paquete` | Purga el paquete (elimina todo) |
+| `dpkg -S /ruta/archivo` | Indica qué paquete contiene el archivo |
+| `dpkg -L paquete` | Lista archivos del paquete instalado |
+| `dpkg -s paquete` | Muestra estado del paquete |
+| `dpkg -c paquete.deb` | Muestra contenido antes de instalar |
+
+<Note>
+  En la desinstalación con dpkg NO se pone el nombre del .deb sino el nombre del paquete.
+</Note>
+
+### apt - Gestor Avanzado
+
+`apt` es la herramienta de administración que busca paquetes en repositorios, resuelve dependencias automáticamente y los instala.
+
+#### ¿Qué es un Repositorio?
+
+Un **repositorio** es un sitio donde se almacenan y mantienen paquetes de aplicaciones y librerías. Pueden ser:
+
+- Servidores FTP o HTTP en Internet
+- Dispositivos locales (DVD-ROM)
+- Espejos distribuidos mundialmente
+
+#### Comandos apt
+
+<CodeGroup>
+```bash Instalación
+# Instalar paquete
+apt install nombre_paquete
+
+# Reinstalar paquete
+apt install --reinstall nombre_paquete
+```
+
+```bash Desinstalación
+# Desinstalar (mantiene configuración)
+apt remove nombre_paquete
+
+# Purgar (elimina todo)
+apt purge nombre_paquete
+```
+
+```bash Actualización
+# Actualizar catálogo
+apt update
+
+# Actualizar sistema (conservadora)
+apt upgrade
+
+# Actualizar sistema (completa)
+apt full-upgrade
+```
+
+```bash Búsqueda
+# Buscar en el catálogo
+apt-cache search patron
+
+# Mostrar información de paquete
+apt-cache show nombre_paquete
+
+# Información de versiones
+apt-cache policy nombre_paquete
+```
+
+```bash Mantenimiento
+# Verificar dependencias
+apt check
+
+# Limpiar paquetes innecesarios
+apt autoremove
+
+# Limpiar catálogo
+apt clean
+```
+</CodeGroup>
+
+### Repositorios en Ubuntu
+
+#### Repositorios Oficiales
+
+- **main**: Software libre soportado por Canonical
+- **universe**: Software libre mantenido por la comunidad
+- **restricted**: Controladores privativos para dispositivos
+- **multiverse**: Software restringido por copyright o cuestiones legales
+
+#### Repositorios de Actualizaciones
+
+- **security**: Actualizaciones importantes de seguridad (siempre activada)
+- **updates**: Actualizaciones recomendadas (siempre activada)
+- **proposed**: Actualizaciones en prueba (desactivada)
+- **backports**: Últimas versiones no soportadas (opcional)
+
+### Gestión de Repositorios
+
+El archivo principal de configuración es `/etc/apt/sources.list`
+
+```bash
+# Ver contenido
+mousepad /etc/apt/sources.list
+
+# Editar (requiere permisos)
+sudo mousepad /etc/apt/sources.list
+```
+
+<Warning>
+  **Precaución**: Hacer copia de seguridad antes de modificar. Un error puede impedir que el sistema encuentre los repositorios.
+</Warning>
+
+### Repositorios PPA (Personal Package Archive)
+
+Los PPA son repositorios de terceros alojados en Launchpad.
+
+**Nomenclatura**: `ppa:creador/nombre`
+
+<CodeGroup>
+```bash Añadir PPA
+# Añadir repositorio
+sudo add-apt-repository ppa:webupd8team/java
+
+# Actualizar lista
+sudo apt update
+```
+
+```bash Quitar PPA
+# Quitar sin desinstalar paquetes
+sudo add-apt-repository --remove ppa:webupd8team/java
+
+# Quitar y desinstalar paquetes
+sudo apt install ppa-purge
+sudo ppa-purge ppa:webupd8team/java
+
+# Actualizar sistema
+sudo apt update && sudo apt full-upgrade
+```
+</CodeGroup>
+
+## Instalación en Windows
+
+### Páginas Oficiales
+
+<Note>
+  Siempre es recomendable conseguir el software desde la página oficial para asegurarse de que no se hayan introducido virus, troyanos o herramientas de ataque.
+</Note>
+
+### Archivos Ejecutables (.exe)
+
+Archivos binarios ejecutables que contienen:
+- El instalador del software
+- O el ejecutable del programa (standalone)
+
+### Microsoft Installer (.msi)
+
+Instaladores que contienen información para automatizar la instalación, minimizando la intervención manual del usuario.
+
+**Equivalente**: Similar a paquetes `.deb` en GNU/Linux
+
+### Microsoft Store
+
+Plataforma de distribución digital centralizada y segura incluida desde Windows 8.
+
+**Características**:
+- Catálogo centralizado de aplicaciones
+- Gestión automática de instalación/actualización/desinstalación
+- Requiere cuenta Microsoft
+- Reparto de beneficios: 30% Microsoft, 70% desarrollador
+- Disponible en 120 países
+
+<Warning>
+  Las aplicaciones Metro pueden desaparecer si el desarrollador las retira de la tienda. Es prácticamente imposible hacer respaldos de ejecutables de apps modernas.
+</Warning>
+
+## Registro de Windows
+
+### ¿Qué es el Registro?
+
+El **Registro de Windows** es una base de datos jerárquica que almacena ajustes de configuración y opciones en sistemas operativos Microsoft Windows.
+
+**Usuarios del Registro**:
+- El núcleo (kernel)
+- Los drivers
+- Los servicios
+- El SAM (Security Account Manager)
+- La interfaz de usuario
+- Aplicaciones de terceros
+
+### Historia
+
+Antes del Registro, los datos se almacenaban en ficheros `.INI`. Problemas como:
+- Acceso concurrente
+- Incapacidad de guardar datos diferentes a texto
+
+Motivaron el desarrollo del Registro como base de datos.
+
+### Estructura
+
+El Registro contiene dos elementos básicos:
+
+1. **Claves**: Similares a carpetas, pueden contener otras claves
+2. **Valores**: Pares de nombres y datos almacenados dentro de las claves
+
+### Claves Principales
+
+#### HKEY_LOCAL_MACHINE (HKLM)
+
+Almacena configuraciones específicas del equipo local.
+
+**Subclaves**:
+- `SAM`: Bases de datos de cuentas de seguridad
+- `SECURITY`: Base de datos de seguridad del dominio
+- `SYSTEM`: Información de instalación del sistema (solo administrador)
+- `SOFTWARE`: Ajustes de software organizados por vendedor
+- `HARDWARE`: Volátil, creada dinámicamente (dispositivos Plug-and-Play)
+
+<Note>
+  Ruta importante: `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList` - Define rutas a carpetas personales de usuarios
+</Note>
+
+#### HKEY_CLASSES_ROOT (HKCR)
+
+Contiene información sobre aplicaciones y asociaciones de archivo.
+
+#### HKEY_CURRENT_USER (HKCU)
+
+Almacena configuraciones específicas del usuario que tiene sesión iniciada.
+
+#### HKEY_PERFORMANCE_DATA
+
+Proporciona información de datos de rendimiento en tiempo de ejecución del kernel, controladores, programas y servicios.
+
+**Acceso**:
+- API de Windows
+- Administrador de tareas (pestaña Rendimiento)
+- Monitor de rendimiento
+- Analizador de rendimiento
+
+## Recursos Adicionales
+
+<CardGroup cols={2}>
+  <Card title="Tareas Prácticas" icon="code" href="/units/ud07/tasks">
+    Aplica estos conceptos con ejercicios prácticos
+  </Card>
+  
+  <Card title="Siguiente Unidad" icon="arrow-right" href="/units/ud08/overview">
+    Continúa con UD08 - Seguridad
+  </Card>
+</CardGroup>

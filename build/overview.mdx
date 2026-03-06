@@ -1,0 +1,215 @@
+---
+title: Build System Overview
+description: Understanding the PDF generation workflow for ASIR-ISO course materials
+---
+
+The ASIR-ISO project uses an automated build system to convert Markdown source files into professionally formatted PDF documents. This system processes theory materials, practical tasks, and supplementary annexes for all 12 didactic units.
+
+## Purpose
+
+The build system serves several key objectives:
+
+<CardGroup cols={2}>
+
+<Card title="Consistency" icon="equals">
+Generate uniform, professionally formatted PDFs across all course materials
+</Card>
+
+<Card title="Automation" icon="robot">
+Reduce manual work by automating the conversion from Markdown to PDF
+</Card>
+
+<Card title="Distribution" icon="share-nodes">
+Produce ready-to-distribute materials for students via Moodle or other platforms
+</Card>
+
+<Card title="Version Control" icon="code-branch">
+Keep source materials in Markdown for easy tracking and collaboration in Git
+</Card>
+
+</CardGroup>
+
+## Architecture
+
+The build system consists of three main components:
+
+### 1. Source Files
+
+Markdown files organized by didactic unit:
+
+```
+source/
+├── UD01_IntroduccionSistemasOperativos/
+│   ├── Teoria_*.md
+│   ├── Tarea_*.md
+│   └── Anexo_*.md
+├── UD02_Virtualizacion/
+│   └── ...
+└── UD03_Instalacion_Arranque/
+    └── ...
+```
+
+### 2. LaTeX Templates
+
+Custom templates that define the appearance of generated PDFs:
+
+- **`temas-tpl.latex`**: Template for theory materials (Teoria)
+- **`tareas-tpl.latex`**: Template for practical tasks (Tareas)
+- **`anexos-tpl.latex`**: Template for supplementary annexes (Anexos)
+
+### 3. Build Script
+
+The `md-to-pdf.sh` bash script orchestrates the entire conversion process.
+
+## Workflow
+
+<Steps>
+
+### Select Didactic Unit
+
+Run the build script with a unit number to process specific materials:
+
+```bash
+./bin/md-to-pdf.sh 01  # Build UD01 materials
+./bin/md-to-pdf.sh 05  # Build UD05 materials
+./bin/md-to-pdf.sh all # Build all units
+```
+
+### Process Theory Files
+
+The script combines all `Teoria_*.md` files in the unit into a single comprehensive PDF:
+
+```bash
+pandoc --template temas-tpl.latex \
+  -V fontsize=12pt \
+  -V mainfont="Ubuntu" \
+  --pdf-engine=xelatex \
+  -o UD01_Teoria.pdf \
+  Teoria_*.md
+```
+
+### Generate Task PDFs
+
+Each `Tarea_*.md` file is converted to an individual PDF:
+
+```bash
+# For each Tarea_*.md file:
+pandoc --template tareas-tpl.latex \
+  -V fontsize=12pt \
+  -V mainfont="Ubuntu" \
+  --pdf-engine=xelatex \
+  -o UD01_Tarea_1_TiposDeAplicaciones.pdf \
+  Tarea_01_TiposDeAplicaciones.md
+```
+
+### Create Annex Documents
+
+Similarly, each `Anexo_*.md` file becomes a separate PDF using the annexes template.
+
+### Organize Output
+
+All generated PDFs are moved to a dedicated folder:
+
+```
+PDFS/
+├── UD01_IntroduccionSistemasOperativos/
+│   ├── UD01_Teoria.pdf
+│   ├── UD01_Tarea_1_TiposDeAplicaciones.pdf
+│   ├── UD01_Tarea_2_SistemasOperativos.pdf
+│   └── ...
+├── UD02_Virtualizacion/
+│   └── ...
+```
+
+</Steps>
+
+## Generated Outputs
+
+<Note>
+The build system produces three types of PDF documents from the source materials.
+</Note>
+
+### Theory PDFs
+
+- **File pattern**: `UD[NN]_Teoria.pdf`
+- **Content**: Combined theory materials for the entire unit
+- **Template**: `temas-tpl.latex`
+- **Example**: `UD01_Teoria.pdf`
+
+### Task PDFs
+
+- **File pattern**: `UD[NN]_Tarea_[N]_[Name].pdf`
+- **Content**: Individual practical assignments
+- **Template**: `tareas-tpl.latex`
+- **Example**: `UD01_Tarea_1_TiposDeAplicaciones.pdf`
+
+### Annex PDFs
+
+- **File pattern**: `UD[NN]_Anexo_[N]_[Name].pdf`
+- **Content**: Supplementary materials and references
+- **Template**: `anexos-tpl.latex`
+- **Example**: `UD02_Anexo_1_ConfiguracionVirtualBox.pdf`
+
+## Didactic Units
+
+The ASIR-ISO course comprises 12 didactic units:
+
+<Accordion title="View All Didactic Units">
+
+1. **UD01**: Introducción a los Sistemas Operativos
+2. **UD02**: Sistemas de Virtualización
+3. **UD03**: Instalación y Arranque
+4. **UD04**: Administración de procesos y red
+5. **UD05**: Usuarios, Grupos y Permisos
+6. **UD06**: Sistemas de Ficheros
+7. **UD07**: Software y Actualizaciones
+8. **UD08**: Seguridad
+9. **UD09**: Administración del Dominio
+10. **UD10**: Acceso al Dominio
+11. **UD11**: Rendimiento y auditorias
+12. **UD12**: Resolución de incidencias y asistencia técnica
+
+</Accordion>
+
+## Installation Guides
+
+Certain units include installation guides for operating systems and tools:
+
+- **Ubuntu Bionic** (UD02)
+- **Xubuntu Bionic** (UD02)
+- **Windows 10** (UD03)
+- **Windows Server 2019** (UD03)
+- **OpenMediaVault** (UD08)
+
+These guides are stored in `GuiasInstalacionSO/` and processed alongside their respective units.
+
+## Build Status Indicators
+
+The script provides colored output to indicate success or failure:
+
+<CodeGroup>
+
+```bash Success Message
+ * [ OK ] : /path/to/PDFS/UD01_Teoria.pdf
+```
+
+```bash Error Message
+ * [ Error ] : Not a file /path/to/missing.pdf
+```
+
+</CodeGroup>
+
+<Warning>
+If the build script reports errors, check that:
+- All required dependencies are installed
+- Source Markdown files have correct front matter
+- File naming follows the conventions in the Style Guide
+</Warning>
+
+## Next Steps
+
+To get started with the build system:
+
+1. [Install dependencies](/build/dependencies) - Set up pandoc, texlive, and required fonts
+2. [Learn the scripts](/build/scripts) - Understand the md-to-pdf.sh script in detail
+3. Review the [Style Guide](/style-guide) - Follow formatting conventions for source files

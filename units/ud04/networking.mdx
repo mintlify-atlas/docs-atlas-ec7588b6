@@ -1,0 +1,715 @@
+---
+title: 'Network Configuration'
+description: 'Configure and manage network interfaces on Windows and Linux systems'
+---
+
+# Network Configuration Basics
+
+When installing an operating system with network connectivity, it's standard to connect it to the network for communication with other computers in your IT system.
+
+## Essential Network Concepts
+
+### MAC Address
+
+The **MAC (Media Access Control) address** is the physical address that identifies your network adapter:
+
+- **Format**: 48 bits, 6 blocks of hexadecimal characters
+- **Example**: `74:e6:e2:35:6a:a1`
+- **Assignment**: Provided by manufacturer
+- **Uniqueness**: Should be unique worldwide
+
+<Warning>
+MAC addresses can be spoofed (changed), which can be used for malicious purposes and represents a security vulnerability.
+</Warning>
+
+### IP Address (IPv4)
+
+A logical and hierarchical identifier for network interfaces:
+
+- **Format**: Four octets (0-255) separated by dots
+- **Example**: `192.168.1.100`
+- **Purpose**: Communication in TCP/IP networks
+- **Administration**: Configurable by administrators
+
+#### Static IP Configuration
+
+Manually configured network settings:
+
+<CardGroup cols={2}>
+  <Card title="IP Address" icon="hashtag">
+    The unique address for this device on the network
+  </Card>
+  
+  <Card title="Subnet Mask" icon="mask">
+    Defines the network portion vs. host portion of the IP
+  </Card>
+  
+  <Card title="Default Gateway" icon="door-open">
+    Router IP for accessing other networks/internet
+  </Card>
+  
+  <Card title="DNS Servers" icon="server">
+    Servers that resolve domain names to IP addresses
+  </Card>
+</CardGroup>
+
+#### Dynamic IP (DHCP)
+
+Automatic configuration via DHCP server:
+
+- Automatically assigns IP address
+- Provides subnet mask
+- Configures default gateway
+- Sets DNS servers
+- Manages lease time
+
+<Note>
+DHCP simplifies network management, especially in environments with many devices.
+</Note>
+
+---
+
+# Windows Network Configuration
+
+## GUI Configuration
+
+### Network and Sharing Center
+
+Access via Control Panel:
+
+<Steps>
+  <Step title="Open Control Panel">
+    Search for "Control Panel" in Start menu
+  </Step>
+  
+  <Step title="Network and Sharing Center">
+    Click "Network and Sharing Center"
+  </Step>
+  
+  <Step title="Change Adapter Settings">
+    Click "Change adapter settings" on the left
+  </Step>
+  
+  <Step title="Configure Adapter">
+    Right-click adapter → Properties
+  </Step>
+</Steps>
+
+### Connection Status
+
+The status dialog shows:
+
+**Connectivity:**
+- IPv4 Connectivity: Connected/No network access
+- IPv6 Connectivity: Status of IPv6 connection
+- Media State: Enabled/Disabled
+- Duration: Time connected
+- Speed: Connection speed (e.g., 1 Gbps)
+
+**Activity:**
+- Bytes sent
+- Bytes received
+
+<Note>
+If only bytes sent increases without bytes received, you likely have a connectivity problem.
+</Note>
+
+### Adapter Properties
+
+Configure IPv4 settings:
+
+<Accordion title="Automatic (DHCP)">
+```
+✓ Obtain an IP address automatically
+✓ Obtain DNS server address automatically
+```
+Use when DHCP server is available on network.
+</Accordion>
+
+<Accordion title="Static IP">
+```
+• Use the following IP address:
+  IP address: 192.168.1.100
+  Subnet mask: 255.255.255.0
+  Default gateway: 192.168.1.1
+
+• Use the following DNS server addresses:
+  Preferred DNS server: 8.8.8.8
+  Alternate DNS server: 8.8.4.4
+```
+Use when you need a fixed IP address.
+</Accordion>
+
+<Accordion title="Hybrid (Fallback)">
+Request DHCP, but use static IP if DHCP fails:
+```
+✓ Obtain an IP address automatically
+• Alternative Configuration:
+  • Automatic private IP address
+  OR
+  • User configured:
+    IP address: 192.168.1.100
+    Subnet mask: 255.255.255.0
+```
+</Accordion>
+
+### Workgroups and Domains
+
+Windows computers must be part of a workgroup or domain:
+
+#### Workgroup
+
+- **Peer-to-peer** network
+- **No central control**
+- Each computer has own user accounts
+- Typically ≤20 computers
+- **Not password protected**
+- All computers must be on same network/subnet
+
+**Use case:** Small offices, home networks
+
+#### Domain
+
+- **Centralized management**
+- Shared database and security policy
+- **Managed by domain controllers**
+- Administrators control all domain computers
+- Users can log in to any domain computer
+- **Requires enterprise Windows versions**
+
+**Use case:** Business environments, enterprises
+
+<Warning>
+Not all Windows editions support domain joining. Windows Home editions cannot join domains.
+</Warning>
+
+## PowerShell Network Management
+
+PowerShell provides powerful network configuration cmdlets.
+
+### Get Network Configuration
+
+#### Get-NetIPConfiguration
+
+Quick overview of network configuration:
+
+```powershell
+# Show all adapters
+Get-NetIPConfiguration
+
+# Show specific adapter
+Get-NetIPConfiguration -InterfaceAlias "Ethernet"
+
+# Detailed information
+Get-NetIPConfiguration -Detailed
+```
+
+#### Get-NetIPAddress
+
+Detailed IP address information:
+
+```powershell
+# All IP addresses
+Get-NetIPAddress
+
+# IPv4 only
+Get-NetIPAddress -AddressFamily IPv4
+
+# Format as table
+Get-NetIPAddress | Format-Table InterfaceAlias, IPAddress
+
+# Format as list
+Get-NetIPAddress | Format-List InterfaceAlias, IPAddress
+
+# Filter by interface
+Get-NetIPAddress -InterfaceAlias "Ethernet"
+```
+
+#### Get-NetAdapter
+
+Network adapter information:
+
+```powershell
+# List all adapters
+Get-NetAdapter
+
+# Detailed info
+Get-NetAdapter -Name "Ethernet" | Format-List
+
+# Show MAC address
+Get-NetAdapter | Select-Object Name, MacAddress
+
+# Show only connected adapters
+Get-NetAdapter | Where-Object {$_.Status -eq "Up"}
+```
+
+### Network Connectivity Testing
+
+#### Test-NetConnection
+
+Comprehensive connectivity testing:
+
+```powershell
+# Basic ping test
+Test-NetConnection www.google.com
+
+# Detailed information
+Test-NetConnection www.google.com -InformationLevel Detailed
+
+# Trace route
+Test-NetConnection www.google.com -TraceRoute
+
+# Test specific port
+Test-NetConnection www.google.com -Port 443
+
+# Test without ping (port only)
+Test-NetConnection server.local -Port 3389 -InformationLevel Quiet
+```
+
+<Note>
+In many corporate networks, PING (ICMP) is disabled for security. Use port testing instead.
+</Note>
+
+#### Resolve-DnsName
+
+DNS resolution:
+
+```powershell
+# Resolve hostname
+Resolve-DnsName www.google.com
+
+# Get all DNS records
+Resolve-DnsName www.google.com -Type ALL
+
+# Query specific record type
+Resolve-DnsName google.com -Type MX
+Resolve-DnsName google.com -Type SOA
+
+# Use specific DNS server
+Resolve-DnsName www.google.com -Server 1.1.1.1
+
+# Format output
+Resolve-DnsName www.google.com | Format-List
+```
+
+#### Get-NetRoute
+
+Routing table:
+
+```powershell
+# Show all routes
+Get-NetRoute
+
+# Filter by destination
+Get-NetRoute -DestinationPrefix "10.0.2*"
+
+# Show default gateway
+Get-NetRoute -DestinationPrefix "0.0.0.0/0"
+
+# IPv4 routes only
+Get-NetRoute -AddressFamily IPv4
+```
+
+### Set Network Configuration
+
+#### Configure Static IP
+
+```powershell
+# Set static IP
+New-NetIPAddress -InterfaceAlias "Ethernet" `
+    -IPAddress 192.168.1.100 `
+    -PrefixLength 24 `
+    -DefaultGateway 192.168.1.1
+
+# Set DNS servers
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet" `
+    -ServerAddresses ("8.8.8.8","8.8.4.4")
+```
+
+#### Configure DHCP
+
+```powershell
+# Enable DHCP
+Set-NetIPInterface -InterfaceAlias "Ethernet" -Dhcp Enabled
+
+# Reset DNS to automatic
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ResetServerAddresses
+```
+
+#### Disable/Enable Adapter
+
+```powershell
+# Disable adapter
+Disable-NetAdapter -Name "Ethernet" -Confirm:$false
+
+# Enable adapter
+Enable-NetAdapter -Name "Ethernet"
+
+# Restart adapter
+Restart-NetAdapter -Name "Ethernet"
+```
+
+### Network Diagnostics Script
+
+```powershell
+#!/usr/bin/env pwsh
+# Network Diagnostics Script
+
+Write-Host "=== Network Diagnostics ===" -ForegroundColor Cyan
+Write-Host ""
+
+# Adapter Information
+Write-Host "Network Adapters:" -ForegroundColor Yellow
+Get-NetAdapter | Where-Object {$_.Status -eq "Up"} | 
+    Select-Object Name, Status, LinkSpeed, MacAddress |
+    Format-Table -AutoSize
+
+# IP Configuration
+Write-Host "IP Configuration:" -ForegroundColor Yellow
+Get-NetIPAddress -AddressFamily IPv4 | 
+    Where-Object {$_.InterfaceAlias -notlike "*Loopback*"} |
+    Select-Object InterfaceAlias, IPAddress, PrefixLength |
+    Format-Table -AutoSize
+
+# Default Gateway
+Write-Host "Default Gateway:" -ForegroundColor Yellow
+Get-NetRoute -DestinationPrefix "0.0.0.0/0" | 
+    Select-Object InterfaceAlias, NextHop |
+    Format-Table -AutoSize
+
+# DNS Servers
+Write-Host "DNS Servers:" -ForegroundColor Yellow
+Get-DnsClientServerAddress -AddressFamily IPv4 |
+    Where-Object {$_.ServerAddresses.Count -gt 0} |
+    Select-Object InterfaceAlias, ServerAddresses |
+    Format-Table -AutoSize
+
+# Connectivity Test
+Write-Host "Internet Connectivity:" -ForegroundColor Yellow
+$result = Test-NetConnection www.google.com -InformationLevel Quiet
+if ($result) {
+    Write-Host "  ✓ Internet connectivity OK" -ForegroundColor Green
+} else {
+    Write-Host "  ✗ No internet connectivity" -ForegroundColor Red
+}
+```
+
+---
+
+# Linux Network Configuration
+
+## netplan (Ubuntu 18.04+)
+
+Ubuntu uses netplan for network configuration.
+
+### Configuration Files
+
+Location: `/etc/netplan/*.yaml`
+
+<Warning>
+**Critical:** YAML is indentation-sensitive. Use spaces, not tabs. Incorrect indentation causes errors.
+</Warning>
+
+### Basic Configuration
+
+#### NetworkManager Renderer
+
+```yaml
+# /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+  renderer: NetworkManager
+```
+
+NetworkManager handles all devices (ethernet auto-configured via DHCP).
+
+#### networkd Renderer with DHCP
+
+```yaml
+# /etc/netplan/01-netcfg.yaml
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        enp0s3:
+            dhcp4: yes
+```
+
+#### Static IP Configuration
+
+```yaml
+# /etc/netplan/01-netcfg.yaml
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        enp0s3:
+            dhcp4: no
+            addresses:
+                - 192.168.100.10/24
+            gateway4: 192.168.100.1
+            nameservers:
+                addresses: [8.8.8.8, 8.8.4.4]
+```
+
+#### Multiple Interfaces
+
+```yaml
+# /etc/netplan/01-netcfg.yaml
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        enp0s3:
+            dhcp4: yes
+        enp0s8:
+            dhcp4: no
+            addresses:
+                - 192.168.100.10/24
+            gateway4: 192.168.100.1
+            nameservers:
+                addresses: [8.8.8.8, 8.8.4.4]
+```
+
+### netplan Commands
+
+```bash
+# Generate configuration
+sudo netplan generate
+
+# Apply configuration
+sudo netplan apply
+
+# Try configuration (auto-rollback in 120s)
+sudo netplan try
+```
+
+<Note>
+Use `netplan try` for testing - it automatically reverts if you lose connection.
+</Note>
+
+## Linux Network Commands
+
+### ip (Modern Standard)
+
+The modern replacement for ifconfig:
+
+#### Show IP Addresses
+
+```bash
+# All addresses
+ip addr
+
+# IPv4 only
+ip -4 addr
+
+# IPv6 only
+ip -6 addr
+
+# Specific interface
+ip addr show enp0s3
+
+# Brief output
+ip -br addr
+```
+
+#### Configure IP Address
+
+```bash
+# Add IP address
+sudo ip address add 192.168.1.100/24 dev enp0s3
+
+# Remove IP address
+sudo ip address del 192.168.1.100/24 dev enp0s3
+
+# Flush all addresses
+sudo ip address flush dev enp0s3
+```
+
+#### Manage Interfaces
+
+```bash
+# Show interfaces
+ip link
+
+# Enable interface
+sudo ip link set enp0s3 up
+
+# Disable interface
+sudo ip link set enp0s3 down
+
+# Change MAC address
+sudo ip link set enp0s3 address 00:11:22:33:44:55
+```
+
+#### Routing
+
+```bash
+# Show routing table
+ip route
+
+# Add route
+sudo ip route add 192.168.3.0/24 dev enp0s3
+
+# Add default gateway
+sudo ip route add default via 192.168.1.1
+
+# Delete route
+sudo ip route del 192.168.3.0/24
+```
+
+### ifconfig (Legacy)
+
+<Note>
+ifconfig is deprecated but still widely used. Prefer `ip` command.
+</Note>
+
+```bash
+# Show all interfaces
+ifconfig
+
+# Specific interface
+ifconfig eth0
+
+# Brief summary
+ifconfig -s
+
+# Enable interface
+sudo ifconfig eth0 up
+
+# Disable interface
+sudo ifconfig eth0 down
+
+# Set IP address
+sudo ifconfig eth0 192.168.1.100
+
+# Set netmask
+sudo ifconfig eth0 netmask 255.255.255.0
+
+# Change MAC address
+sudo ifconfig eth0 hw ether 00:11:22:33:44:55
+```
+
+### Network Testing
+
+#### ping
+
+```bash
+# Ping continuously (Ctrl+C to stop)
+ping www.google.com
+
+# Send specific count
+ping -c 5 www.google.com
+
+# Interval between packets
+ping -i 2 www.google.com
+
+# Packet size
+ping -s 1000 www.google.com
+
+# Quiet mode (summary only)
+ping -q -c 10 www.google.com
+```
+
+#### tracepath / traceroute
+
+```bash
+# Trace path to host
+tracepath www.google.com
+
+# Trace with packet size
+tracepath -l 1000 www.google.com
+
+# traceroute (may need install)
+sudo apt install traceroute
+traceroute www.google.com
+```
+
+### DNS Management
+
+#### hostname
+
+```bash
+# Show hostname
+hostname
+
+# Show FQDN
+hostname -f
+
+# Show domain
+hostname -d
+
+# Set hostname temporarily
+sudo hostname new-hostname
+
+# Set hostname permanently
+echo "new-hostname" | sudo tee /etc/hostname
+sudo hostname -F /etc/hostname
+```
+
+<Warning>
+Changing hostname can break programs like sudo. Also update `/etc/hosts` with new hostname for 127.0.1.1
+</Warning>
+
+### Network Diagnostics Script
+
+```bash
+#!/bin/bash
+# Linux Network Diagnostics
+
+echo "=== Network Diagnostics ==="
+echo ""
+
+# Interface Status
+echo "Network Interfaces:"
+ip -br addr
+echo ""
+
+# Default Gateway
+echo "Default Gateway:"
+ip route | grep default
+echo ""
+
+# DNS Servers
+echo "DNS Servers:"
+cat /etc/resolv.conf | grep nameserver
+echo ""
+
+# Connectivity Test
+echo "Internet Connectivity:"
+if ping -c 1 8.8.8.8 &> /dev/null; then
+    echo "  ✓ IP connectivity OK"
+else
+    echo "  ✗ No IP connectivity"
+fi
+
+if ping -c 1 www.google.com &> /dev/null; then
+    echo "  ✓ DNS resolution OK"
+else
+    echo "  ✗ DNS resolution failed"
+fi
+```
+
+## Best Practices
+
+<Steps>
+  <Step title="Document Network Settings">
+    Keep records of static IPs, subnets, and gateways
+  </Step>
+  
+  <Step title="Test After Changes">
+    Always verify connectivity after configuration changes
+  </Step>
+  
+  <Step title="Use Static IPs for Servers">
+    Servers and infrastructure should have static IPs
+  </Step>
+  
+  <Step title="Use DHCP for Clients">
+    End-user devices benefit from DHCP automation
+  </Step>
+  
+  <Step title="Monitor Network Health">
+    Regularly check network performance and connectivity
+  </Step>
+</Steps>

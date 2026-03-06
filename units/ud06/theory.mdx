@@ -1,0 +1,584 @@
+---
+title: 'Theory - File Systems'
+description: 'File system structures, hierarchies, and important directories in Windows and Linux'
+---
+
+# File System Structures
+
+## What is a File System?
+
+A file system is how an operating system organizes files on storage devices. It provides:
+
+- **Hierarchical organization** - Tree structure of directories and files
+- **Logical grouping** - Related files organized together
+- **Access control** - Permissions, ownership, auditing
+- **Abstraction** - Hide physical storage details from users
+
+<Note>
+90% of system administration work involves operating on file structures - managing permissions, data, backups, and configurations.
+</Note>
+
+## File System Types
+
+Different file systems optimize for different use cases:
+
+### Considerations When Choosing
+
+- **File name length** - Some support only 11 characters
+- **File size limits** - Maximum individual file size
+- **Number of files** - Optimized for many small vs few large files
+- **Performance** - Speed for specific workloads
+- **Features** - Permissions, encryption, compression, journaling
+
+<Warning>
+You can format different devices/partitions with different file systems on the same computer.
+</Warning>
+
+### Formatting
+
+Formatting prepares a device with a specific file system:
+
+```bash
+# Linux - Format as ext4
+sudo mkfs.ext4 /dev/sdb1
+
+# Linux - Format as NTFS (requires ntfs-3g)
+sudo mkfs.ntfs /dev/sdb1
+```
+
+```powershell
+# Windows - Format as NTFS
+Format-Volume -DriveLetter D -FileSystem NTFS
+
+# Windows - Format as FAT32
+Format-Volume -DriveLetter E -FileSystem FAT32
+```
+
+---
+
+# Windows File System Structure
+
+Windows uses drive letters to organize storage devices.
+
+## Root: C:\
+
+The primary system partition, containing the operating system.
+
+![Windows C Drive](/images/windows-c-drive.png)
+
+### Drive Letters
+
+- **C:\** - System drive (typically)
+- **D:\, E:\, F:\, ...** - Additional drives, removable media, network drives
+
+**Removable Media:**
+When you insert USB drives or external disks, Windows assigns them drive letters automatically.
+
+## Important Directories
+
+### Program Files
+
+**Location:** `C:\Program Files`
+
+**Purpose:** Software installed for all users (64-bit programs)
+
+**Access:**
+```batch
+# Command Prompt
+cd %PROGRAMFILES%
+```
+
+```powershell
+# PowerShell
+Set-Location $Env:ProgramFiles
+Write-Host $Env:ProgramFiles
+```
+
+### Program Files (x86)
+
+**Location:** `C:\Program Files (x86)`
+
+**Purpose:** 32-bit software on 64-bit Windows
+
+**Access:**
+```powershell
+$Env:ProgramFiles(x86)
+```
+
+### Users
+
+**Location:** `C:\Users`
+
+**Purpose:** User-specific files and configurations
+
+**Contains:**
+- User home directories
+- Desktop
+- Documents
+- Downloads
+- AppData (application data)
+
+![Users Directory](/images/windows-users.png)
+
+**Per-User Folders:**
+```
+C:\Users\username\
+├── Desktop
+├── Documents
+├── Downloads
+├── Pictures
+├── Music
+├── Videos
+└── AppData
+    ├── Local
+    ├── LocalLow
+    └── Roaming
+```
+
+<Note>
+AppData is hidden by default. Contains application settings and data specific to each user.
+</Note>
+
+### Windows
+
+**Location:** `C:\Windows`
+
+**Purpose:** Operating system files
+
+**Important subdirectories:**
+- **System32** - Core 64-bit system files and executables
+- **SysWOW64** - 32-bit system files (on 64-bit Windows)
+- **Fonts** - System fonts
+- **Temp** - System temporary files
+
+## Windows Environment Variables
+
+Variables provide convenient access to important paths:
+
+| Variable | Description | Example |
+|----------|-------------|----------|
+| `%USERPROFILE%` | Current user's home directory | `C:\Users\Admin` |
+| `%APPDATA%` | User application data (roaming) | `C:\Users\Admin\AppData\Roaming` |
+| `%LOCALAPPDATA%` | User application data (local) | `C:\Users\Admin\AppData\Local` |
+| `%PROGRAMFILES%` | 64-bit program files | `C:\Program Files` |
+| `%PROGRAMFILES(X86)%` | 32-bit program files | `C:\Program Files (x86)` |
+| `%WINDIR%` | Windows directory | `C:\Windows` |
+| `%SYSTEMROOT%` | Windows system root | `C:\Windows` |
+| `%TEMP%` | Temporary files | `C:\Users\Admin\AppData\Local\Temp` |
+| `%PATH%` | Executable search paths | (list of directories) |
+| `%HOMEDRIVE%` | User's home drive letter | `C:` |
+| `%HOMEPATH%` | User's home path | `\Users\Admin` |
+
+**Using variables:**
+
+<CodeGroup>
+```batch Command Prompt
+cd %APPDATA%
+echo %USERPROFILE%
+```
+
+```powershell PowerShell
+Set-Location $Env:APPDATA
+Write-Host $Env:USERPROFILE
+```
+</CodeGroup>
+
+---
+
+# Linux File System Structure
+
+Linux uses a single unified hierarchy starting from root (`/`).
+
+## Filesystem Hierarchy Standard (FHS)
+
+Linux follows the FHS, though distributions may vary slightly.
+
+**Reference:** [FreeDesktop.org File Hierarchy](https://www.freedesktop.org/software/systemd/man/file-hierarchy.html)
+
+## Root Directory: /
+
+The root of everything in Linux.
+
+```
+/
+├── bin → usr/bin
+├── boot
+├── dev
+├── etc
+├── home
+├── lib → usr/lib
+├── media
+├── mnt
+├── opt
+├── proc
+├── root
+├── run
+├── sbin → usr/sbin
+├── srv
+├── sys
+├── tmp
+├── usr
+└── var
+```
+
+## Important Directories
+
+### /boot - Boot Files
+
+**Purpose:** Boot loader and kernel files
+
+**Contains:**
+- Linux kernel
+- initramfs/initrd
+- GRUB configuration
+- EFI boot files (on EFI systems)
+
+**Typical files:**
+```
+/boot/
+├── vmlinuz-5.15.0-generic  (kernel)
+├── initrd.img-5.15.0-generic (initial ramdisk)
+└── grub/                    (bootloader config)
+```
+
+<Note>
+On EFI systems, may be mounted as ESP (EFI System Partition).
+</Note>
+
+### /etc - Configuration Files
+
+**Purpose:** System-wide configuration files
+
+**Important files:**
+- `/etc/passwd` - User account information
+- `/etc/shadow` - Encrypted passwords
+- `/etc/group` - Group information
+- `/etc/fstab` - File system mount configuration
+- `/etc/hosts` - Static hostname resolution
+- `/etc/hostname` - System hostname
+- `/etc/resolv.conf` - DNS configuration
+- `/etc/network/` - Network configuration
+- `/etc/systemd/` - systemd configuration
+
+### /home - User Home Directories
+
+**Purpose:** Personal directories for regular users
+
+```
+/home/
+├── alice/
+│   ├── Documents/
+│   ├── Downloads/
+│   ├── .bashrc
+│   └── .config/
+└── bob/
+    ├── Documents/
+    └── .bashrc
+```
+
+**User-specific subdirectories:**
+- `~/.config/` - User application configuration
+- `~/.local/` - User-installed programs and data
+- `~/.cache/` - User application cache
+
+### /root - Root's Home
+
+**Purpose:** Home directory for root user (UID 0)
+
+<Warning>
+Unlike other users, root's home is NOT in /home.
+</Warning>
+
+### /srv - Service Data
+
+**Purpose:** Data for services provided by the system
+
+**Examples:**
+- `/srv/www/` - Web server content
+- `/srv/ftp/` - FTP server files
+- `/srv/nfs/` - NFS shared directories
+
+### /tmp - Temporary Files
+
+**Purpose:** Temporary storage
+
+**Characteristics:**
+- Cleared on system boot
+- World-writable (with sticky bit)
+- Short-lived data only
+
+```bash
+# Permissions
+drwxrwxrwt  1777  /tmp
+```
+
+The `t` (sticky bit) means only file owner can delete files.
+
+### /run - Runtime Data
+
+**Purpose:** Volatile runtime data
+
+**Contains:**
+- Process IDs (PIDs)
+- Socket files
+- Lock files
+- Cleared on boot
+
+### /usr - User Programs
+
+**Purpose:** Vendor-supplied programs and libraries
+
+**Structure:**
+```
+/usr/
+├── bin/      (executables in $PATH)
+├── sbin/     (system binaries)
+├── lib/      (libraries)
+├── lib64/    (64-bit libraries)
+├── share/    (architecture-independent data)
+│   ├── doc/  (documentation)
+│   ├── man/  (manual pages)
+│   └── icons/ (icons)
+├── include/  (header files)
+└── local/    (locally installed software)
+```
+
+### /var - Variable Data
+
+**Purpose:** Persistent, variable runtime data
+
+**Important subdirectories:**
+
+<Accordion title="/var/log - Log Files">
+System and application logs:
+- `/var/log/syslog` - System log
+- `/var/log/auth.log` - Authentication log
+- `/var/log/apache2/` - Apache logs
+- `/var/log/mysql/` - MySQL logs
+
+**Critical for troubleshooting!**
+</Accordion>
+
+<Accordion title="/var/cache - Cache Data">
+Persistent cache files:
+- `/var/cache/apt/` - Package cache
+- Can be deleted to free space
+- System will regenerate as needed
+</Accordion>
+
+<Accordion title="/var/lib - State Data">
+Persistent application state:
+- `/var/lib/mysql/` - MySQL databases
+- `/var/lib/docker/` - Docker data
+- **Do not delete** - contains important data
+</Accordion>
+
+<Accordion title="/var/spool - Queues">
+Task queues:
+- `/var/spool/cron/` - Cron jobs
+- `/var/spool/cups/` - Print queue
+- `/var/spool/mail/` - Email queue
+</Accordion>
+
+### /dev - Device Files
+
+**Purpose:** Hardware device access
+
+**File system type:** `devtmpfs`
+
+**Common devices:**
+```
+/dev/
+├── sda      (first disk)
+├── sda1     (first partition on sda)
+├── sda2     (second partition on sda)
+├── tty1     (virtual console 1)
+├── null     (null device)
+├── zero     (zero device)
+├── random   (random number generator)
+└── urandom  (non-blocking random)
+```
+
+<Note>
+Everything is a file in Linux - even hardware devices!
+</Note>
+
+### /proc - Process Information
+
+**Purpose:** Virtual file system with kernel/process info
+
+**File system type:** `proc`
+
+**Contents:**
+- `/proc/cpuinfo` - CPU information
+- `/proc/meminfo` - Memory information
+- `/proc/[pid]/` - Per-process information
+- `/proc/sys/` - Kernel parameters
+
+```bash
+# View CPU info
+cat /proc/cpuinfo
+
+# View memory info
+cat /proc/meminfo
+
+# View process command line
+cat /proc/1234/cmdline
+```
+
+### /sys - System Information
+
+**Purpose:** Kernel object information
+
+**File system type:** `sysfs`
+
+**Use cases:**
+- Hardware information
+- Kernel modules
+- Device configuration
+
+## Compatibility Links
+
+For backwards compatibility, some directories are symlinks:
+
+```bash
+/bin → /usr/bin
+/sbin → /usr/sbin
+/lib → /usr/lib
+/lib64 → /usr/lib64
+```
+
+Older software expects programs in `/bin`, but modern systems use `/usr/bin`.
+
+## User-Specific Directories in /home
+
+Each user's home directory contains configuration and data:
+
+### ~/.config
+
+**Purpose:** User application configurations
+
+**Examples:**
+- `~/.config/firefox/` - Firefox settings
+- `~/.config/code/` - VS Code settings
+- Follows XDG Base Directory specification
+
+### ~/.local
+
+**Structure:**
+```
+~/.local/
+├── bin/      (user executables)
+├── share/    (user data files)
+└── lib/      (user libraries)
+```
+
+### ~/.cache
+
+**Purpose:** User application cache
+
+**Safe to delete** - applications will regenerate
+
+### Hidden Files (Dotfiles)
+
+Files starting with `.` are hidden:
+
+```bash
+~/.bashrc      (bash configuration)
+~/.bash_history (command history)
+~/.profile     (login profile)
+~/.ssh/        (SSH keys and config)
+~/.gitconfig   (git configuration)
+```
+
+View with `ls -a`
+
+## Path Navigation
+
+### Special Path Characters
+
+| Symbol | Meaning | Example |
+|--------|---------|----------|
+| `/` | Root directory | `/etc/passwd` |
+| `~` | Home directory | `~/Documents` |
+| `.` | Current directory | `./script.sh` |
+| `..` | Parent directory | `../parent_folder` |
+| `-` | Previous directory | `cd -` |
+
+### Absolute vs Relative Paths
+
+**Absolute path:**
+```bash
+# Starts from root
+/home/alice/Documents/report.pdf
+```
+
+**Relative path:**
+```bash
+# Relative to current directory
+../bob/Documents/notes.txt
+./scripts/backup.sh
+```
+
+## Mounting File Systems
+
+Linux can "mount" file systems at any directory:
+
+```bash
+# View mounted file systems
+mount
+df -h
+
+# Mount USB drive
+sudo mount /dev/sdb1 /mnt/usb
+
+# Unmount
+sudo umount /mnt/usb
+```
+
+**Permanent mounts:** Configured in `/etc/fstab`
+
+---
+
+## Comparing Windows and Linux
+
+| Aspect | Windows | Linux |
+|--------|---------|-------|
+| Root | `C:\` | `/` |
+| Path separator | Backslash `\` | Forward slash `/` |
+| Drive letters | Yes (C:, D:, E:) | No (unified hierarchy) |
+| User homes | `C:\Users\` | `/home/` |
+| System files | `C:\Windows\` | `/usr/`, `/lib/`, `/etc/` |
+| Programs | `C:\Program Files\` | `/usr/bin/`, `/usr/local/` |
+| Config files | Registry + files | Text files in `/etc/` |
+| Temp files | `%TEMP%` | `/tmp/` |
+| Logs | Event Viewer + files | `/var/log/` |
+| Case sensitive | No | Yes |
+
+<Warning>
+Linux file names are case-sensitive: `file.txt` and `File.txt` are different files.
+</Warning>
+
+## Best Practices
+
+<Steps>
+  <Step title="Use Standard Locations">
+    Follow FHS on Linux, use standard folders on Windows
+  </Step>
+  
+  <Step title="Use Variables">
+    Use environment variables instead of hardcoded paths
+  </Step>
+  
+  <Step title="Document File Locations">
+    Keep track of where important files are stored
+  </Step>
+  
+  <Step title="Regular Cleanup">
+    Clean temporary files and caches periodically
+  </Step>
+  
+  <Step title="Backup Important Directories">
+    Regularly backup /etc, /home, /var on Linux; User folders on Windows
+  </Step>
+</Steps>

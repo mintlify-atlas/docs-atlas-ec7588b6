@@ -1,0 +1,460 @@
+---
+title: 'Tareas Prácticas UD03'
+description: 'Practical exercises on OS installation, BIOS/UEFI, and boot managers'
+---
+
+# Ejercicios de la Unidad 03
+
+Esta sección contiene las tareas prácticas sobre instalación, arranque, BIOS/UEFI y gestores de arranque.
+
+---
+
+## Tarea: BIOS vs UEFI
+
+### Ejercicio 1: Acceder a BIOS/UEFI
+
+Entra en la BIOS o UEFI de tu ordenador (clase o casa).
+
+<Steps>
+  <Step title="Identificar Tecla de Acceso">
+    Averigua qué tecla permite acceder durante el arranque
+    
+    **Teclas comunes:**
+    - F2, F10, F12
+    - Del, Esc
+    - Depende del fabricante
+  </Step>
+  
+  <Step title="Acceder al Sistema">
+    Reinicia el equipo y presiona la tecla identificada
+  </Step>
+  
+  <Step title="Documentar">
+    - Describe el proceso seguido
+    - Adjunta captura de pantalla (puedes usar cámara del móvil)
+    - Identifica el fabricante y versión
+  </Step>
+</Steps>
+
+<Note>
+  Si el equipo arranca muy rápido y no puedes acceder, prueba desde Windows: Configuración > Actualización y Seguridad > Recuperación > Inicio avanzado.
+</Note>
+
+### Ejercicio 2: Identificar BIOS o UEFI
+
+Determina si tu sistema operativo ha arrancado sobre BIOS o UEFI.
+
+#### En Windows
+
+<Accordion title="Método 1: setupact.log">
+  1. Navega a `C:\Windows\Panther`
+  2. Abre `setupact.log` con Notepad
+  3. Busca (Ctrl + B): "Detected boot Environment"
+  4. Adjunta captura del resultado
+</Accordion>
+
+<Accordion title="Método 2: MSInfo32">
+  1. Win + R, escribe `msinfo32`
+  2. Busca "Modo de BIOS"
+  3. Adjunta captura mostrando el resultado
+</Accordion>
+
+#### En GNU/Linux
+
+```bash
+# Verificar si existe directorio EFI
+if [ -d /sys/firmware/efi ]; then
+    echo "Sistema UEFI"
+    ls -la /sys/firmware/efi/
+else
+    echo "Sistema BIOS"
+fi
+```
+
+**Entrega:** Captura de pantalla del resultado y breve explicación.
+
+### Ejercicio 3: Directorio UEFI en Linux
+
+<Warning>
+  Este ejercicio solo aplica si tu sistema arranca con UEFI.
+</Warning>
+
+En GNU/Linux, si has arrancado sobre UEFI existe un directorio con información de la UEFI.
+
+**Preguntas:**
+
+1. ¿Cuál es el directorio?
+2. Si existe, ¿cuál es el contenido del fichero `systab`?
+
+```bash
+# Listar contenido del directorio UEFI
+ls -la /sys/firmware/efi/
+
+# Ver contenido de systab
+cat /sys/firmware/efi/systab
+```
+
+**Entrega:** Capturas y explicación de qué información contiene cada archivo.
+
+### Ejercicio 4: Temperatura del Microprocesador
+
+Obtén la temperatura del microprocesador desde BIOS/UEFI.
+
+<Steps>
+  <Step title="Acceder a BIOS/UEFI">
+    Reinicia y accede al firmware
+  </Step>
+  
+  <Step title="Buscar Información de Hardware">
+    Busca sección de monitoring, hardware info, o similar
+  </Step>
+  
+  <Step title="Localizar Temperatura">
+    Encuentra la temperatura del CPU
+  </Step>
+  
+  <Step title="Documentar">
+    Adjunta captura/foto de la temperatura
+  </Step>
+</Steps>
+
+<Note>
+  La temperatura en reposo debería estar entre 30-50°C. Si es mayor, puede indicar problemas de refrigeración.
+</Note>
+
+---
+
+## Tarea: BCDEdit y MSConfig
+
+### Contexto
+
+Hemos visto en teoría cómo funciona el arranque de Windows. A veces debemos modificar el arranque desde símbolo del sistema usando **bcdedit.exe**.
+
+### Obtener Información
+
+Para obtener información de la base de datos BCD, lanza desde PowerShell (como administrador):
+
+```powershell
+bcdedit /enum
+```
+
+**Pregunta:** ¿Cuál es la ruta donde se encuentra el comando `winload.exe` del sistema operativo *default*?
+
+<Accordion title="Ayuda">
+  Busca en la salida del comando la sección del "Windows Boot Loader" con identifier `{current}` o `{default}`.
+  
+  La ruta estará en el campo "path".
+</Accordion>
+
+**Entrega:** 
+- Captura de la salida completa de `bcdedit /enum`
+- Respuesta razonada indicando la ruta
+
+### Copia de Seguridad
+
+Se puede realizar backup de la configuración de arranque:
+
+```powershell
+# Exportar
+bcdedit /export C:\Users\adminiso\Desktop\copiaBCD.dat
+
+# Importar
+bcdedit /import C:\Users\adminiso\Desktop\copiaBCD.dat
+```
+
+### Ejercicio 1: Función de /import
+
+¿Qué acción realiza la opción `/import RUTA_AL_FICHERO`?
+
+<Accordion title="Reflexiona">
+  - ¿Qué sucede con la BCD actual?
+  - ¿Cuándo sería útil usar import?
+  - ¿Qué precauciones tomar?
+</Accordion>
+
+**Entrega:** Explicación detallada con ejemplo de uso.
+
+---
+
+## MSConfig
+
+**MSConfig** permite editar gráficamente la BCD y gestionar procesos de arranque.
+
+### Ejercicio 2: Rutas de Herramientas
+
+Ejecuta `msconfig` y ve a la pestaña "Herramientas".
+
+Obtén la ruta de las siguientes herramientas:
+
+| Herramienta | Ruta |
+| ------------ | ---- |
+| Acerca de Windows | |
+| Cambiar configuración de UAC | |
+| Información del sistema | |
+| Visor de eventos | |
+| Programas | |
+| Administración de equipos | |
+
+<Note>
+  Estas rutas te permiten ejecutar estas herramientas directamente desde PowerShell o crear accesos directos.
+</Note>
+
+**Entrega:** Tabla completada con capturas de pantalla de msconfig.
+
+---
+
+## Tarea: GRUB
+
+Vamos a configurar el gestor de arranque GRUB para adaptarlo a diferentes situaciones.
+
+### Ejercicio 1: Modificar /etc/default/grub
+
+En el fichero `/etc/default/grub` podemos configurar el comportamiento de GRUB.
+
+**Cambios requeridos:**
+
+<Steps>
+  <Step title="Cambiar Texto del Menú">
+    Debe aparecer: Ubuntu +**NOMBREALUMNO** en la entrada del GRUB
+    
+    ```bash
+    GRUB_DISTRIBUTOR="Ubuntu +NOMBREALUMNO"
+    ```
+  </Step>
+  
+  <Step title="Cambiar Timeout">
+    El menú debe esperar **7 segundos** antes de arrancar
+    
+    ```bash
+    GRUB_TIMEOUT=7
+    ```
+  </Step>
+  
+  <Step title="Cambiar Resolución">
+    Establecer resolución GFXMODE a 1024x768
+    
+    ```bash
+    GRUB_GFXMODE=1024x768
+    ```
+  </Step>
+  
+  <Step title="Aplicar Cambios">
+    ```bash
+    sudo update-grub
+    ```
+  </Step>
+  
+  <Step title="Verificar">
+    Reinicia y verifica que los cambios se aplicaron
+  </Step>
+</Steps>
+
+**Entrega:** 
+- Archivo `/etc/default/grub` modificado
+- Captura del menú GRUB mostrando los cambios
+
+### Ejercicio 2: nomodeset
+
+En algunas máquinas con problemas de hardware, debemos no cargar controladores de vídeo hasta que el display gráfico se inicia.
+
+**Tarea:**
+
+1. Cambia la variable con `quiet splash` a `nomodeset`:
+
+```bash
+# De:
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+
+# A:
+GRUB_CMDLINE_LINUX_DEFAULT="nomodeset"
+```
+
+2. Actualiza GRUB y reinicia
+
+3. Observa el comportamiento del arranque
+
+**Entrega:**
+- Archivo `/etc/default/grub` modificado
+- Descripción de cómo se comporta el arranque tras la modificación
+- ¿Qué diferencias notas respecto al arranque normal?
+
+<Accordion title="¿Qué Observar?">
+  Con `nomodeset`:
+  - No se cargan drivers gráficos hasta Xorg
+  - Puede ver resolución más baja al inicio
+  - Mensajes de arranque pueden ser visibles
+  - Útil para problemas con drivers NVIDIA/AMD
+</Accordion>
+
+### Ejercicio 3: Blacklistear Módulos
+
+Podemos deshabilitar módulos (drivers) que causan conflictos mediante:
+
+```bash
+NOMBREMODULO.modeset=0
+```
+
+**Tarea:** Realiza las modificaciones necesarias para que NO se cargue el módulo **nouveau** (driver open source de NVIDIA) en el arranque.
+
+<Steps>
+  <Step title="Editar GRUB">
+    ```bash
+    sudo nano /etc/default/grub
+    ```
+  </Step>
+  
+  <Step title="Añadir Parámetro">
+    ```bash
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nouveau.modeset=0"
+    ```
+    
+    O alternativamente:
+    ```bash
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash modprobe.blacklist=nouveau"
+    ```
+  </Step>
+  
+  <Step title="Actualizar GRUB">
+    ```bash
+    sudo update-grub
+    ```
+  </Step>
+  
+  <Step title="Verificar">
+    Reinicia y verifica que nouveau no está cargado:
+    ```bash
+    lsmod | grep nouveau
+    ```
+    No debería mostrar nada
+  </Step>
+</Steps>
+
+**Entrega:**
+- Archivo `/etc/default/grub` modificado
+- Captura demostrando que nouveau no está cargado
+- Confirmación de que la máquina sigue funcionando correctamente
+
+<Warning>
+  Asegúrate de que la máquina virtual sigue funcionando bien. Si usas hardware NVIDIA real, necesitarías instalar drivers propietarios.
+</Warning>
+
+---
+
+## Tareas Avanzadas (Opcionales)
+
+### Tarea Extra 1: Instalación Dual Boot
+
+Instala Windows y Linux en dual boot (en máquina virtual):
+
+<Steps>
+  <Step title="Preparar VM">
+    Crea una VM con disco duro de al menos 60GB
+  </Step>
+  
+  <Step title="Instalar Windows Primero">
+    Instala Windows dejando espacio sin particionar
+  </Step>
+  
+  <Step title="Instalar Linux">
+    Instala Linux en el espacio libre
+  </Step>
+  
+  <Step title="Configurar GRUB">
+    GRUB debería detectar Windows automáticamente
+  </Step>
+  
+  <Step title="Verificar">
+    Confirma que puedes arrancar ambos sistemas
+  </Step>
+</Steps>
+
+### Tarea Extra 2: Personalizar GRUB
+
+Personaliza la apariencia de GRUB:
+
+- Instala un tema de GRUB
+- Cambia imagen de fondo
+- Modifica colores
+- Añade una entrada personalizada
+
+<Accordion title="Recursos">
+  - [GRUB Themes en GitHub](https://github.com/topics/grub-theme)
+  - [Grub Customizer](https://launchpad.net/grub-customizer) (GUI)
+</Accordion>
+
+### Tarea Extra 3: Reparar GRUB
+
+Simula un GRUB roto y repáralo:
+
+<Steps>
+  <Step title="Crear Backup">
+    Copia `/boot/grub/grub.cfg` a otro lugar
+  </Step>
+  
+  <Step title="Romper GRUB">
+    ```bash
+    sudo rm /boot/grub/grub.cfg
+    ```
+  </Step>
+  
+  <Step title="Arrancar con Live USB">
+    Usa sistema Live para reparar
+  </Step>
+  
+  <Step title="Reparar">
+    Monta particiones y reinstala GRUB
+  </Step>
+  
+  <Step title="Documentar">
+    Documenta todos los pasos del proceso de reparación
+  </Step>
+</Steps>
+
+---
+
+## Recursos Adicionales
+
+<CardGroup cols={3}>
+  <Card title="Teoría" icon="book" href="/units/ud03/theory">
+    Conceptos fundamentales
+  </Card>
+  <Card title="BIOS/UEFI" icon="microchip" href="/units/ud03/bios-uefi">
+    Guía de firmware
+  </Card>
+  <Card title="Gestores" icon="power-off" href="/units/ud03/boot-managers">
+    GRUB y BOOTMGR
+  </Card>
+</CardGroup>
+
+---
+
+## Criterios de Evaluación
+<Steps>
+  <Step title="Comprensión de BIOS/UEFI">
+    - Identificar sistema de firmware
+    - Navegar por la configuración
+    - Entender diferencias y ventajas
+  </Step>
+  
+  <Step title="Gestión de Arranque Windows">
+    - Usar BCDEdit correctamente
+    - Configurar MSConfig
+    - Realizar backups de BCD
+  </Step>
+  
+  <Step title="Configuración de GRUB">
+    - Modificar parámetros de arranque
+    - Blacklistear módulos
+    - Solucionar problemas de arranque
+  </Step>
+  
+  <Step title="Documentación">
+    - Capturas de pantalla claras
+    - Explicaciones razonadas
+    - Descripción de procesos seguidos
+  </Step>
+</Steps>
+
+<Note>
+  Recuerda siempre hacer backups antes de modificar configuraciones críticas del sistema.
+</Note>

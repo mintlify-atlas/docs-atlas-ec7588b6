@@ -1,0 +1,584 @@
+---
+title: Teoría - Administración del Dominio
+description: Conceptos teóricos sobre dominios, LDAP y servicios de directorio
+---
+
+# Teoría - Administración del Dominio
+
+## Conceptos Previos
+
+### Evolución de la Administración de Redes
+
+Las redes informáticas han evolucionado desde simples configuraciones hasta complejas infraestructuras que requieren herramientas de administración centralizada.
+
+### Modelos de Administración
+
+#### Servicios Individuales
+
+Redes pequeñas con un servidor central que ofrece servicios básicos.
+
+**Características**:
+- Impresoras conectadas al servidor
+- Carpetas compartidas centralizadas
+- Usuarios no comparten recursos entre sí
+- Administración simple
+
+**Problema al escalar**:
+```
+Servidor DeathStar:
+  - Grupo Administración: Impresión a color
+  - Grupo Economía: Carpeta compartida
+
+Añadir segundo servidor:
+  ✗ Duplicación de usuarios
+  ✗ Comprobación de permisos duplicada
+  ✗ Usuario debe saber dónde está cada recurso
+```
+
+<Warning>
+  **Limitación**: Cada servidor individual mantiene su propia lista de usuarios y recursos. No escala bien.
+</Warning>
+
+#### Grupos de Trabajo
+
+Redes peer-to-peer donde los usuarios comparten sus propios recursos.
+
+**Características**:
+- Redes entre iguales (peer-to-peer)
+- Sin servidor centralizado
+- Cada usuario administra sus recursos
+- Compartir es simple
+
+**Problemas**:
+- Demasiados recursos para localizar
+- Sin lista centralizada de recursos
+- Proliferación de contraseñas
+- Administración ineficiente
+- Cambiar contraseña requiere notificar a todos
+
+<Note>
+  Los grupos de trabajo son útiles para redes pequeñas (menos de 10 equipos), pero no son adecuados para organizaciones grandes.
+</Note>
+
+## Servicio de Directorio
+
+### Definición
+
+Un **directorio** es una lista que recoge todos los recursos disponibles en una red y organización, organizándolos de manera lógica.
+
+**Permite**:
+- Localizar recursos sin saber dónde están físicamente
+- Búsquedas centralizadas
+- Administración unificada
+
+### X.500 y LDAP
+
+**X.500**: Servicio de directorio estándar original
+- Complejo y pesado
+- No optimizado para TCP/IP
+
+**LDAP**: Protocolo ligero basado en X.500
+- Diseñado para TCP/IP
+- Más simple y eficiente
+- Estándar de Internet
+
+## LDAP - Lightweight Directory Access Protocol
+
+### ¿Qué es LDAP?
+
+Protocolo que permite el acceso a un servicio de directorio ordenado y distribuido para buscar información en un entorno de red.
+
+<Note>
+  LDAP NO es una base de datos relacional, aunque se usa para consultas. Está optimizado especialmente para **operaciones de lectura**.
+</Note>
+
+### Estructura de Datos
+
+#### Árbol de Directorio
+
+Los datos se almacenan jerárquicamente, similar a:
+- Árboles DNS
+- Directorios de ficheros UNIX
+
+#### Distinguished Name (DN)
+
+Nombre único que identifica una entrada en el directorio, leído desde la entrada individual hasta el nivel más alto.
+
+**Ejemplo**:
+```
+DN: uid=esbirro01,ou=tecnicos,ou=esbirros,dc=valencia,dc=iso,dc=com
+
+Equivalente DNS: esbirro01.tecnicos.esbirros.valencia.iso.com
+```
+
+### Componentes del DN
+
+| Componente | Significado | Ejemplo |
+|------------|-------------|----------|
+| dc | Domain Component | dc=iso, dc=com |
+| ou | Organizational Unit | ou=esbirros |
+| cn | Common Name | cn=esbirrosldap |
+| uid | User ID | uid=esbirro01 |
+
+### Estructura de Ejemplo
+
+```
+dc=valencia,dc=iso,dc=com
+    ou=esbirros
+        ou=tecnicos
+            uid=esbirro01
+            uid=esbirro02
+        ou=transportistas
+            uid=transportista01
+    ou=dispositivos
+        cn=impresora_color
+        cn=impresora_bn
+    ou=grupos
+        cn=administradores
+        cn=usuarios
+```
+
+### Atributos de Usuario LDAP
+
+Cuando se crea un usuario en LDAP, tiene una serie de atributos:
+
+<CodeGroup>
+```ldif Ejemplo de Usuario
+dn: uid=esbirro01,ou=tecnicos,ou=esbirros,dc=valencia,dc=iso,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+cn: Esbirro Uno
+givenName: Esbirro
+sn: Uno
+uid: esbirro01
+uidNumber: 10001
+gidNumber: 10000
+homeDirectory: /home/esbirro01
+loginShell: /bin/bash
+userPassword: {SSHA}...
+```
+</CodeGroup>
+
+**Descripción de atributos**:
+
+- **dn**: Distinguished Name - Nombre único completo
+- **cn**: Common Name - Nombre completo del usuario
+- **givenName**: Nombre de pila
+- **sn**: Surname - Apellidos
+- **uid**: User ID - Identificador de login
+- **uidNumber**: ID numérico del usuario (como en /etc/passwd)
+- **gidNumber**: ID numérico del grupo principal
+- **homeDirectory**: Ruta a la carpeta personal
+- **loginShell**: Intérprete de comandos por defecto
+- **objectClass**: Colección de atributos que se aplican al objeto
+  - `inetOrgPerson`: Persona de la organización
+  - `posixAccount`: Cuenta POSIX (compatible UNIX/Linux)
+  - `top`: Clase padre de todos los objetos
+
+### Ventajas de LDAP
+
+<Accordion title="Accesibilidad Universal">
+  Permite acceder al directorio desde casi cualquier dispositivo y desde muchas aplicaciones empresariales que cuentan con bindings para LDAP.
+</Accordion>
+
+<Accordion title="Multiplataforma">
+  Basado en estándares de Internet. Las aplicaciones no necesitan preocuparse por el tipo de servidor que hospeda el directorio.
+</Accordion>
+
+<Accordion title="Simple de Mantener">
+  - Fácil de instalar
+  - Fácil de mantener
+  - Fácil de optimizar
+</Accordion>
+
+<Accordion title="Replicación">
+  Los servidores LDAP pueden replicar datos (completos o parciales) mediante:
+  - Métodos de envío (push)
+  - Métodos de recepción (pull)
+  
+  Permite:
+  - Enviar datos a oficinas remotas
+  - Incrementar seguridad
+  - Balanceo de carga
+</Accordion>
+
+<Accordion title="Seguridad Granular">
+  LDAP permite delegar con seguridad la lectura y modificación basada en autorizaciones usando ACLs.
+</Accordion>
+
+<Accordion title="Optimizado para Lectura">
+  Particularmente útil para almacenar información que se desee leer desde muchas localizaciones pero que no sea actualizada frecuentemente.
+</Accordion>
+
+### Implementaciones LDAP
+
+- **Active Directory** (Microsoft) - Cerrada
+- **OpenLDAP** - Open Source
+- **Novell Directory Services** - Comercial
+- **iPlanet** (Oracle) - Comercial
+- **Red Hat Directory Server** - Open Source/Comercial
+
+## Dominios
+
+### Definición
+
+Conjunto de computadoras conectadas en red que confían a uno de los equipos la administración de usuarios y privilegios.
+
+### Servicios Necesarios
+
+Para que un dominio funcione correctamente, necesitamos:
+
+<Steps>
+  <Step title="LDAP">
+    Servicio de directorio para almacenar información de usuarios, grupos, permisos
+  </Step>
+  
+  <Step title="DNS">
+    Servicio de resolución de nombres para trabajar con nomenclatura de Internet
+  </Step>
+  
+  <Step title="Kerberos">
+    Servicio de validación remota de usuarios que asegura autenticidad
+  </Step>
+  
+  <Step title="Compartición de Recursos">
+    Sistema de compartición en red (SMB/CIFS, NFS)
+  </Step>
+  
+  <Step title="NTP">
+    Sistema de sincronización de hora (requisito importante para Kerberos)
+  </Step>
+</Steps>
+
+### Componentes del Dominio
+
+#### Controlador de Dominio (DC)
+
+Servidor que domina a los equipos clientes del dominio.
+
+**Funciones**:
+- Almacena la base de datos de usuarios y grupos
+- Autentica usuarios
+- Aplica políticas de seguridad
+- Gestiona permisos de acceso
+
+#### Clientes del Dominio
+
+Equipos configurados para:
+- Confiar en el controlador de dominio
+- Autenticarse contra el dominio
+- Aplicar políticas del dominio
+
+### Proceso de Autenticación
+
+<Steps>
+  <Step title="Usuario inicia sesión">
+    Introduce credenciales en equipo cliente
+  </Step>
+  
+  <Step title="Cliente contacta DC">
+    Envía credenciales al controlador de dominio
+  </Step>
+  
+  <Step title="DC valida">
+    Verifica usuario y contraseña en directorio LDAP
+  </Step>
+  
+  <Step title="Kerberos emite ticket">
+    Si es válido, Kerberos emite ticket de autenticación
+  </Step>
+  
+  <Step title="Acceso a recursos">
+    Usuario puede acceder a recursos según permisos
+  </Step>
+</Steps>
+
+## Estructura Jerárquica de Dominios
+
+### Árbol de Dominios
+
+Estructura jerárquica donde cada dominio puede tener:
+- Dominios padres
+- Dominios hijos
+
+**Excepto** el dominio raíz, que no tiene padre.
+
+```
+iso.com (raíz)
+    ├── valencia.iso.com
+    │   ├── utiel.valencia.iso.com
+    │   └── torrent.valencia.iso.com
+    └── castellon.iso.com
+```
+
+### Bosque (Forest)
+
+Colección de uno o más árboles de dominios.
+
+**Permite**:
+- Organizaciones con espacios de nombres no contiguos
+- Mantener continuidad en estructura de dominios agregados
+- Relaciones de confianza entre árboles diferentes
+
+**Ejemplo**:
+```
+Bosque ISO:
+  Árbol 1: iso.com
+    ├── valencia.iso.com
+    └── castellon.iso.com
+  
+  Árbol 2: isoformacion.org
+    └── cursos.isoformacion.org
+```
+
+### Relaciones de Confianza (Trust)
+
+Si la red tiene varios dominios, se pueden establecer relaciones de confianza.
+
+**Beneficios**:
+- Usuario inicia sesión en un dominio
+- Los demás dominios confían en esa autenticación
+- Acceso transparente a recursos de múltiples dominios
+
+<Note>
+  Las relaciones de confianza y administración avanzada de dominios se verán en profundidad en el módulo de ASO (segundo curso).
+</Note>
+
+## Perfiles Móviles
+
+### Concepto
+
+Capacidad del sistema para que los usuarios inicien sesión en diferentes equipos manteniendo sus datos, aplicaciones y configuraciones sincronizados.
+
+### Componentes
+
+#### 1. Sincronización de Usuarios y Grupos
+
+Base de datos centralizada (LDAP) que unifica usuarios y grupos.
+
+**Todas las máquinas**:
+- Consultan al servidor LDAP
+- Validan usuarios contra el directorio
+- Obtienen grupos y permisos
+
+#### 2. Sincronización de Ficheros
+
+Datos importantes siempre disponibles mediante:
+
+**Métodos**:
+- Carpetas compartidas en red (NFS, Samba)
+- Redirección de carpetas de usuario
+- Sincronización automática
+
+#### 3. Sincronización de Configuraciones
+
+Políticas y scripts que aplican configuraciones:
+
+**Mecanismos**:
+- Políticas de grupo (GPO en Windows)
+- Scripts de inicio de sesión
+- Perfiles de usuario
+
+#### 4. Sincronización de Aplicaciones
+
+Software que se instala/desinstala según el usuario:
+
+**Implementación**:
+- Instalación automática por GPO
+- Scripts de despliegue
+- Contenedores de aplicaciones
+
+### Redirección de Carpetas
+
+Rutas locales por defecto:
+- Windows: `C:\Users\`
+- Linux: `/home/`
+
+**Problema**: Datos solo accesibles localmente
+
+**Solución**: Redirigir a unidades compartidas en red
+
+```
+Antes:
+C:\Users\esbirro01\Documentos (local)
+
+Después:
+\\servidor\perfiles$\esbirro01\Documentos (red)
+```
+
+### Ventajas de Perfiles Móviles
+
+<CardGroup cols={2}>
+  <Card title="Movilidad" icon="person-walking">
+    Usuario accede a sus datos desde cualquier equipo del dominio
+  </Card>
+  
+  <Card title="Copias Simplificadas" icon="hard-drive">
+    Solo el servidor necesita copias de seguridad
+  </Card>
+  
+  <Card title="Administración Centralizada" icon="user-gear">
+    Cambios aplicados una sola vez
+  </Card>
+  
+  <Card title="Disponibilidad" icon="shield-check">
+    Con RAID y copias, mejor protección ante desastres
+  </Card>
+</CardGroup>
+
+## Active Directory
+
+### Definición
+
+Término de Microsoft para su implementación de servicio de directorio que utiliza:
+
+- LDAP
+- DNS
+- DHCP
+- Kerberos
+- Otros protocolos
+
+**Estructura jerárquica** que mantiene objetos relacionados con componentes de red:
+- Usuarios
+- Grupos de usuarios
+- Permisos
+- Asignación de recursos
+- Políticas de acceso
+
+### Administración de Usuarios
+
+#### Entidades de Seguridad
+
+Objetos del directorio activo a los que se asignan:
+- Identificadores de seguridad (SID)
+- Permisos de acceso
+
+**Tipos**:
+- Usuarios (personas)
+- Cuentas de servicio (aplicaciones)
+- Equipos
+
+#### Operaciones con Cuentas
+
+<Accordion title="Crear Usuario">
+  - Nombre, apellidos, iniciales
+  - Nombre de inicio de sesión (login)
+  - Contraseña y políticas
+  - Pertenencia a grupos
+</Accordion>
+
+<Accordion title="Restablecer Contraseña">
+  No se puede "recuperar" (cifrado no reversible), pero sí restablecer a una nueva.
+</Accordion>
+
+<Accordion title="Copiar Cuenta">
+  Crear usuarios plantilla y generar copias con configuración similar.
+</Accordion>
+
+<Accordion title="Desplazar Cuenta">
+  Mover usuario a otra Unidad Organizativa (OU) o grupo.
+</Accordion>
+
+<Accordion title="Habilitar/Deshabilitar">
+  - Deshabilitar: Impide inicio de sesión pero mantiene datos
+  - Eliminar: Borra cuenta y configuraciones
+</Accordion>
+
+### Grupos de Seguridad
+
+Agrupan cuentas en unidades fáciles de administrar.
+
+#### Tipos de Grupos
+
+**Grupos de Distribución**:
+- Para listas de correo electrónico
+- No habilitados para seguridad
+- Sin acceso a políticas
+
+**Grupos de Seguridad**:
+- Asignan permisos a recursos
+- Derechos de usuario
+- Políticas de grupo
+- Pueden usarse también para correo
+
+#### Ámbitos de Grupo
+
+<Accordion title="Grupo Local de Dominio">
+  **Miembros**: De cualquier dominio
+  
+  **Acceso**: Solo recursos del dominio local
+  
+  **Restricción**: No puede ser miembro de otro grupo local del mismo dominio
+</Accordion>
+
+<Accordion title="Grupo Global">
+  **Miembros**: Solo del dominio donde se crea
+  
+  **Acceso**: Recursos de cualquier dominio del bosque
+  
+  **Uso**: Organizar usuarios con requisitos similares
+  
+  **Anidamiento**: Puede ser miembro de otros grupos globales
+</Accordion>
+
+<Accordion title="Grupo Universal">
+  **Miembros**: De cualquier dominio
+  
+  **Acceso**: Recursos de cualquier dominio
+  
+  **Sin limitaciones**: Máxima flexibilidad
+  
+  **Uso**: Agrupar grupos globales de diferentes dominios
+</Accordion>
+
+### Estrategia AGDLP
+
+Buena práctica para organización de grupos:
+
+```
+Accounts (Cuentas) 
+  → Global groups (Grupos globales)
+    → Domain Local groups (Grupos locales de dominio)
+      → Permissions (Permisos)
+```
+
+## Resumen de Conceptos
+
+<Steps>
+  <Step title="Problema">
+    Administración descentralizada es compleja y propensa a errores
+  </Step>
+  
+  <Step title="Solución">
+    Dominios con servicios de directorio (LDAP)
+  </Step>
+  
+  <Step title="Componentes">
+    LDAP + DNS + Kerberos + NTP + SMB/NFS
+  </Step>
+  
+  <Step title="Estructura">
+    Dominios jerárquicos organizados en árboles y bosques
+  </Step>
+  
+  <Step title="Usuarios">
+    Gestión centralizada con perfiles móviles
+  </Step>
+  
+  <Step title="Implementaciones">
+    Active Directory (Windows) y OpenLDAP (Linux)
+  </Step>
+</Steps>
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Active Directory" icon="windows" href="/units/ud09/active-directory">
+    Detalles de implementación en Windows Server
+  </Card>
+  
+  <Card title="OpenLDAP" icon="linux" href="/units/ud09/openldap">
+    Detalles de implementación en GNU/Linux
+  </Card>
+</CardGroup>

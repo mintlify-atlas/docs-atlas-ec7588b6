@@ -1,0 +1,777 @@
+---
+title: Tareas Prácticas - UD10
+description: Ejercicios prácticos para la configuración de acceso al dominio
+---
+
+## Tarea 1: Unión al Dominio con Windows
+
+En esta tarea verás cómo unir una máquina con Windows 10 al dominio que hemos creado en las unidades anteriores.
+
+### Requisitos de Infraestructura
+
+Una vez tengas el Servidor de Active Directory en marcha (server2019), y en la red NAT configurada en la unidad anterior, conecta la máquina virtual con Windows 10 a la red NAT.
+
+<Note>
+**Diagrama de Red:**
+- Servidor: Windows Server 2019 (AD configurado)
+- Cliente: Windows 10
+- Red: NAT (ambos equipos en la misma red)
+</Note>
+
+### Paso 1: DNS e IPs
+
+Lo primero es que nuestra máquina cliente (Windows) sea capaz de encontrar el servidor de Active Directory tanto por nombre como por IP.
+
+<Steps>
+  <Step title="Configurar DNS">
+    Ve a la configuración de red y establece la IP del servidor 2019 como DNS principal.
+  </Step>
+  <Step title="Verificar conectividad">
+    Asegúrate de que puedes hacer ping al servidor por nombre y por IP.
+  </Step>
+</Steps>
+
+### Paso 2: Unión al Dominio
+
+Una vez tengas el DNS configurado y hayas verificado la conectividad con el servidor:
+
+<Steps>
+  <Step title="Abrir configuración del sistema">
+    Ve a `Sistema` → `Configuración de nombre, grupo de trabajo y dominio` → `Cambiar Configuración`
+  </Step>
+  <Step title="Iniciar el asistente">
+    Pulsa el botón `Id. de red...` para iniciar el asistente de unión al dominio
+  </Step>
+  <Step title="Seleccionar red empresarial">
+    Indica que el equipo forma parte de una red empresarial
+  </Step>
+  <Step title="Proporcionar credenciales">
+    Introduce el usuario Administrador y su contraseña del dominio
+  </Step>
+  <Step title="Establecer nombre del equipo">
+    Asigna un nombre descriptivo (ej: DESKTOP-W10, DespachoDireccion, Fotocopias)
+  </Step>
+  <Step title="Confirmar y reiniciar">
+    Completa el asistente y reinicia el equipo
+  </Step>
+</Steps>
+
+<Warning>
+Al reiniciar, Windows 10 aplicará los cambios necesarios para permitir el login de los usuarios del dominio.
+</Warning>
+
+### Ejercicios
+
+#### Ejercicio 1
+
+Realiza los pasos descritos anteriormente y documenta el proceso, detallando:
+
+- Nombres de dominio utilizados
+- IPs de la red
+- Nombres de las máquinas
+- Cualquier diferencia encontrada respecto al procedimiento
+
+<Note>
+Si durante el proceso ocurre alguna incidencia, descríbela y documenta cómo la has resuelto.
+</Note>
+
+#### Ejercicio 2: Creación de Usuario
+
+Crea un usuario en el Servidor 2019 (en el Active Directory) y comprueba que puedes iniciar sesión en el Windows 10 nada más crearlo.
+
+**Pasos:**
+1. En el Server 2019, abre "Usuarios y equipos de Active Directory"
+2. Crea un nuevo usuario con las características que desees
+3. En el Windows 10 cliente, cierra sesión
+4. Inicia sesión con el nuevo usuario del dominio
+5. Documenta el proceso con capturas de pantalla
+
+---
+
+## Tarea 2: Creación de GPO
+
+En esta práctica crearás una Política de Grupo que nos permitirá realizar configuraciones automáticas sobre las máquinas y usuarios del dominio.
+
+### GPMS (Group Policy Management)
+
+En el menú de Administración del Servidor, accede a "Administración de directivas de grupo" o ejecuta el comando `gpmc`.
+
+<Steps>
+  <Step title="Crear nueva GPO">
+    Expande el árbol hasta el dominio, pulsa botón derecho y selecciona crear GPO.
+    Llámala `RemotosSeguridad`.
+  </Step>
+  <Step title="Editar la GPO">
+    Haz clic derecho sobre la GPO creada y selecciona "Editar"
+  </Step>
+</Steps>
+
+### Política 1: No Guardar Historial de Documentos
+
+Navega por el árbol de la GPO:
+
+```
+Configuración del equipo
+  → Directivas
+    → Plantillas administrativas
+      → Menú inicio y barra de tareas
+        → No guardar historial de documentos abiertos recientemente
+```
+
+Marca la opción como **Habilitada**.
+
+### Política 2: PowerShell
+
+Configura PowerShell para permitir la ejecución de scripts en el dominio.
+
+Navega hasta:
+
+```
+Configuración del equipo
+  → Directivas
+    → Plantillas administrativas
+      → Componentes de Windows
+        → Windows PowerShell
+          → Activar la ejecución de scripts
+```
+
+<Steps>
+  <Step title="Habilitar política">
+    Marca la política como Habilitada
+  </Step>
+  <Step title="Configurar directiva">
+    En "Directiva de ejecución" selecciona: `Permitir todos los scripts`
+  </Step>
+</Steps>
+
+<Note>
+Esto equivale a ejecutar manualmente: `Set-ExecutionPolicy Unrestricted`
+</Note>
+
+### Política 3: Instalación de Software
+
+Esta política utilizará una carpeta compartida mediante SMB en el servidor como repositorio de software.
+
+#### 3.1 Compartir Carpeta en Red
+
+<Steps>
+  <Step title="Crear carpeta">
+    Crea una carpeta en `C:\srv\software\` que contendrá los instaladores
+  </Step>
+  <Step title="Compartir la carpeta">
+    Ve a Propiedades → Compartir → Añade el grupo "Remotos" con permisos de Lectura
+  </Step>
+  <Step title="Obtener ruta UNC">
+    Copia la ruta de red: `\\SERVERISO\srv`
+  </Step>
+</Steps>
+
+<Warning>
+**NO USAR LA RUTA LOCAL** - Debes usar la ruta UNC de red (\\servidor\carpeta)
+</Warning>
+
+#### 3.2 Crear la GPO de Software
+
+Navega hasta:
+
+```
+Configuración del equipo
+  → Directivas
+    → Configuración de Software
+      → Instalación de Software
+```
+
+<Steps>
+  <Step title="Nuevo paquete">
+    Botón derecho → Nuevo → Paquete
+  </Step>
+  <Step title="Seleccionar MSI">
+    Navega hasta `\\SERVERISO\srv\software\` y selecciona el archivo .msi (ej: SciTE)
+  </Step>
+  <Step title="Tipo de implementación">
+    Marca la opción: **Asignada**
+  </Step>
+  <Step title="Verificar origen">
+    Comprueba que en "Origen" aparece la ruta de red
+  </Step>
+</Steps>
+
+### Aplicar la GPO a Usuarios
+
+En la ventana de Administración de Directivas de grupo:
+
+1. Selecciona la GPO `RemotosSeguridad`
+2. En la pestaña "Ámbito", añade al grupo `Remotos` en el filtrado de seguridad
+3. Asegúrate de que el grupo tiene permisos de "Lectura" y "Aplicar directiva de grupo"
+
+### Verificación
+
+Al iniciar sesión con un usuario del grupo Remotos:
+
+- Se instalará automáticamente el software (SciTE u otro configurado)
+- No se guardará historial de documentos
+- PowerShell permitirá la ejecución de scripts
+
+### Ejercicios
+
+#### Ejercicio 1
+
+Realiza todos los pasos descritos en la práctica y documenta los que consideres más importantes.
+
+#### Ejercicio 2: GPO para Usuarios
+
+Genera otra GPO que aplique a los usuarios del dominio, que incluya:
+
+- Configuración del Panel de control
+- Configuración del Fondo de Pantalla personalizado
+
+**Pistas:**
+- Busca en "Configuración de usuario" en lugar de "Configuración del equipo"
+- Las opciones de personalización están en: Plantillas administrativas → Panel de control
+
+Documenta el proceso seguido.
+
+#### Ejercicio 3: Software desde OpenMediaVault
+
+Genera otra GPO que instale software desde una de las carpetas compartidas del OpenMediaVault.
+
+**Requisitos:**
+1. El OpenMediaVault debe tener una carpeta compartida accesible
+2. Coloca un archivo .msi en esa carpeta
+3. Crea la GPO apuntando a esa ubicación de red
+4. Documenta las diferencias respecto a usar el servidor Windows
+
+---
+
+## Tarea 3: Unión al Dominio con Ubuntu
+
+En esta tarea verás cómo unir una máquina con Ubuntu al dominio de Active Directory.
+
+### Requisitos
+
+- Servidor de Active Directory en marcha (server2019)
+- Máquina Ubuntu/Xubuntu conectada a la misma red NAT
+- IP del servidor conocida (ejemplo: 10.0.2.42)
+
+### Paso 1: Configurar Hosts
+
+Edita el archivo `/etc/hosts` para que el cliente pueda resolver el servidor:
+
+```bash
+# /etc/hosts
+127.0.0.1       localhost
+127.0.1.1       xubuntu
+10.0.2.42       server2019.iso.com server2019
+```
+
+### Paso 2: Configurar DNS (systemd-resolved)
+
+Edita `/etc/systemd/resolved.conf`:
+
+```ini
+[Resolve]
+DNS=10.0.2.42
+Domains=iso.com
+```
+
+Reinicia el servicio:
+
+```bash
+sudo systemctl restart systemd-resolved
+```
+
+### Paso 3: Instalar Utilidades
+
+<CodeGroup>
+```bash Terminal
+sudo apt update
+sudo apt install realmd sssd sssd-tools samba-common krb5-user \
+  packagekit samba-common-bin samba-libs adcli ntp
+```
+</CodeGroup>
+
+<Note>
+Durante la instalación de Kerberos, introduce el nombre del dominio **EN MAYÚSCULAS** (ejemplo: ISO.COM)
+</Note>
+
+### Paso 4: Configurar NTP
+
+<Warning>
+**CRÍTICO**: El cliente y el servidor deben estar a la misma hora. Kerberos rechazará tickets si el desfase es mayor a 5 minutos.
+</Warning>
+
+Edita `/etc/ntp.conf`:
+
+```ini
+# /etc/ntp.conf
+server server2019.iso.com
+
+# ... resto del archivo igual ...
+```
+
+Inicia y habilita el servicio:
+
+```bash
+sudo ntpdate server2019.iso.com
+sudo systemctl enable ntp
+sudo systemctl start ntp
+```
+
+### Paso 5: Configurar RealMD
+
+Crea el archivo `/etc/realmd.conf`:
+
+```ini
+[users]
+default-home = /home/ISO/%U
+default-shell = /bin/bash
+
+[active-directory]
+default-client = sssd
+os-name = Ubuntu Xubuntu
+os-version = 18.04
+
+[service]
+automatic-install = no
+
+[iso.com]
+fully-qualified-names = no
+automatic-id-mapping = yes
+user-principal = yes
+manage-system = no
+```
+
+### Paso 6: Obtener Ticket de Kerberos
+
+```bash
+sudo su
+kinit Administrador@iso.com
+```
+
+Verifica el ticket:
+
+```bash
+klist
+```
+
+<Note>
+Si obtienes el ticket correctamente, verás información sobre el ticket de Kerberos incluyendo la fecha de expiración.
+</Note>
+
+### Paso 7: Unirse al Dominio
+
+```bash
+realm --verbose join iso.com -U Administrador
+```
+
+#### Solución de Problemas
+
+Si obtienes el error:
+
+```
+GSSAPI Error: Unspecified GSS failure.  
+Minor code may provide more information 
+(Server not found in Kerberos database)
+```
+
+**Solución:** Edita `/etc/krb5.conf` y añade en la sección `[libdefaults]`:
+
+```ini
+rdns=false
+```
+
+### Paso 8: Configurar SSSD
+
+Verifica y edita `/etc/sssd/sssd.conf`:
+
+```ini
+[sssd]
+domains = iso.com
+config_file_version = 2
+services = nss, pam
+
+[domain/iso.com]
+ad_domain = iso.com
+krb5_realm = ISO.COM
+realmd_tags = joined-with-adcli 
+cache_credentials = True
+id_provider = ad
+krb5_store_password_if_offline = True
+default_shell = /bin/bash
+ldap_id_mapping = True
+use_fully_qualified_names = False
+fallback_homedir = /home/ISO/%u
+enumerate = True
+simple_allow_users = $
+access_provider = permit
+```
+
+<Warning>
+**IMPORTANTE**: El valor de `access_provider` debe ser `permit` para permitir inicios de sesión.
+</Warning>
+
+Reinicia el servicio:
+
+```bash
+sudo systemctl restart sssd
+```
+
+### Paso 9: Configurar mkhomedir
+
+Habilita la creación automática de directorios home:
+
+```bash
+sudo pam-auth-update
+```
+
+Asegúrate de marcar: **Create home directory on login**
+
+### Paso 10: Configurar Samba
+
+Edita `/etc/samba/smb.conf` y añade en la sección `[global]`:
+
+```ini
+;; ISO COM
+client signing = yes
+client use spnego = yes
+kerberos method = secrets and keytab
+realm = ISO.COM
+security = ads
+```
+
+### Paso 11: Configurar sudo (Opcional)
+
+Para permitir que usuarios del dominio ejecuten sudo, edita `/etc/sudoers`:
+
+```bash
+# AD Domain Groups and Users
+%domain\ admins ALL=(ALL) NOPASSWD:ALL
+Administrador ALL=(ALL) NOPASSWD:ALL
+```
+
+<Warning>
+Edita este archivo usando `visudo` para evitar errores de sintaxis.
+</Warning>
+
+### Paso 12: Configurar LightDM
+
+Edita `/etc/lightdm/lightdm.conf`:
+
+```ini
+[SeatDefaults]
+allow-guest=false
+greeter-hide-users=true
+greeter-show-manual-login=true
+```
+
+Reinicia LightDM:
+
+```bash
+sudo systemctl restart lightdm
+```
+
+### Paso 13: Verificación
+
+Comprueba que los usuarios del dominio aparecen:
+
+```bash
+getent passwd
+```
+
+Deberías ver tanto usuarios locales como usuarios del Active Directory.
+
+### Ejercicios
+
+#### Ejercicio 1
+
+Realiza los pasos descritos en la práctica, adaptándolos a tu dominio. Documenta:
+
+- Nombre del dominio
+- IPs de la RED
+- Nombre de las máquinas
+- Diferencias encontradas respecto al ejemplo
+
+Avisa al profesor cuando acabes.
+
+#### Ejercicio 2: Crear Usuario
+
+En el Active Directory, dentro del grupo "esbirros", crea un usuario:
+
+| Campo | Valor |
+|-------|-------|
+| Nombre | Esbirro |
+| Login | esbirro01 |
+| Password | Soy1Esb1rr0 |
+
+Comprueba que puede iniciar sesión en Ubuntu **nada más crearlo**.
+
+#### Ejercicio 3: Restricción Horaria
+
+Utilizando el usuario `remoto01`:
+
+1. Comprueba que puede iniciar sesión en Xubuntu
+2. En el Controlador de Dominio (Windows Server 2019), bloquea las horas de inicio de sesión del usuario para que no pueda iniciar sesión durante el día de hoy
+3. Intenta iniciar sesión en Xubuntu con ese usuario
+4. Documenta el error obtenido
+5. Comprueba los logs del servidor y del cliente
+
+**Pregunta de reflexión:** ¿Por qué crees que esto puede ser útil?
+
+---
+
+## Tarea 4: Configuración de Cliente de OpenLDAP
+
+En esta práctica configurarás un sistema GNU/Linux como cliente del servidor OpenLDAP.
+
+### Configuración de la Red
+
+Primero, configura una IP estática para el servidor OpenLDAP.
+
+Crea o edita `/etc/netplan/02-nat-iso-static.yaml`:
+
+```yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      addresses:
+        - 10.0.2.41/24
+      gateway4: 10.0.2.1
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
+```
+
+Aplica la configuración:
+
+```bash
+sudo netplan apply
+```
+
+<Note>
+Los archivos YAML son sensibles a la indentación. Usa espacios, no tabuladores.
+</Note>
+
+### Configurar Hostname
+
+Cambia el hostname a `valencia`:
+
+```bash
+sudo hostnamectl set-hostname valencia
+```
+
+Edita `/etc/hosts`:
+
+```
+127.0.0.1       localhost
+10.0.2.41       valencia.iso.com valencia
+```
+
+Verifica:
+
+```bash
+ping valencia.iso.com
+```
+
+Reinicia la máquina.
+
+### Instalación de LDAP Client
+
+```bash
+sudo apt install libnss-ldap libpam-ldap ldap-utils
+```
+
+Durante la instalación:
+
+<Steps>
+  <Step title="URI del servidor LDAP">
+    `ldapi:///valencia.iso.com`
+  </Step>
+  <Step title="Base DN">
+    `dc=valencia,dc=iso,dc=com`
+  </Step>
+  <Step title="Versión LDAP">
+    3
+  </Step>
+  <Step title="Administrador de base de datos">
+    Sí (permitir que root local administre la base de datos)
+  </Step>
+  <Step title="Login para consultas">
+    No (no requerir login para consultas)
+  </Step>
+  <Step title="Cuenta de administrador LDAP">
+    `cn=admin,dc=valencia,dc=iso,dc=com`
+  </Step>
+  <Step title="Contraseña">
+    Introduce la contraseña del administrador LDAP
+  </Step>
+</Steps>
+
+### Configurar nsswitch
+
+Edita `/etc/nsswitch.conf`:
+
+```
+passwd:         files ldap
+group:          files ldap
+shadow:         files ldap
+gshadow:        files
+
+hosts:          files dns
+networks:       files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       nis
+```
+
+<Note>
+Añade `ldap` a las líneas de `passwd`, `group` y `shadow`.
+</Note>
+
+### Configurar PAM
+
+Edita `/etc/pam.d/common-password` y **quita** el parámetro `use_authok` de la línea 26.
+
+Habilita la creación de directorios home:
+
+```bash
+sudo pam-auth-update
+```
+
+Marca: **Create home directory on login**
+
+### Verificación
+
+Comprueba que aparecen los usuarios de LDAP:
+
+```bash
+getent passwd
+```
+
+Prueba cambiar a un usuario LDAP:
+
+```bash
+su esbirroldap01
+whoami
+pwd
+```
+
+### Configurar LightDM
+
+Crea un archivo en `/etc/lightdm/lightdm.conf.d/50-ldap-manual-login.conf`:
+
+```ini
+[SeatDefaults]
+allow-guest=false
+greeter-hide-users=true
+greeter-show-manual-login=true
+```
+
+Reinicia LightDM:
+
+```bash
+sudo systemctl restart lightdm
+```
+
+### Cambio de UID
+
+<Warning>
+Debes cambiar el UID de los usuarios LDAP para que **no coincida** con los usuarios locales de la máquina.
+</Warning>
+
+Esto se configura en el servidor LDAP, no en el cliente.
+
+### Ejercicios
+
+#### Ejercicio 1
+
+Realiza todos los pasos descritos en la práctica, adecuándolos a tu infraestructura y documenta los cambios realizados.
+
+#### Ejercicio 2: UIDs Únicos
+
+¿Por qué no debemos tener varios usuarios con el mismo UID? Razona la respuesta.
+
+<Accordion title="Pista">
+  Piensa en:
+  - Propiedad de archivos
+  - Permisos del sistema
+  - Seguridad
+  - Identificación de procesos
+</Accordion>
+
+#### Ejercicio 3: Ampliación (Opcional)
+
+Instala otra máquina GNU/Linux y sigue estos pasos para transformarla en cliente de LDAP.
+
+Puedes elegir una distribución diferente si lo deseas (Debian, Fedora, etc.).
+
+Documenta las diferencias de configuración respecto a Ubuntu.
+
+---
+
+## Tarea 5: PGina + LliureX (Ampliación)
+
+Aprovechando el modelo de Aula LliureX, realiza la configuración del servicio PGina o PGina Fork para permitir el login de usuarios de la OU=Students en Windows.
+
+### Configuración de PGina
+
+Las capturas muestran los parámetros que deben estar establecidos:
+
+**Configuración LDAP:**
+- Host: IP del servidor LliureX
+- Puerto: 389
+- Base DN: ou=Students,dc=...
+- Search DN: cn=admin,dc=...
+- Método de autenticación: Simple bind
+
+**Configuración de plugins:**
+1. **LDAP Authentication**: Habilitado en Authentication
+2. **Local Machine**: Habilitado en Authorization para usuarios locales
+3. **Create User**: Habilitado en Gateway para crear perfiles
+
+### Ejercicio 1
+
+Realiza la instalación y configuración de PGina en una máquina virtual con Windows 10 y comprueba que puedes iniciar sesión con usuarios de LliureX.
+
+Documenta el proceso seguido:
+1. Descarga e instalación de PGina
+2. Configuración de plugins
+3. Configuración de conexión LDAP
+4. Pruebas de inicio de sesión
+5. Solución de problemas encontrados
+
+### Ejercicio 2: Filtrado de Usuarios
+
+¿Qué cambios deberías realizar para permitir **solo** el login de los profesores?
+
+<Accordion title="Pista">
+  Piensa en:
+  - El Base DN utilizado
+  - Los filtros LDAP
+  - Las OUs donde se encuentran profesores vs estudiantes
+</Accordion>
+
+---
+
+## Recursos Adicionales
+
+<CardGroup cols={2}>
+  <Card title="Active Directory" icon="windows" href="https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/">
+    Documentación oficial de Microsoft sobre Active Directory
+  </Card>
+  <Card title="Realm y SSSD" icon="linux" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/windows_integration_guide/">
+    Guía de integración Linux-Windows
+  </Card>
+  <Card title="OpenLDAP" icon="book" href="https://www.openldap.org/doc/">
+    Documentación oficial de OpenLDAP
+  </Card>
+  <Card title="Kerberos" icon="key" href="https://web.mit.edu/kerberos/">
+    Documentación del protocolo Kerberos
+  </Card>
+</CardGroup>

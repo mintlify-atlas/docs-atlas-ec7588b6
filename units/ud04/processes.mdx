@@ -1,0 +1,595 @@
+---
+title: 'Process Management'
+description: 'Monitor, control, and manage system processes in Windows and Linux'
+---
+
+# Process Management
+
+A process is a program in execution. From the operating system's perspective, a process is an object that must be managed and serviced.
+
+## Understanding Processes
+
+When a program executes:
+
+<Steps>
+  <Step title="Permission Check">
+    The OS verifies the user has permission to run the program
+  </Step>
+  
+  <Step title="Memory Allocation">
+    RAM space is assigned to the process
+  </Step>
+  
+  <Step title="CPU Time">
+    The process receives CPU time based on priority
+  </Step>
+  
+  <Step title="Execution">
+    The process accesses its instructions and performs tasks
+  </Step>
+</Steps>
+
+<Note>
+As administrators, we must know how to obtain process information for monitoring, security audits, network usage analysis, and troubleshooting.
+</Note>
+
+---
+
+# Windows Process Management
+
+## Task Manager
+
+The Task Manager is the primary tool for process management in Windows.
+
+### Accessing Task Manager
+
+<CardGroup cols={3}>
+  <Card title="Keyboard Shortcut" icon="keyboard">
+    Press `Ctrl+Alt+Del` and select Task Manager
+  </Card>
+  
+  <Card title="Right-Click Menu" icon="mouse">
+    Right-click Start button → Task Manager
+  </Card>
+  
+  <Card title="Run Command" icon="terminal">
+    Press `Win+R`, type `taskmgr`, press Enter
+  </Card>
+</CardGroup>
+
+<Warning>
+**VirtualBox Users**: Use `Right Ctrl+Del` or VirtualBox menu → Input → Keyboard → Ctrl+Alt+Del
+</Warning>
+
+### Task Manager Views
+
+#### Processes Tab
+
+Shows running applications and background processes with resource usage:
+
+| Column | Description |
+|--------|-------------|
+| Name | Application or process name |
+| CPU | CPU usage percentage |
+| Memory | RAM consumption |
+| Disk | Disk I/O activity |
+| Network | Network bandwidth usage |
+
+**Why This Matters:**
+- Identify resource-hungry processes
+- Detect unresponsive applications
+- Monitor system performance
+- Find processes using excessive network bandwidth
+
+#### Performance Tab
+
+Provides real-time system metrics:
+
+<Accordion title="CPU">
+- Usage percentage
+- Speed (GHz)
+- Processes and threads count
+- Uptime
+- Utilization history graph
+</Accordion>
+
+<Accordion title="Memory">
+- Total available RAM
+- In use / Available
+- Committed memory
+- Cached memory
+- Paged/Non-paged pool
+</Accordion>
+
+<Accordion title="Disk">
+- Active time percentage
+- Read/Write speed
+- Response time
+- Disk type and capacity
+</Accordion>
+
+<Accordion title="Network">
+- Throughput (Mbps)
+- Send/Receive rates
+- Connection type
+- Adapter details
+</Accordion>
+
+#### App History Tab
+
+Shows historical resource usage by applications:
+- CPU time
+- Network usage
+- Metered network usage
+- Tile updates
+
+<Note>
+Useful for identifying applications that consume resources over time, not just currently.
+</Note>
+
+#### Startup Tab
+
+Manage programs that launch at system startup:
+
+| Column | Description |
+|--------|-------------|
+| Name | Application name |
+| Publisher | Software vendor |
+| Status | Enabled or Disabled |
+| Startup impact | Impact on boot time (High/Medium/Low) |
+
+**Best Practices:**
+- Disable unnecessary startup programs
+- Check for potential malware
+- Improve boot time
+- Reduce resource usage at login
+
+#### Users Tab
+
+View processes by logged-in users:
+- User names
+- Status (Active/Disconnected)
+- CPU and Memory usage per user
+- Ability to disconnect users
+
+#### Details Tab
+
+Advanced process information:
+
+| Column | Description |
+|--------|-------------|
+| Name | Executable filename |
+| PID | Process Identifier (unique number) |
+| Status | Running, Suspended, etc. |
+| User name | Account that launched process |
+| CPU | Current CPU usage |
+| Memory | RAM consumption |
+| Description | Process description |
+
+<Warning>
+Process descriptions can be misleading - malware may use fake descriptions. Always verify suspicious processes.
+</Warning>
+
+#### Services Tab
+
+System services (background processes):
+
+**Common Services:**
+- **Windows Defender**: Antivirus protection
+- **Print Spooler**: Print job management
+- **Windows Update**: System updates
+- **DNS Client**: Name resolution
+
+### Ending Processes
+
+<Steps>
+  <Step title="Identify Process">
+    Find the unresponsive or problematic process
+  </Step>
+  
+  <Step title="Right-Click">
+    Right-click the process
+  </Step>
+  
+  <Step title="End Task">
+    Select "End task" from menu
+  </Step>
+  
+  <Step title="Confirm">
+    Confirm if prompted (you may lose unsaved data)
+  </Step>
+</Steps>
+
+## PowerShell Process Management
+
+PowerShell provides powerful process management cmdlets.
+
+### Get-Process
+
+Retrieve process information:
+
+```powershell
+# List all processes
+Get-Process
+
+# Get specific process
+Get-Process -Name "chrome"
+
+# Show processes using most CPU
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10
+
+# Show processes using most memory
+Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 10
+```
+
+### Stop-Process
+
+Terminate processes:
+
+```powershell
+# Stop by name
+Stop-Process -Name "notepad"
+
+# Stop by PID
+Stop-Process -Id 1234
+
+# Force stop
+Stop-Process -Name "chrome" -Force
+
+# Stop multiple processes
+Get-Process -Name "notepad" | Stop-Process
+```
+
+### Start-Process
+
+Launch new processes:
+
+```powershell
+# Start application
+Start-Process notepad
+
+# Start with arguments
+Start-Process notepad -ArgumentList "C:\file.txt"
+
+# Start as administrator
+Start-Process powershell -Verb RunAs
+
+# Start and wait for exit
+Start-Process notepad -Wait
+```
+
+### Process Monitoring Script
+
+```powershell
+#!/usr/bin/env pwsh
+# Monitor high CPU processes
+
+while ($true) {
+    Clear-Host
+    Write-Host "=== High CPU Processes ==="
+    Get-Process | 
+        Where-Object {$_.CPU -gt 10} |
+        Sort-Object CPU -Descending |
+        Select-Object Name, Id, CPU, WorkingSet |
+        Format-Table -AutoSize
+    
+    Start-Sleep -Seconds 5
+}
+```
+
+## Process Explorer (Advanced)
+
+Process Explorer is an advanced Microsoft tool providing:
+
+- Detailed process tree view
+- DLL and handle information
+- Process dependencies
+- Performance graphs
+- Security analysis
+
+<Note>
+Download from Microsoft Sysinternals: https://docs.microsoft.com/sysinternals/
+</Note>
+
+---
+
+# Linux Process Management
+
+## Command: ps
+
+Display process information:
+
+```bash
+# All processes
+ps -e
+
+# Detailed format
+ps -ef
+
+# BSD style (common)
+ps aux
+
+# Filter specific process
+ps -e | grep firefox
+
+# Show process tree
+ps -ejH
+```
+
+**Output columns:**
+```bash
+PID  TTY      TIME     CMD
+1    ?        00:00:02 systemd
+1716 ?        00:00:01 xfce4-terminal
+1721 pts/0    00:00:00 bash
+```
+
+- **PID**: Process ID
+- **TTY**: Terminal associated with process
+- **TIME**: CPU time consumed
+- **CMD**: Command name
+
+## Command: pstree
+
+Display process hierarchy:
+
+```bash
+# Show all processes as tree
+pstree
+
+# Show specific process tree
+ps -e | grep xfce4-panel
+pstree 1907
+
+# Show PIDs
+pstree -p
+
+# Show command line arguments
+pstree -a
+```
+
+Example output:
+```
+systemd──┬─NetworkManager
+        ├─gnome-shell──┬─firefox──┬─{Web Content}
+        │               │         ├─{Socket Thread}
+        │               │         └─{Cache2 I/O}
+```
+
+## Command: top
+
+Interactive process monitor:
+
+```bash
+top
+```
+
+**Key features:**
+- Real-time updates
+- CPU and memory usage
+- Process sorting
+- Interactive controls
+
+**Interactive commands:**
+| Key | Action |
+|-----|--------|
+| q | Quit |
+| k | Kill process |
+| r | Renice process |
+| M | Sort by memory |
+| P | Sort by CPU |
+| 1 | Toggle individual CPU cores |
+
+## Command: htop (Enhanced)
+
+More user-friendly than top:
+
+```bash
+# Install first
+sudo apt install htop
+
+# Run
+htop
+```
+
+**Features:**
+- Color-coded display
+- Mouse support
+- Process tree view
+- Easy process management
+
+## Command: kill
+
+Send signals to processes:
+
+```bash
+# List all signals
+kill -L
+
+# Common signals
+kill -9 PID   # SIGKILL - Force terminate
+kill -15 PID  # SIGTERM - Graceful terminate (default)
+kill -1 PID   # SIGHUP - Reload configuration
+kill -STOP PID  # Pause process
+kill -CONT PID  # Resume process
+```
+
+**Example:**
+```bash
+# Find process
+ps -e | grep mousepad
+# Output: 23895 pts/0  00:00:00 mousepad
+
+# Kill process
+kill -9 23895
+```
+
+## Command: killall
+
+Kill processes by name:
+
+```bash
+# Kill all instances
+killall firefox
+
+# Kill with specific signal
+killall -9 chrome
+
+# Interactive mode (ask before killing)
+killall -i firefox
+```
+
+## Command: pkill
+
+Flexible process killing:
+
+```bash
+# Kill by name pattern
+pkill fire
+
+# Kill by user
+pkill -u username
+
+# Kill by full command
+pkill -f "python script.py"
+```
+
+## Process Priority: nice and renice
+
+Control process priority (-20 to 19):
+
+**Priority values:**
+- **-20**: Highest priority (most CPU time)
+- **0**: Default priority
+- **19**: Lowest priority (least CPU time)
+
+### nice (start with priority)
+
+```bash
+# Check default niceness
+nice
+# Output: 0
+
+# Start with low priority
+nice -n 10 bash
+
+# Start with high priority (requires root)
+sudo nice -n -5 important-process
+```
+
+### renice (change running process)
+
+```bash
+# Lower priority of process
+renice -n 10 -p 1234
+
+# Increase priority (requires root)
+sudo renice -n -5 -p 1234
+
+# Change all processes of user
+renice -n 5 -u username
+```
+
+## Background and Foreground Jobs
+
+```bash
+# Start process in background
+firefox &
+
+# List background jobs
+jobs
+
+# Bring to foreground
+fg %1
+
+# Send to background
+Ctrl+Z  # Suspend
+bg      # Continue in background
+
+# Disown process (keep running after logout)
+firefox &
+disown
+```
+
+## Process Monitoring Scripts
+
+### Check if process is running
+
+```bash
+#!/bin/bash
+# Check if process is running
+
+PROCESS_NAME="firefox"
+
+if pgrep "$PROCESS_NAME" > /dev/null; then
+    echo "$PROCESS_NAME is running"
+    pgrep "$PROCESS_NAME"
+else
+    echo "$PROCESS_NAME is not running"
+fi
+```
+
+### Monitor process resources
+
+```bash
+#!/bin/bash
+# Monitor specific process
+
+PID=$1
+
+if [ -z "$PID" ]; then
+    echo "Usage: $0 <PID>"
+    exit 1
+fi
+
+while true; do
+    clear
+    echo "=== Process Monitoring ==="
+    ps -p $PID -o pid,comm,%cpu,%mem,vsz,rss,etime
+    echo ""
+    echo "Press Ctrl+C to stop"
+    sleep 2
+done
+```
+
+### Auto-restart crashed process
+
+```bash
+#!/bin/bash
+# Auto-restart process if it crashes
+
+PROCESS_NAME="my-application"
+COMMAND="/usr/bin/my-application"
+
+while true; do
+    if ! pgrep -x "$PROCESS_NAME" > /dev/null; then
+        echo "$(date): $PROCESS_NAME not running, starting..."
+        $COMMAND &
+    fi
+    sleep 10
+done
+```
+
+## Best Practices
+
+<Steps>
+  <Step title="Identify Before Killing">
+    Always verify the process before terminating it
+  </Step>
+  
+  <Step title="Graceful Shutdown">
+    Try SIGTERM (15) before SIGKILL (9) to allow cleanup
+  </Step>
+  
+  <Step title="Monitor Regularly">
+    Check process health proactively, not just when problems occur
+  </Step>
+  
+  <Step title="Document Processes">
+    Keep notes on important processes and their expected behavior
+  </Step>
+  
+  <Step title="Use Appropriate Tools">
+    Choose the right tool for the task (Task Manager, ps, top, etc.)
+  </Step>
+</Steps>

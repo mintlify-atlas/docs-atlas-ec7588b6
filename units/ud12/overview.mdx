@@ -1,0 +1,318 @@
+---
+title: UD12 - Gestión de Incidencias
+description: Overview of incident management, remote access, and automated deployment systems
+---
+
+## Objetivos de la Unidad
+
+Tan importante como la instalación y la configuración de los sistemas y servicios, es el soporte de los mismos dentro de un sistema informático.
+
+A lo largo de la vida de un sistema informático aparecerán múltiples problemas y propuestas de cambios, que deben ser abordados de manera sistemática y organizada, asignando prioridades y utilizando mecanismos de resolución documentados y coherentes.
+
+En esta unidad aprenderás a:
+
+<CardGroup cols={2}>
+  <Card title="Gestionar incidencias" icon="ticket">
+    Crear, asignar y resolver incidencias mediante un sistema de gestión IT
+  </Card>
+  <Card title="Conexión remota" icon="desktop">
+    Utilizar diferentes protocolos de acceso remoto para resolver incidencias
+  </Card>
+  <Card title="Automatizar despliegues" icon="robot">
+    Implementar sistemas de instalación desatendida mediante clonación y ficheros de respuesta
+  </Card>
+  <Card title="Protocolos de asistencia" icon="clipboard-list">
+    Desarrollar procedimientos sistemáticos para resolución de problemas
+  </Card>
+</CardGroup>
+
+## Contenidos
+
+La unidad cubre los siguientes temas principales:
+
+### Incidencias y Propuestas de Cambio
+
+Conceptos fundamentales:
+
+- **Incidencia**: Evento que interrumpe o reduce la calidad de un servicio
+- **Propuesta de cambio**: Solicitud planificada para modificar o mejorar el sistema
+- **Prioridad**: Nivel de urgencia para resolver una incidencia
+- **SLA** (Service Level Agreement): Acuerdo de nivel de servicio
+
+### Gestión de Servicios IT con GLPI
+
+<Steps>
+  <Step title="Creación de tickets">
+    Los usuarios reportan problemas o solicitudes
+  </Step>
+  <Step title="Asignación">
+    Los tickets se asignan a técnicos según especialidad y disponibilidad
+  </Step>
+  <Step title="Resolución">
+    El técnico trabaja en el problema y documenta las acciones
+  </Step>
+  <Step title="Verificación">
+    Se comprueba que el problema está resuelto satisfactoriamente
+  </Step>
+  <Step title="Cierre">
+    El ticket se cierra con toda la documentación del proceso
+  </Step>
+</Steps>
+
+### Conexión Remota
+
+Herramientas para acceso y gestión remota:
+
+#### SSH (Secure Shell)
+
+<Accordion title="Características">
+  - Conexión segura cifrada
+  - Acceso a línea de comandos
+  - Transferencia segura de archivos (SCP, SFTP)
+  - Redirección de aplicaciones gráficas (X11 forwarding)
+  - Configuración flexible de permisos
+</Accordion>
+
+<Accordion title="Clientes SSH">
+  - **Linux**: openssh-client (integrado)
+  - **Windows**: PuTTY, OpenSSH for Windows
+  - **Gráficos**: WinSCP, FileZilla
+</Accordion>
+
+#### RDP (Remote Desktop Protocol)
+
+<Accordion title="Características">
+  - Acceso completo al escritorio gráfico
+  - Protocolo nativo de Windows
+  - Cifrado de comunicaciones
+  - Redireccción de recursos (impresoras, portapapeles, unidades)
+  - Soporte multimedia
+</Accordion>
+
+<Accordion title="Clientes RDP">
+  - **Windows**: Conexión a Escritorio Remoto (mstsc)
+  - **Linux**: Remmina, tsclient
+  - **macOS**: Microsoft Remote Desktop
+  - **Móvil**: Aplicaciones RDP para iOS/Android
+</Accordion>
+
+#### Otras Herramientas
+
+- **TeamViewer**: Acceso remoto multiplataforma
+- **VNC**: Acceso remoto de código abierto
+- **AnyDesk**: Alternativa ligera a TeamViewer
+- **netcat**: Herramienta de red versátil para túneles
+
+### Instalaciones Automatizadas
+
+#### Clonación de Sistemas
+
+**¿Qué es la clonación?**
+
+La creación de una réplica exacta de todo el contenido de un disco duro o partición, que puede ser copiada a otro disco y puesta en marcha en un equipo diferente.
+
+<CardGroup cols={2}>
+  <Card title="Ventajas" icon="circle-check">
+    - Ahorro de tiempo en instalaciones múltiples
+    - Configuración estandarizada
+    - Reproducibilidad
+    - Facilita pruebas y respaldos
+  </Card>
+  <Card title="Consideraciones" icon="triangle-exclamation">
+    - Requiere hardware similar
+    - Necesita ajustes post-clonación
+    - Espacio de almacenamiento para imágenes
+    - Gestión de licencias
+  </Card>
+</CardGroup>
+
+**Clonezilla** es la herramienta de clonación más utilizada:
+
+- Clonezilla Live: Para equipos individuales
+- Clonezilla SE: Para despliegue en red (PXE)
+
+#### Tareas Post-Clonación
+
+Elementos que deben ser únicos en cada equipo:
+
+- **Nombre del equipo**: Identificador en la red
+- **MAC Address**: Dirección física de red (hardware)
+- **IP**: Dirección IP si no usa DHCP
+- **SID de Windows**: Identificador de seguridad
+
+<Warning>
+Si no se resetean estos elementos, habrá problemas de equipos duplicados en la red, difciles de detectar y solucionar.
+</Warning>
+
+**drbl-winroll** es una herramienta que automatiza estos cambios en Windows.
+
+#### Ficheros de Respuesta (Preseed/Unattend)
+
+Instalaciones desatendidas mediante ficheros de configuración que responden automáticamente a las preguntas del instalador.
+
+**Ventajas:**
+- Instalaciones completamente automatizadas
+- Configuración personalizada desde el inicio
+- No requiere clonación previa
+- Flexible para diferentes configuraciones
+
+**Sistemas:**
+- **Debian/Ubuntu**: Preseed
+- **Windows**: Unattend.xml / autounattend.xml
+- **Red Hat**: Kickstart
+
+## Protocolos de Asistencia
+
+Un protocolo de asistencia es un procedimiento sistemático y documentado que guía al técnico en la resolución de incidencias.
+
+### Estructura de un Protocolo
+
+<Steps>
+  <Step title="Identificación del problema">
+    - Recopilar información del usuario
+    - Identificar síntomas
+    - Clasificar tipo de incidencia
+  </Step>
+  <Step title="Diagnóstico">
+    - Verificar conectividad
+    - Comprobar servicios
+    - Revisar logs
+    - Pruebas sistemáticas
+  </Step>
+  <Step title="Resolución">
+    - Aplicar solución apropiada
+    - Documentar acciones realizadas
+    - Verificar resolución
+  </Step>
+  <Step title="Cierre">
+    - Confirmar con el usuario
+    - Actualizar documentación
+    - Registrar en sistema de tickets
+  </Step>
+  <Step title="Seguimiento">
+    - Verificar que no reaparece el problema
+    - Actualizar base de conocimientos
+  </Step>
+</Steps>
+
+### Elementos Condicionales
+
+Los protocolos deben incluir decisiones basadas en resultados de pruebas:
+
+```
+SI el ping funciona:
+  → Verificar servicio específico
+SI NO:
+  → Comprobar conectividad física
+  → Verificar configuración de red
+```
+
+## Ciclo de Vida de una Incidencia
+
+<Steps>
+  <Step title="Registro">
+    La incidencia se registra en el sistema de tickets con toda la información disponible
+  </Step>
+  <Step title="Clasificación">
+    Se determina la categoría, prioridad y urgencia
+  </Step>
+  <Step title="Asignación">
+    Se asigna a un técnico o grupo de soporte apropiado
+  </Step>
+  <Step title="Investigación y Diagnóstico">
+    El técnico investiga la causa del problema
+  </Step>
+  <Step title="Resolución">
+    Se implementa la solución
+  </Step>
+  <Step title="Cierre">
+    Se verifica la resolución y se cierra el ticket
+  </Step>
+</Steps>
+
+## Niveles de Soporte
+
+### Nivel 1 (Help Desk)
+
+- Primer punto de contacto
+- Resolución de problemas comunes
+- Recopilación de información inicial
+- Escalado a Nivel 2 si es necesario
+
+### Nivel 2 (Soporte Técnico)
+
+- Problemas más complejos
+- Conocimiento técnico especializado
+- Acceso y configuración de sistemas
+- Escalado a Nivel 3 para casos excepcionales
+
+### Nivel 3 (Expertos/Desarrolladores)
+
+- Problemas muy complejos o nuevos
+- Bugs de software
+- Cambios en arquitectura
+- Documentación de nuevas soluciones
+
+<Note>
+La mayoría de incidencias deben resolverse en Nivel 1 o 2. El escalado excesivo indica necesidad de formación o documentación.
+</Note>
+
+## Prácticas
+
+La unidad incluye tareas prácticas:
+
+1. **Servidor SSH Linux**: Instalación y configuración de acceso remoto seguro
+2. **Escritorio Remoto (RDP)**: Configuración de acceso gráfico a Windows Server
+3. **Túneles con netcat**: Redirección de puertos y conexiones
+4. **TeamViewer**: Acceso remoto multiplataforma
+5. **Protocolos de Asistencia**: Desarrollo de procedimientos de diagnóstico
+6. **Clonación con Clonezilla**: Creación y restauración de imágenes
+7. **Preseed**: Instalaciones automatizadas de Ubuntu
+8. **GLPI**: Gestión de incidencias y activos IT
+
+## Mejores Prácticas
+
+### Documentación
+
+<CardGroup cols={2}>
+  <Card title="Base de Conocimientos" icon="book">
+    Documentar soluciones para problemas comunes
+  </Card>
+  <Card title="Protocolos Actualizados" icon="arrows-rotate">
+    Mantener procedimientos al día
+  </Card>
+  <Card title="Capturas de Pantalla" icon="camera">
+    Incluir imágenes en la documentación
+  </Card>
+  <Card title="Detalles de Configuración" icon="gears">
+    Especificar versiones y parámetros exactos
+  </Card>
+</CardGroup>
+
+### Seguridad
+
+<Warning>
+**Consideraciones de seguridad en acceso remoto:**
+- Usar siempre conexiones cifradas (SSH, RDP con TLS)
+- Cambiar puertos por defecto si es posible
+- Implementar autenticación de dos factores
+- Limitar IPs permitidas cuando sea viable
+- Revisar regularmente los logs de acceso
+- Desactivar cuentas de usuarios que no necesiten acceso remoto
+</Warning>
+
+### Gestión de Incidencias
+
+- **Priorizar correctamente**: No todo es urgente
+- **Comunicarse con el usuario**: Mantenerlo informado del progreso
+- **Documentar detalladamente**: Facilita futuras resoluciones
+- **Aprender de cada incidencia**: Actualizar la base de conocimientos
+- **Medir métricas**: Tiempo de resolución, tasa de reapertura, satisfacción del usuario
+
+## Recursos Adicionales
+
+- [GLPI Documentation](https://glpi-project.org/documentation/)
+- [Clonezilla Documentation](https://clonezilla.org/)
+- [Ubuntu Preseed Guide](https://help.ubuntu.com/lts/installation-guide/i386/apbs04.html)
+- [OpenSSH Documentation](https://www.openssh.com/manual.html)
+- [Microsoft RDP Documentation](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/)

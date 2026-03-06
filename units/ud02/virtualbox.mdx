@@ -1,0 +1,303 @@
+---
+title: 'Instalación de VirtualBox'
+description: 'Complete guide to installing and configuring VirtualBox on Windows and Linux'
+---
+
+# Instalación de VirtualBox
+
+<Note>
+  VirtualBox es un sistema de virtualización completa (Tipo 2) multiplataforma, disponible de forma gratuita.
+</Note>
+
+## Conceptos Importantes
+
+Antes de comenzar, es fundamental:
+
+- Saber qué instalador elegir según tu sistema
+- Conocer las ventajas de los repositorios en GNU/Linux
+- Entender las diferencias entre VirtualBox y VirtualBox OSE
+
+---
+
+## Instalación en Windows
+
+### Paso 1: Descargar VirtualBox
+
+<Steps>
+  <Step title="Acceder a la Web Oficial">
+    Visita [virtualbox.org](https://www.virtualbox.org)
+  </Step>
+  
+  <Step title="Seleccionar Versión">
+    Elige el instalador correcto para tu sistema (x86/amd64)
+  </Step>
+  
+  <Step title="Descargar">
+    Descarga el archivo ejecutable
+  </Step>
+</Steps>
+
+### Paso 2: Ejecutar el Instalador
+
+Una vez descargado:
+
+1. Ejecuta el archivo `.exe` descargado
+2. Se abrirá un asistente de instalación
+3. Sigue los pasos del asistente:
+   - Acepta los términos de licencia
+   - Selecciona la ruta de instalación
+   - Confirma las opciones predeterminadas
+
+<Warning>
+  Durante la instalación se instalarán drivers de red. Tu conexión de red se interrumpirá brevemente.
+</Warning>
+
+---
+
+## Instalación en GNU/Linux
+
+### Método 1: Instalación Manual (Modo "Windows")
+
+Similar a Windows, pero usando paquetes `.deb`:
+
+<Steps>
+  <Step title="Descargar el Paquete">
+    Descarga el archivo `.deb` desde virtualbox.org
+  </Step>
+  
+  <Step title="Instalar con dpkg">
+    Ejecuta el siguiente comando:
+    ```bash
+    sudo dpkg -i ruta_al_fichero.deb
+    ```
+  </Step>
+  
+  <Step title="Resolver Dependencias">
+    Si hay conflictos de paquetes:
+    ```bash
+    sudo apt-get install -f
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  Este método requiere descargar manualmente cada actualización.
+</Note>
+
+### Método 2: Repositorios (Recomendado)
+
+Este método permite actualizaciones automáticas.
+
+<Steps>
+  <Step title="Identificar tu Distribución">
+    Determina tu distribución base:
+    ```bash
+    lsb_release -a
+    ```
+  </Step>
+  
+  <Step title="Añadir el Repositorio">
+    Edita el archivo de repositorios:
+    ```bash
+    sudo nano /etc/apt/sources.list
+    ```
+    
+    Añade la línea correspondiente:
+    ```text
+    deb https://download.virtualbox.org/virtualbox/debian <mydist> contrib
+    ```
+  </Step>
+  
+  <Step title="Sustituir <mydist>">
+    Reemplaza `<mydist>` por tu distribución:
+    
+    **Basadas en Ubuntu:**
+    - cosmic
+    - bionic
+    - xenial
+    - trusty
+    
+    **Basadas en Debian:**
+    - stretch
+    - jessie
+    - buster
+    - bullseye
+  </Step>
+  
+  <Step title="Añadir Clave GPG">
+    Añade el repositorio a la lista de confiables:
+    ```bash
+    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+    ```
+  </Step>
+  
+  <Step title="Actualizar e Instalar">
+    ```bash
+    sudo apt update
+    sudo apt install virtualbox-6.1
+    ```
+  </Step>
+</Steps>
+
+---
+
+## VirtualBox vs VirtualBox OSE
+
+<Accordion title="¿Cuál es la diferencia?">
+  - **VirtualBox**: Versión completa con Extension Pack
+  - **VirtualBox OSE**: Versión Open Source Edition, sin algunos componentes
+  
+  El Extension Pack añade:
+  - Soporte USB 2.0/3.0
+  - Soporte RDP (Remote Desktop Protocol)
+  - Cifrado de disco
+  - Arranque PXE para tarjetas Intel
+</Accordion>
+
+<Warning>
+  Se recomienda utilizar la versión oficial de VirtualBox (no OSE) para tener acceso completo a todas las funcionalidades, especialmente para redes internas e instalaciones por red.
+</Warning>
+
+---
+
+## Ventajas de los Repositorios
+
+Utilizar repositorios de software tiene múltiples beneficios:
+
+<CardGroup cols={2}>
+  <Card title="Actualizaciones Automáticas" icon="arrows-rotate">
+    Las actualizaciones se instalan con el sistema
+  </Card>
+  <Card title="Gestión Centralizada" icon="box">
+    Un solo comando actualiza todo el software
+  </Card>
+  <Card title="Dependencias" icon="link">
+    Se resuelven automáticamente
+  </Card>
+  <Card title="Seguridad" icon="shield">
+    Paquetes firmados y verificados
+  </Card>
+</CardGroup>
+
+### Actualización del Sistema
+
+Cuando ejecutas:
+
+```bash
+sudo apt update && sudo apt upgrade
+```
+
+`apt` comprobará si hay una nueva versión de VirtualBox y la actualizará automáticamente, sin necesidad de descargar el `.deb` manualmente.
+
+---
+
+## Extension Pack
+
+El **Extension Pack** añade funcionalidades adicionales a VirtualBox.
+
+### Instalación del Extension Pack
+
+<Steps>
+  <Step title="Descargar">
+    Descarga el Extension Pack desde virtualbox.org (misma versión que VirtualBox)
+  </Step>
+  
+  <Step title="Instalar">
+    - **Interfaz Gráfica**: Doble clic en el archivo descargado
+    - **Línea de comandos**:
+    ```bash
+    VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-6.1.x.vbox-extpack
+    ```
+  </Step>
+  
+  <Step title="Aceptar Licencia">
+    Lee y acepta los términos de la licencia
+  </Step>
+</Steps>
+
+<Note>
+  El Extension Pack debe coincidir exactamente con la versión de VirtualBox instalada.
+</Note>
+
+---
+
+## Verificación de la Instalación
+
+Para verificar que VirtualBox se ha instalado correctamente:
+
+### En Windows
+
+1. Busca "Oracle VM VirtualBox" en el menú Inicio
+2. Ejecútalo para abrir la interfaz gráfica
+
+### En GNU/Linux
+
+```bash
+virtualbox --version
+```
+
+O desde el menú de aplicaciones.
+
+### Verificar Extension Pack
+
+<CodeGroup>
+```bash Comando
+VBoxManage list extpacks
+```
+
+```text Salida Esperada
+Extension Packs: 1
+Pack no. 0:   Oracle VM VirtualBox Extension Pack
+Version:      6.1.x
+Revision:     xxxxxx
+Description:  Oracle Cloud Infrastructure integration, USB 2.0 and USB 3.0 Host Controller, Host Webcam, VirtualBox RDP, PXE ROM, Disk Encryption, NVMe.
+```
+</CodeGroup>
+
+---
+
+## Próximos Pasos
+
+Una vez instalado VirtualBox:
+
+<CardGroup cols={2}>
+  <Card title="Crear VM" icon="plus">
+    Aprende a crear tu primera máquina virtual
+  </Card>
+  <Card title="Configurar Red" icon="network-wired">
+    Configura las opciones de red
+  </Card>
+  <Card title="Recursos Compartidos" icon="folder-tree">
+    Comparte carpetas entre host y guest
+  </Card>
+  <Card title="Snapshots" icon="camera">
+    Crea instantáneas de tus máquinas
+  </Card>
+</CardGroup>
+
+## Solución de Problemas
+
+<Accordion title="Error: Módulos del Kernel">
+  Si VirtualBox no arranca las VMs, puede que falten módulos del kernel:
+  
+  ```bash
+  sudo apt install linux-headers-$(uname -r)
+  sudo /sbin/vboxconfig
+  ```
+</Accordion>
+
+<Accordion title="Error: Virtualización Deshabilitada">
+  Verifica que la virtualización está habilitada en BIOS/UEFI:
+  - Intel: VT-x debe estar habilitado
+  - AMD: AMD-V debe estar habilitado
+</Accordion>
+
+<Accordion title="Conflicto con Hyper-V (Windows)">
+  En Windows, Hyper-V puede causar conflictos. Desactívalo:
+  
+  ```powershell
+  bcdedit /set hypervisorlaunchtype off
+  ```
+  
+  Reinicia el sistema.
+</Accordion>

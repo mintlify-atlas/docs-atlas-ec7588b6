@@ -1,0 +1,190 @@
+---
+title: 'UD05 Overview - Users, Groups, and Permissions'
+description: 'Introduction to user and group management and permission systems'
+---
+
+# UD05 - Users, Groups, and Permissions
+
+One of the most important mechanisms for proper operating system management is the use of users, groups, and their associated permissions.
+
+## Unit Objectives
+
+<CardGroup cols={2}>
+  <Card title="User Management" icon="user">
+    Create, modify, and delete user accounts in Windows and Linux systems
+  </Card>
+  
+  <Card title="Group Organization" icon="users">
+    Organize users into groups for efficient permission management
+  </Card>
+  
+  <Card title="Permission Control" icon="lock">
+    Grant and restrict access to files, folders, and system resources
+  </Card>
+  
+  <Card title="Security Implementation" icon="shield">
+    Implement security policies through proper access control
+  </Card>
+</CardGroup>
+
+## Why This Matters
+
+The ability to grant permissions for reading, writing, modifying, executing, etc., to specific users and groups is one of the most important security features in an operating system.
+
+<Note>
+Proper user and permission management is fundamental to system security and organization.
+</Note>
+
+## Key Concepts
+
+### Users
+
+Users are entities allowed to perform actions on processes and files. When you log in to an operating system, the system grants you resources and allows you to:
+
+- Launch programs
+- Access files
+- Modify data
+- Execute applications
+- Use hardware resources
+
+All within the bounds of your assigned permissions.
+
+### Groups
+
+Groups are collections of users that share common permissions. Instead of assigning permissions to individual users, you can:
+
+1. Create a group
+2. Assign permissions to the group
+3. Add users to the group
+4. All group members inherit the permissions
+
+### Permissions
+
+Permissions control what operations users can perform:
+
+<CardGroup cols={3}>
+  <Card title="Read" icon="book-open">
+    View file contents or list directory contents
+  </Card>
+  
+  <Card title="Write" icon="pen">
+    Modify files or create/delete files in directories
+  </Card>
+  
+  <Card title="Execute" icon="play">
+    Run programs or access directories
+  </Card>
+</CardGroup>
+
+## Topics Covered
+
+<Steps>
+  <Step title="User Accounts">
+    Local users, built-in accounts, user properties, and profiles
+  </Step>
+  
+  <Step title="Group Management">
+    Creating groups, adding members, built-in groups, and group policies
+  </Step>
+  
+  <Step title="Windows Permissions">
+    NTFS permissions, ACLs (Access Control Lists), inheritance, and security policies
+  </Step>
+  
+  <Step title="Linux Permissions">
+    File permissions (rwx), ownership, chmod, chown, and special bits (SUID, SGID)
+  </Step>
+  
+  <Step title="Practical Application">
+    Real-world scenarios combining users, groups, and permissions
+  </Step>
+</Steps>
+
+## Built-in Users and Groups
+
+### Windows
+
+**Built-in Users:**
+- **Administrator**: Full system access
+- **Guest**: Limited access for temporary users
+- **DefaultUser0**: Template for new users
+
+**Common Groups:**
+- Administrators
+- Users
+- Power Users
+- Remote Desktop Users
+- Backup Operators
+
+### Linux
+
+**Built-in Users:**
+- **root** (UID 0): Superuser with full system access
+- **nobody**: Unprivileged user for services
+- System users for daemons and services
+
+**Common Groups:**
+- sudo/wheel: Administrative privileges
+- users: Regular users
+- www-data: Web server processes
+- adm: System monitoring
+
+## Access Control
+
+Operating systems protect resources through access control mechanisms:
+
+<Steps>
+  <Step title="Authentication">
+    User logs in and receives an authentication token
+  </Step>
+  
+  <Step title="Authorization Request">
+    User attempts to access a resource (file, printer, etc.)
+  </Step>
+  
+  <Step title="ACL Check">
+    System checks the Access Control List (ACL) of the resource
+  </Step>
+  
+  <Step title="Permission Decision">
+    Access granted or denied based on ACL entries (ACEs)
+  </Step>
+</Steps>
+
+## Learning Outcomes
+
+By the end of this unit, you will be able to:
+
+- Create and manage user accounts in Windows and Linux
+- Organize users into groups effectively
+- Configure file and folder permissions
+- Implement security policies
+- Troubleshoot permission issues
+- Understand permission inheritance
+- Use command-line tools for user management
+
+<Warning>
+Improper permission configuration can lead to security vulnerabilities or prevent legitimate access. Always test permission changes carefully.
+</Warning>
+
+## Best Practices Preview
+
+<Accordion title="Principle of Least Privilege">
+Grant users only the minimum permissions necessary to perform their tasks.
+</Accordion>
+
+<Accordion title="Use Groups, Not Individual Permissions">
+Assign permissions to groups rather than individual users for easier management.
+</Accordion>
+
+<Accordion title="Document Permission Structures">
+Maintain documentation of who has access to what and why.
+</Accordion>
+
+<Accordion title="Regular Audits">
+Periodically review user accounts and permissions to remove unnecessary access.
+</Accordion>
+
+<Accordion title="Separate Admin and User Accounts">
+Administrators should use regular accounts for daily work and admin accounts only when needed.
+</Accordion>

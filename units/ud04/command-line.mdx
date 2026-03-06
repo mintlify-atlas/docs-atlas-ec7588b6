@@ -1,0 +1,379 @@
+---
+title: 'Command Line Interfaces'
+description: 'Working with PowerShell and BASH for system administration'
+---
+
+# Command Line Interfaces
+
+The command line is one of the most powerful tools for system administrators. While graphical interfaces make many tasks easier, the command line provides:
+
+- More direct system communication
+- Better automation capabilities
+- Access to all system features
+- Scriptability for repetitive tasks
+
+## PowerShell (Windows)
+
+PowerShell has become the default interpreter in Windows 10 (since November 2017), replacing CMD as the primary administrative tool.
+
+### Why PowerShell?
+
+<CardGroup cols={2}>
+  <Card title="Object-Oriented" icon="cube">
+    Everything is an object, not text strings, providing richer data manipulation
+  </Card>
+  
+  <Card title=".NET Integration" icon="microsoft">
+    Full access to .NET Framework capabilities
+  </Card>
+  
+  <Card title="Cross-Platform" icon="linux">
+    PowerShell Core runs on Windows, Linux, and macOS
+  </Card>
+  
+  <Card title="Consistent Syntax" icon="code">
+    Verb-Noun naming convention makes commands predictable
+  </Card>
+</CardGroup>
+
+### cmdlet Structure
+
+All PowerShell cmdlets follow the `Verb-Noun` pattern:
+
+```powershell
+Get-Process      # Get information
+Set-ExecutionPolicy  # Set configuration
+New-Item         # Create new item
+Remove-Item      # Delete item
+```
+
+#### Common Verbs
+
+| Verb | Purpose | Example |
+|------|---------|----------|
+| Get | Retrieve data | `Get-Process` |
+| Set | Modify settings | `Set-Location` |
+| New | Create objects | `New-Item` |
+| Remove | Delete objects | `Remove-Item` |
+| Enable | Activate feature | `Enable-WindowsFeature` |
+| Disable | Deactivate feature | `Disable-FirewallRule` |
+| Install | Install software | `Install-Module` |
+| Uninstall | Remove software | `Uninstall-Package` |
+| Test | Verify condition | `Test-Path` |
+| Move | Relocate object | `Move-Item` |
+
+### Parameters
+
+Parameters modify command behavior:
+
+```powershell
+Get-ChildItem -Path C:\ -Recurse -Force
+Get-Process -Name "chrome" | Stop-Process
+```
+
+### Pipelines
+
+PowerShell's pipelines pass entire objects between commands:
+
+```powershell
+# Get processes, sort by ID, select first 5
+Get-Process | Sort-Object -Property Id -Descending | Select-Object -First 5
+
+# Get services, filter running ones, export to CSV
+Get-Service | Where-Object {$_.Status -eq "Running"} | Export-Csv services.csv
+```
+
+### Script Files (.ps1)
+
+PowerShell scripts use the `.ps1` extension:
+
+```powershell
+#!/usr/bin/env pwsh
+# My first PowerShell script
+
+Write-Host "System Information"
+Get-ComputerInfo | Select-Object CsName, OsVersion
+```
+
+### Help System
+
+PowerShell includes comprehensive help:
+
+<CodeGroup>
+```powershell Basic Help
+Get-Help Get-Process
+```
+
+```powershell Detailed Help
+Get-Help Get-Process -Detailed
+```
+
+```powershell Full Help
+Get-Help Get-Process -Full
+```
+
+```powershell Examples
+Get-Help Get-Process -Examples
+```
+
+```powershell Online Help
+Get-Help Get-Process -Online
+```
+</CodeGroup>
+
+### Execution Policy
+
+PowerShell's execution policy controls script execution:
+
+```powershell
+# View current policy
+Get-ExecutionPolicy
+
+# Set unrestricted (for development)
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted
+
+# Set to remote signed (production)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+```
+
+<Warning>
+Changing execution policy requires administrator privileges. Run PowerShell as administrator.
+</Warning>
+
+**Execution Policy Levels:**
+
+| Policy | Description |
+|--------|-------------|
+| Restricted | No scripts can run (default) |
+| AllSigned | Only signed scripts can run |
+| RemoteSigned | Local scripts run unsigned; downloaded scripts must be signed |
+| Unrestricted | All scripts can run (prompts for downloaded scripts) |
+| Bypass | No restrictions, no warnings |
+
+---
+
+## BASH Shell (GNU/Linux)
+
+BASH (Bourne Again SHell) is the default shell on most Linux distributions.
+
+### The Prompt
+
+The prompt provides information about your session:
+
+```bash
+violin@xubuntu:~$
+```
+
+- `violin` - username
+- `xubuntu` - hostname
+- `~` - current directory (home)
+- `$` - regular user (`#` for root)
+
+Root prompt:
+```bash
+root@xubuntu:~#
+```
+
+### Key Features
+
+<Accordion title="Tab Completion">
+Press `TAB` to auto-complete:
+- Commands
+- File names
+- Directory names
+- Variables
+
+Press `TAB` twice to see all possibilities:
+```bash
+cd /us<TAB><TAB>
+# Shows: /usr/ /usr/bin/ /usr/lib/ ...
+```
+</Accordion>
+
+<Accordion title="Command History">
+Navigate command history with arrow keys:
+- **↑** - Previous command
+- **↓** - Next command
+- `history` - Show command history
+- `!123` - Execute command #123 from history
+- `!!` - Execute previous command
+- `!$` - Last argument of previous command
+
+History is stored in `~/.bash_history` (default 1000 commands)
+</Accordion>
+
+<Accordion title="Aliases">
+Create command shortcuts:
+```bash
+alias ll='ls -lah'
+alias update='sudo apt update && sudo apt upgrade'
+alias ..='cd ..'
+```
+
+Make permanent by adding to `~/.bashrc`
+</Accordion>
+
+<Accordion title="Functions">
+Define reusable functions:
+```bash
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+backup() {
+    cp "$1" "$1.backup.$(date +%Y%m%d)"
+}
+```
+</Accordion>
+
+### Script Structure
+
+BASH scripts follow a standard structure:
+
+```bash
+#!/bin/bash
+# Script description
+# Author: Your Name
+# Date: 2024-03-06
+
+# Variables
+VARIABLE="value"
+
+# Main code
+echo "Script starting..."
+
+# Functions
+function my_function() {
+    echo "Function called"
+}
+
+# Execution
+my_function
+
+# Exit with success
+exit 0
+```
+
+### Shebang Line
+
+The shebang (`#!`) specifies the interpreter:
+
+```bash
+#!/bin/bash          # Use bash
+#!/bin/sh            # Use sh (POSIX)
+#!/usr/bin/env bash  # Use bash from PATH
+#!/usr/bin/env python3  # Python script
+```
+
+<Note>
+Using `#!/usr/bin/env bash` is more portable as it finds bash in the PATH.
+</Note>
+
+### Making Scripts Executable
+
+```bash
+# Create script
+echo '#!/bin/bash' > script.sh
+echo 'echo "Hello World"' >> script.sh
+
+# Make executable
+chmod +x script.sh
+
+# Run script
+./script.sh
+```
+
+### Common BASH Constructs
+
+<CodeGroup>
+```bash If Statement
+#!/bin/bash
+
+if [ -f "/etc/passwd" ]; then
+    echo "File exists"
+else
+    echo "File not found"
+fi
+```
+
+```bash For Loop
+#!/bin/bash
+
+for file in *.txt; do
+    echo "Processing: $file"
+    cat "$file"
+done
+```
+
+```bash While Loop
+#!/bin/bash
+
+counter=0
+while [ $counter -lt 5 ]; do
+    echo "Counter: $counter"
+    ((counter++))
+done
+```
+
+```bash Case Statement
+#!/bin/bash
+
+case $1 in
+    start)
+        echo "Starting..."
+        ;;
+    stop)
+        echo "Stopping..."
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        ;;
+esac
+```
+</CodeGroup>
+
+---
+
+## Comparing PowerShell and BASH
+
+| Task | PowerShell | BASH |
+|------|------------|------|
+| List files | `Get-ChildItem` | `ls` |
+| Change directory | `Set-Location` | `cd` |
+| Copy file | `Copy-Item` | `cp` |
+| Move file | `Move-Item` | `mv` |
+| Delete file | `Remove-Item` | `rm` |
+| Create directory | `New-Item -Type Directory` | `mkdir` |
+| Display text | `Write-Host` | `echo` |
+| View file | `Get-Content` | `cat` |
+| Find text | `Select-String` | `grep` |
+| Sort output | `Sort-Object` | `sort` |
+| Filter output | `Where-Object` | `grep` |
+
+<Note>
+Both shells support aliases. PowerShell includes aliases that match common BASH commands (ls, cd, cat, etc.).
+</Note>
+
+## Best Practices
+
+<Steps>
+  <Step title="Document Your Scripts">
+    Include comments explaining what the script does, author, and date
+  </Step>
+  
+  <Step title="Use Meaningful Names">
+    Variables and functions should have descriptive names
+  </Step>
+  
+  <Step title="Check for Errors">
+    Always verify commands succeeded before continuing
+  </Step>
+  
+  <Step title="Test Before Production">
+    Test scripts thoroughly in a development environment
+  </Step>
+  
+  <Step title="Use Version Control">
+    Store scripts in git for history and collaboration
+  </Step>
+</Steps>

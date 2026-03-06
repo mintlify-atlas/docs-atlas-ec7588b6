@@ -1,97 +1,114 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: Welcome to ASIR-ISO
+description: Educational materials and practical guides for the Operating Systems Implementation module
 ---
 
-## Setting up
+# Welcome to ASIR-ISO
 
-Get your documentation site up and running in minutes.
+ASIR-ISO provides comprehensive educational materials for the **Implantación de Sistemas Operativos** (Operating Systems Implementation) module, part of the **ASIR** (Administración de Sistemas Informáticos y Redes) degree program.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+This repository contains theory materials, practical exercises, installation guides, and automation tools to support both students and instructors in learning systems administration.
 
-## Make it yours
+## What You'll Find Here
 
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="12 Course Units" icon="book" href="/units/ud01/overview">
+    Comprehensive didactic units covering all aspects of operating system implementation
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Installation Guides" icon="download" href="/guides/ubuntu-bionic">
+    Step-by-step guides for installing Linux distributions and Windows Server
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Build System" icon="terminal" href="/build/overview">
+    Scripts and tools for generating PDF materials from markdown sources
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Resources" icon="folder-open" href="/resources/scripts">
+    Additional utilities, scripts, and assessment tools
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Key Features
 
-Everything you need to create world-class documentation.
+- **Comprehensive Coverage**: 12 didactic units covering everything from OS fundamentals to domain administration
+- **Practical Tasks**: Hands-on exercises with detailed instructions for Windows and Linux systems
+- **Multi-Platform**: Materials for Ubuntu, Debian, Windows 10, Windows Server 2016/2019
+- **Virtualization**: Complete tutorials for VirtualBox and Docker
+- **Domain Management**: Active Directory and OpenLDAP administration guides
+- **Automation**: Build scripts for PDF generation using pandoc and LaTeX
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+## Course Structure
 
-## Need inspiration?
+The course is organized into 12 didactic units:
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<AccordionGroup>
+  <Accordion title="UD01 - Operating Systems Introduction">
+    Fundamentals of operating systems, computer architecture, software types, and licensing
+  </Accordion>
+  <Accordion title="UD02 - Virtualization">
+    VirtualBox and Docker, virtual disk management, networking, and resource sharing
+  </Accordion>
+  <Accordion title="UD03 - Installation & Boot">
+    OS installation procedures, BIOS/UEFI, boot managers (GRUB, BCDEdit), and recovery modes
+  </Accordion>
+  <Accordion title="UD04 - Processes & Networking">
+    Command line interfaces, process management, and basic networking on Windows and Linux
+  </Accordion>
+  <Accordion title="UD05 - Users, Groups & Permissions">
+    User and group administration, permission systems, and access control
+  </Accordion>
+  <Accordion title="UD06 - File Systems">
+    File system types, management, mounting, and disk operations
+  </Accordion>
+  <Accordion title="UD07 - Software & Updates">
+    Package management, system updates, and software installation procedures
+  </Accordion>
+  <Accordion title="UD08 - Security">
+    System security, firewalls, authentication, and security best practices
+  </Accordion>
+  <Accordion title="UD09 - Domain Administration">
+    Windows Active Directory and OpenLDAP setup, user/group management, and policies
+  </Accordion>
+  <Accordion title="UD10 - Domain Access">
+    Client machines joining domains, authentication, and access control
+  </Accordion>
+  <Accordion title="UD11 - Performance & Auditing">
+    System monitoring, performance tuning, and audit logging
+  </Accordion>
+  <Accordion title="UD12 - Incident Management">
+    Troubleshooting methodologies and technical support procedures
+  </Accordion>
+</AccordionGroup>
+
+## Getting Started
+
+<Steps>
+  <Step title="Explore the Course Units">
+    Start with [UD01 - Operating Systems Introduction](/units/ud01/overview) to understand the fundamentals
+  </Step>
+  <Step title="Review Installation Guides">
+    Check out the [Installation Guides](/guides/ubuntu-bionic) for setting up your lab environment
+  </Step>
+  <Step title="Set Up the Build System">
+    If you're an instructor, see the [Build System](/build/overview) to generate PDF materials
+  </Step>
+  <Step title="Practice with Tasks">
+    Work through the practical tasks in each unit to reinforce your learning
+  </Step>
+</Steps>
+
+## License
+
+<Note>
+This project is licensed under **GPL-3.0** with a Creative Commons **BY-NC-SA** (Attribution-NonCommercial-ShareAlike) license for educational materials.
+
+The materials are free for educational use but cannot be used commercially. Any derivative works must be shared under the same license.
+</Note>
+
+## Acknowledgments
+
+These materials have been developed for students at IES Fuente de San Luís and IES La Sénia, inspired by a passion for systems administration and teaching.
+
+Special thanks to the LliureX team at the Conselleria de Educación and the broader educational community for their contributions and inspiration.
+
+---
+
+Ready to begin? Start with [UD01 - Operating Systems Introduction](/units/ud01/overview) or explore the [Installation Guides](/guides/ubuntu-bionic).

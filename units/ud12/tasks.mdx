@@ -1,0 +1,1012 @@
+---
+title: Tareas Prácticas - UD12
+description: Ejercicios prácticos de gestión de incidencias y conexión remota
+---
+
+## Tarea 1: Servidor SSH Linux y Clientes SSH
+
+SSH (Secure Shell) es un intérprete de órdenes seguro que permite acceder remotamente a una máquina a través de una conexión cifrada.
+
+### Introducción
+
+SSH permite:
+- Acceso remoto seguro a línea de comandos
+- Transferencia segura de archivos (SCP, SFTP)
+- Redirección del entorno gráfico (X11 forwarding)
+- Túneles cifrados
+- Ejecución de comandos remotos
+
+<Note>
+Recuerda configurar correctamente la red (NAT, modo puente, etc.) para poder realizar las conexiones.
+</Note>
+
+### Instalación del Servidor SSH
+
+En una máquina Ubuntu/Linux:
+
+```bash
+sudo apt update
+sudo apt install openssh-server
+```
+
+#### Claves Generadas
+
+Tras la instalación, se generan automáticamente las claves para los algoritmos soportados:
+
+```bash
+ls -la /etc/ssh/ssh_host_*
+```
+
+<Accordion title="Tipos de claves">
+  **Cada algoritmo tiene dos archivos:**
+  - `ssh_host_xxx_key` - Clave privada (solo el servidor)
+  - `ssh_host_xxx_key.pub` - Clave pública (compartida con clientes)
+  
+  **Algoritmos:**
+  - RSA (clásico, ampliamente soportado)
+  - ECDSA (curvas elípticas, más eficiente)
+  - ED25519 (moderno, recomendado)
+</Accordion>
+
+### Cliente SSH en Ubuntu
+
+La mayoría de distribuciones Linux incluyen el cliente SSH por defecto.
+
+#### Verificar Instalación
+
+```bash
+sudo apt search openssh-client
+```
+
+#### Instalar si es Necesario
+
+```bash
+sudo apt update
+sudo apt install openssh-client
+```
+
+#### Conectar a Servidor Remoto
+
+```bash
+ssh <usuario>@maquina_remota
+
+# Ejemplos:
+ssh usuario@192.168.1.100
+ssh admin@servidor.ejemplo.com
+ssh -p 2222 usuario@192.168.1.100  # Puerto personalizado
+```
+
+<Steps>
+  <Step title="Primera conexión">
+    La primera vez, debes aceptar la clave pública del servidor
+  </Step>
+  <Step title="Introducir contraseña">
+    La contraseña es la del usuario **en la máquina remota**
+  </Step>
+  <Step title="Sesión establecida">
+    Ya puedes ejecutar comandos en el servidor remoto
+  </Step>
+  <Step title="Cerrar conexión">
+    Ejecuta `exit` para cerrar la sesión
+  </Step>
+</Steps>
+
+<Warning>
+**Importante:** El usuario y contraseña deben existir en la máquina remota. No confundir con credenciales locales.
+</Warning>
+
+### Limitar Usuarios que Pueden Conectarse
+
+Por defecto, SSH permite conexiones de cualquier usuario válido del sistema.
+
+#### Configurar Restricciones
+
+Edita el archivo de configuración:
+
+```bash
+sudo nano /etc/ssh/sshd_config
+```
+
+Añade al final del archivo:
+
+```bash
+# Permitir solo usuarios específicos
+AllowUsers usu1 usu2 adminiso
+
+# O denegar usuarios específicos
+DenyUsers guest invitado
+
+# Permitir solo un grupo
+AllowGroups ssh-users
+```
+
+<Note>
+Puedes usar `AllowUsers`, `DenyUsers`, `AllowGroups` o `DenyGroups` según tus necesidades.
+</Note>
+
+#### Aplicar Cambios
+
+```bash
+sudo systemctl restart sshd
+```
+
+#### Probar Restricciones
+
+Intenta conectar con un usuario no autorizado:
+
+```bash
+ssh usu3@192.168.1.100
+# Resultado: Permission denied
+```
+
+### Habilitar/Deshabilitar Redirección X11
+
+La redirección X11 permite ejecutar aplicaciones gráficas en el servidor pero visualizarlas en el cliente.
+
+#### Configuración en el Servidor
+
+Edita `/etc/ssh/sshd_config`:
+
+```bash
+# Habilitar redirección X11
+X11Forwarding yes
+
+# O deshabilitar
+X11Forwarding no
+```
+
+Reinicia el servicio:
+
+```bash
+sudo systemctl restart sshd
+```
+
+#### Usar Redirección X11 desde Cliente
+
+```bash
+# Conectar con redirección X11
+ssh -X usuario@servidor
+
+# O forzar redirección confiable
+ssh -Y usuario@servidor
+
+# Ejecutar aplicación gráfica
+scite &
+firefox &
+gedit archivo.txt &
+```
+
+<Note>
+**Requisito:** El cliente debe tener servidor X instalado (en Linux viene por defecto, en Windows necesita Xming o VcXsrv).
+</Note>
+
+### Regenerar Claves SSH
+
+Hay situaciones que requieren regenerar las claves:
+
+- Compromiso de seguridad
+- Clonación de máquinas virtuales
+- Reinstalación del servidor
+
+<Steps>
+  <Step title="Borrar claves antiguas">
+    ```bash
+    sudo rm /etc/ssh/ssh_host_*
+    ```
+  </Step>
+  <Step title="Generar nuevas claves">
+    ```bash
+    sudo dpkg-reconfigure openssh-server
+    ```
+  </Step>
+  <Step title="Limpiar caché en clientes">
+    Los clientes deben eliminar la clave antigua:
+    ```bash
+    ssh-keygen -R servidor.ejemplo.com
+    # O editar manualmente:
+    nano ~/.ssh/known_hosts
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+**Advertencia de Seguridad:** Cuando un cliente detecta que las claves cambiaron, muestra una advertencia de posible ataque man-in-the-middle. Solo ignora esta advertencia si sabes que las claves fueron regeneradas legítimamente.
+</Warning>
+
+### Comando SCP (Secure Copy)
+
+SCP permite copiar archivos de manera segura entre máquinas.
+
+#### Descargar Archivos del Servidor
+
+```bash
+# Sintaxis general
+scp usuario@servidor:/ruta/remota /ruta/local
+
+# Ejemplos
+scp usu1@10.2.1.33:/home/usu1/documento.txt .
+scp admin@servidor:/var/log/syslog ./logs/
+scp -r usu1@servidor:/home/usu1/carpeta/ ./backup/
+```
+
+<Note>
+La opción `-r` es necesaria para copiar directorios completos.
+</Note>
+
+#### Subir Archivos al Servidor
+
+```bash
+# Sintaxis general
+scp /ruta/local usuario@servidor:/ruta/remota
+
+# Ejemplos
+scp archivo.txt usu1@10.2.1.33:/home/usu1/
+scp /etc/environment admin@servidor:~/backup/environment
+scp -r ./proyecto/ usu1@servidor:/var/www/html/
+```
+
+#### Opciones Útiles de SCP
+
+```bash
+# Especificar puerto
+scp -P 2222 archivo.txt usuario@servidor:/destino/
+
+# Preservar permisos y timestamps
+scp -p archivo.txt usuario@servidor:/destino/
+
+# Modo verbose (ver progreso)
+scp -v archivo.txt usuario@servidor:/destino/
+
+# Limitar ancho de banda (en Kbit/s)
+scp -l 1000 archivo_grande.iso usuario@servidor:/destino/
+```
+
+### Clientes SSH en Windows
+
+Windows no incluye cliente SSH por defecto en versiones antiguas.
+
+#### PuTTY
+
+Cliente SSH gratuito y portable para Windows.
+
+**Descargar:** [https://www.chiark.greenend.org.uk/~sgtatham/putty/](https://www.chiark.greenend.org.uk/~sgtatham/putty/)
+
+<Steps>
+  <Step title="Ejecutar PuTTY">
+    No requiere instalación, ejecuta `putty.exe`
+  </Step>
+  <Step title="Configurar conexión">
+    - **Host Name:** IP o nombre del servidor
+    - **Port:** 22 (por defecto)
+    - **Connection type:** SSH
+  </Step>
+  <Step title="Abrir conexión">
+    Clic en "Open"
+  </Step>
+  <Step title="Aceptar clave">
+    Primera vez: aceptar clave pública del servidor
+  </Step>
+  <Step title="Autenticarse">
+    Introducir usuario y contraseña
+  </Step>
+</Steps>
+
+#### WinSCP
+
+Cliente gráfico para transferencia de archivos.
+
+**Descargar:** [https://winscp.net/](https://winscp.net/)
+
+**Configuración:**
+
+- **File protocol:** SFTP
+- **Host name:** IP del servidor
+- **Port number:** 22
+- **User name:** Usuario del servidor
+- **Password:** Contraseña del usuario
+
+**Interfaz:**
+- Panel izquierdo: Archivos locales (Windows)
+- Panel derecho: Archivos remotos (Linux)
+- Arrastra archivos entre paneles para copiar
+
+<Note>
+WinSCP soporta edición de archivos remotos, sincronización de directorios y conexiones guardadas.
+</Note>
+
+### Ejercicios
+
+#### Ejercicio 1: Configuración Completa
+
+Trabajar por parejas con tarjetas de red en modo puente:
+
+**Tareas a documentar con capturas:**
+1. Instalación de openssh-server
+2. Configuración de bloqueo de usuarios
+3. Instalación y conexión con WinSCP
+4. Instalación y conexión con PuTTY
+5. Pruebas de acceso con usuarios permitidos y denegados
+
+#### Ejercicio 2: Transferencia con SCP
+
+Crea un fichero de texto en el home del usuario usu1 y cópialo al home remoto mediante scp.
+
+**Documentar:**
+```bash
+# En máquina local
+echo "Este es un archivo de prueba" > archivo_prueba.txt
+
+# Copiar a remoto
+scp archivo_prueba.txt usu1@<IP_REMOTA>:~/
+
+# Verificar en remoto
+ssh usu1@<IP_REMOTA> ls -la ~/archivo_prueba.txt
+```
+
+#### Ejercicio 3: Puerto Personalizado
+
+Configura el servidor SSH para funcionar en el puerto **2233**.
+
+<Steps>
+  <Step title="Editar configuración">
+    ```bash
+    sudo nano /etc/ssh/sshd_config
+    # Cambiar línea:
+    Port 2233
+    ```
+  </Step>
+  <Step title="Reiniciar servicio">
+    ```bash
+    sudo systemctl restart sshd
+    ```
+  </Step>
+  <Step title="Verificar puerto">
+    ```bash
+    sudo netstat -tulpn | grep 2233
+    ```
+  </Step>
+  <Step title="Conectar con nuevo puerto">
+    ```bash
+    ssh -p 2233 usuario@servidor
+    ```
+  </Step>
+</Steps>
+
+**Copiar archivo con SCP en puerto personalizado:**
+
+```bash
+scp -P 2233 /etc/hosts usu1@<IP_REMOTA>:~/fichero2233.txt
+```
+
+Documenta el proceso con capturas.
+
+#### Ejercicio 4: WinSCP en Puerto Personalizado
+
+Utiliza WinSCP para copiar el fichero desde Windows a la máquina Linux en el puerto 2233.
+
+**Configuración:**
+- Modifica el campo "Port number" a 2233
+- Resto igual que antes
+
+Realiza una captura mostrando la transferencia exitosa.
+
+#### Ejercicio 5: Redirección X11
+
+Utiliza la redirección de las X para lanzar un navegador web en la máquina del compañero.
+
+```bash
+# Conectar con X11 forwarding
+ssh -X usuario@<IP_COMPANERO>
+
+# Lanzar navegador
+firefox &
+```
+
+**Descargar un archivo:**
+1. En el Firefox redirigido, descarga un archivo cualquiera
+2. ¿Dónde se almacena el archivo descargado?
+
+<Accordion title="Respuesta">
+  El archivo se almacena en la máquina **remota** (donde se ejecuta Firefox), no en la local. Solo la visualización se redirige, no el sistema de archivos.
+</Accordion>
+
+---
+
+## Tarea 2: Escritorio Remoto (RDP)
+
+El servicio de Escritorio Remoto de Windows permite que varios usuarios inicien una sesión gráfica simultáneamente en el servidor.
+
+### Introducción al Servicio de Escritorio Remoto
+
+En Windows 2019 Server, este servicio se llama **Servicio de Escritorio Remoto**.
+
+#### Componentes
+
+<CardGroup cols={3}>
+  <Card title="Servidor" icon="server">
+    Escucha en el puerto 3389 por defecto
+  </Card>
+  <Card title="Cliente" icon="desktop">
+    Aplicación para conectar al servidor
+  </Card>
+  <Card title="Protocolo RDP" icon="network-wired">
+    Remote Desktop Protocol - cifra y transmite el escritorio
+  </Card>
+</CardGroup>
+
+**Ventajas de RDP:**
+- Acceso completo al escritorio gráfico
+- Múltiples sesiones simultáneas
+- Redireccción de recursos locales
+- Optimizado para WAN
+- Cifrado de comunicaciones
+
+### Instalación del Servidor
+
+<Steps>
+  <Step title="Agregar rol">
+    Administrar → Agregar roles y características
+  </Step>
+  <Step title="Seleccionar servidor">
+    Selecciona el servidor donde instalar
+  </Step>
+  <Step title="Servicios de Escritorio Remoto">
+    Marca: **Servicios de Escritorio Remoto**
+  </Step>
+  <Step title="Host de sesión">
+    Marca: **Host de sesión de Escritorio remoto**
+  </Step>
+  <Step title="Instalar">
+    Completa el asistente y reinicia el servidor
+  </Step>
+</Steps>
+
+<Note>
+**Administración de Licencias** se configura como un servicio separado en Windows Server 2019. No es necesario para pruebas (periodo de gracia de 120 días).
+</Note>
+
+#### Verificar Configuración
+
+Después de la instalación:
+
+```
+Inicio → Panel de Control → Sistema → Configuración de Acceso remoto
+```
+
+Debe estar seleccionado: **"Permitir las conexiones remotas a este equipo"**
+
+### Cliente Windows
+
+El cliente viene instalado por defecto en Windows.
+
+#### Conexión a Escritorio Remoto (mstsc)
+
+<Steps>
+  <Step title="Abrir cliente">
+    Buscar "Conexión a Escritorio Remoto" o ejecutar `mstsc.exe`
+  </Step>
+  <Step title="Introducir servidor">
+    **Equipo:** IP o nombre del servidor
+  </Step>
+  <Step title="Conectar">
+    Clic en "Conectar"
+  </Step>
+  <Step title="Credenciales">
+    Introducir usuario y contraseña del dominio/servidor
+  </Step>
+  <Step title="Aceptar certificado">
+    Primera vez: aceptar certificado autofirmado
+  </Step>
+</Steps>
+
+<Warning>
+**Importante:** Si te conectas con el mismo usuario que tiene sesión abierta en el servidor, esa sesión se cerrará. RDP no permite el mismo usuario en múltiples sesiones simultáneas.
+</Warning>
+
+#### Permitir Usuarios Adicionales
+
+Por defecto, solo administradores pueden conectarse.
+
+**Añadir usuarios:**
+
+```
+Panel de Control → Sistema → Configuración de Acceso remoto → Seleccionar usuarios...
+```
+
+<Steps>
+  <Step title="Agregar usuario">
+    Clic en "Agregar..."
+  </Step>
+  <Step title="Buscar usuario">
+    Introduce el nombre del usuario o grupo
+  </Step>
+  <Step title="Verificar">
+    Clic en "Comprobar nombres"
+  </Step>
+  <Step title="Aceptar">
+    Confirma la selección
+  </Step>
+</Steps>
+
+### Cliente GNU/Linux
+
+Linux dispone de varios clientes RDP.
+
+#### Remmina (Recomendado)
+
+Cliente RDP integrado en la mayoría de distribuciones.
+
+**Instalación (si no está):**
+
+```bash
+sudo apt install remmina remmina-plugin-rdp
+```
+
+**Uso:**
+
+<Steps>
+  <Step title="Abrir Remmina">
+    Aplicaciones → Remmina o `remmina` en terminal
+  </Step>
+  <Step title="Nueva conexión">
+    Clic en el icono "+" para crear nueva conexión
+  </Step>
+  <Step title="Configurar conexión">
+    - **Name:** Nombre descriptivo
+    - **Protocol:** RDP
+    - **Server:** IP del servidor Windows
+    - **User name:** Usuario del dominio/servidor
+    - **User password:** Contraseña
+    - **Domain:** Nombre del dominio (opcional)
+    - **Resolution:** Resolución de pantalla
+    - **Color depth:** Calidad de color (reduce ancho de banda)
+  </Step>
+  <Step title="Guardar y conectar">
+    Guardar la configuración y hacer doble clic para conectar
+  </Step>
+</Steps>
+
+**Características de Remmina:**
+- Barra de herramientas flotante
+- Pantalla completa
+- Escalado de ventana
+- Compartir portapapeles
+- Compartir impresoras
+- Redireccción de sonido
+
+#### tsclient (Alternativa)
+
+Otro cliente RDP con interfaz más parecida a Windows.
+
+```bash
+sudo apt install tsclient
+```
+
+### Opciones Avanzadas de RDP
+
+#### Redirección de Recursos
+
+**Desde mstsc (Windows):**
+
+```
+Mostrar opciones → Recursos locales
+```
+
+Puedes redirigir:
+- Portapapeles
+- Impresoras
+- Unidades de disco
+- Puertos (COM, LPT)
+- Dispositivos USB
+- Audio
+
+**Desde Remmina (Linux):**
+
+En la configuración avanzada:
+- Share folder: Compartir carpeta local
+- Share printer: Compartir impresora
+- Audio output: Reproducir audio localmente o remotamente
+
+### Ejercicio 1: Configuración Completa
+
+Realiza los pasos descritos en la práctica y comprueba que puedes conectarte:
+
+**Matriz de pruebas:**
+
+| Cliente | Servidor | Estado |
+|---------|----------|--------|
+| Windows 10 | Windows Server 2019 | ☐ |
+| Ubuntu | Windows Server 2019 | ☐ |
+| Windows 10 | Ubuntu (xrdp) | ☐ (Ampliación) |
+
+**Para cada combinación documenta:**
+1. Configuración realizada
+2. Captura de la conexión establecida
+3. Pruebas de funcionalidad (copiar/pegar, transferir archivos)
+4. Problemas encontrados y soluciones
+
+**Avisa al profesor cuando concluyas cada paso.**
+
+---
+
+## Tarea 3: Túneles con Netcat (Ampliación)
+
+**netcat** es una herramienta versátil de red que permite crear conexiones y túneles.
+
+<Warning>
+Esta tarea es avanzada. Requiere comprensión sólida de redes y puertos.
+</Warning>
+
+### Ejercicio: Túnel Básico
+
+Crear un túnel desde un puerto local a un servicio remoto.
+
+**Escenario:**
+- Máquina A: Cliente (no puede acceder directamente a servicio)
+- Máquina B: Intermediario (con netcat)
+- Máquina C: Servidor (ejecuta el servicio)
+
+```bash
+# En Máquina B (intermediario)
+nc -l -p 8080 | nc maquina_c 80 | nc -l -p 8081
+
+# En Máquina A (cliente)
+curl http://maquina_b:8080
+```
+
+---
+
+## Tarea 4: TeamViewer (Opcional)
+
+TeamViewer es una herramienta comercial de acceso remoto multiplataforma.
+
+### Características
+
+- Acceso remoto fácil sin configuración de red
+- Atraviesa NAT y firewalls automáticamente
+- Transferencia de archivos
+- Chat integrado
+- Grabación de sesiones
+- Multiplataforma (Windows, Linux, macOS, móvil)
+
+### Ejercicio: Conexión Remota
+
+1. Descargar e instalar TeamViewer en dos máquinas
+2. Obtener ID y contraseña de una máquina
+3. Conectar desde la otra máquina
+4. Probar control remoto y transferencia de archivos
+5. Documentar el proceso
+
+---
+
+## Tarea 5: Protocolo de Asistencia
+
+Con lo aprendido hasta ahora, crearás protocolos de actuación con elementos condicionales para diferentes escenarios.
+
+### Ejercicio 1: Máquina Sin Monitor
+
+**Escenario:** Una máquina arranca pero no tiene monitor (ni posibilidad de conectar uno). Conocemos su IP y un usuario administrador. Necesitamos conocer la versión del SO instalado.
+
+**Desarrolla un protocolo que incluya:**
+
+<Steps>
+  <Step title="Verificar conectividad">
+    ```
+    SI ping exitoso:
+      → Continuar
+    SI NO:
+      → Verificar cableado
+      → Verificar switch/router
+      → FIN (problema de red)
+    ```
+  </Step>
+  <Step title="Intentar SSH">
+    ```
+    Intentar: ssh admin@IP
+    
+    SI conexión exitosa:
+      → Linux detectado
+      → Ejecutar: cat /etc/os-release
+      → FIN exitoso
+    SI NO (Connection refused):
+      → Continuar con otros métodos
+    ```
+  </Step>
+  <Step title="Intentar RDP">
+    ```
+    Intentar: mstsc /v:IP
+    
+    SI conexión exitosa:
+      → Windows detectado
+      → Abrir PowerShell: Get-ComputerInfo
+      → FIN exitoso
+    SI NO:
+      → Continuar
+    ```
+  </Step>
+  <Step title="Escaneo de puertos">
+    ```
+    Ejecutar: nmap -O IP
+    
+    Analizar puertos abiertos:
+    - Puerto 22: Probablemente Linux
+    - Puerto 3389: Probablemente Windows
+    - Puerto 5900: VNC instalado
+    ```
+  </Step>
+</Steps>
+
+### Ejercicio 2: Problema de Impresión
+
+**Escenario:** Un usuario no puede imprimir. Conocemos su IP. El usuario está delante del ordenador y tenemos comunicación telefónica.
+
+**Desarrolla un protocolo:**
+
+```
+1. VERIFICAR CONEXIÓN A LA RED
+   Usuario ejecuta: ping 8.8.8.8
+   SI exitoso: → Red OK, continuar
+   SI NO: → Protocolo de diagnóstico de red
+
+2. VERIFICAR IMPRESORA EN RED
+   Usuario ejecuta: ping IP_IMPRESORA
+   SI exitoso: → Impresora accesible, continuar
+   SI NO: → Problema de impresora o red
+          → Verificar impresora encendida
+          → Verificar cable de red impresora
+
+3. ACCESO REMOTO
+   Técnico: ssh usuario@IP (Linux)
+            o mstsc /v:IP (Windows)
+   
+4. VERIFICAR SERVICIO DE IMPRESIÓN
+   Linux:
+     systemctl status cups
+     SI activo: → Servicio OK
+     SI NO: → systemctl start cups
+   
+   Windows:
+     services.msc → Spooler de impresión
+     SI ejecutando: → Servicio OK
+     SI NO: → Iniciar servicio
+
+5. VERIFICAR COLA DE IMPRESIÓN
+   Linux: lpstat -o
+   Windows: Impresoras → Ver cola
+   
+   SI hay trabajos atascados:
+     → Cancelar trabajos antiguos
+     → Reintentar impresión
+
+6. PRUEBA DE IMPRESIÓN
+   Imprimir página de prueba
+   SI exitoso: → FIN (problema resuelto)
+   SI NO: → Escalado a soporte técnico presencial
+```
+
+### Ejercicio 3: Documentos Perdidos
+
+**Escenario:** Usuario ha perdido documentos. Usa GNU/Linux. Conocemos su IP. Password de root es "toor".
+
+**Desarrolla protocolo de recuperación.**
+
+### Ejercicio 4: Problema de Red Intermitente
+
+**Escenario:** Algo pasa con el tráfico de red de un ordenador del aula. Conocemos la IP. Aproximadamente la mitad de las peticiones de ping no regresan.
+
+**Desarrolla protocolo de diagnóstico.**
+
+<Accordion title="Pistas">
+  Considera:
+  - Pérdida de paquetes (50%)
+  - Cable defectuoso
+  - Conector suelto
+  - Problema de tarjeta de red
+  - Interferencias
+  - Duplex mismatch
+</Accordion>
+
+### Ejercicio 5: Escenario Personalizado (Por Parejas)
+
+Por parejas:
+
+1. Invéntate un escenario posible
+2. Descríbeselo a tu compañer@
+3. Tu compañer@ desarrolla el protocolo
+4. Revisad juntos el protocolo
+5. Validar con el profesor
+
+---
+
+## Tarea 6: Clonación con Clonezilla Live (Ampliación)
+
+### Ejercicio: Crear y Restaurar Imagen
+
+<Steps>
+  <Step title="Preparar sistema origen">
+    Configura una máquina virtual con:
+    - SO instalado y actualizado
+    - Software necesario instalado
+    - Configuración personalizada
+  </Step>
+  <Step title="Descargar Clonezilla Live">
+    [https://clonezilla.org/downloads.php](https://clonezilla.org/downloads.php)
+  </Step>
+  <Step title="Crear USB booteable">
+    Usa Rufus (Windows) o dd (Linux)
+  </Step>
+  <Step title="Arrancar desde Clonezilla">
+    Configurar boot order en BIOS/UEFI
+  </Step>
+  <Step title="Crear imagen">
+    - device-image: Trabajar con imágenes
+    - local_dev: Disco externo
+    - Beginner mode
+    - savedisk: Guardar disco completo
+    - Seleccionar disco origen
+    - Seleccionar destino para imagen
+  </Step>
+  <Step title="Restaurar imagen">
+    En otra máquina (o la misma con disco nuevo):
+    - device-image
+    - restoredisk: Restaurar disco
+    - Seleccionar imagen
+    - Seleccionar disco destino
+  </Step>
+  <Step title="Post-clonación">
+    Cambiar elementos únicos:
+    - Hostname
+    - IP (si es estática)
+    - SID (Windows)
+  </Step>
+</Steps>
+
+**Documenta:**
+- Capturas de cada paso
+- Tiempo empleado
+- Tamaño de la imagen
+- Problemas encontrados
+
+---
+
+## Tarea 7: Preseed (Ampliación)
+
+### Ejercicio: Instalación Desatendida de Ubuntu
+
+<Steps>
+  <Step title="Preparar servidor HTTP">
+    En una máquina accesible desde la red:
+    ```bash
+    sudo apt install apache2
+    sudo systemctl start apache2
+    ```
+  </Step>
+  <Step title="Crear fichero preseed">
+    Usa el ejemplo de la teoría y modifícalo:
+    ```bash
+    sudo nano /var/www/html/preseed.cfg
+    ```
+    
+    Personaliza:
+    - Hostname
+    - Usuario y contraseña
+    - Paquetes a instalar
+    - Zona horaria
+  </Step>
+  <Step title="Verificar acceso">
+    Desde otra máquina:
+    ```bash
+    curl http://IP_SERVIDOR/preseed.cfg
+    ```
+  </Step>
+  <Step title="Arrancar instalador Ubuntu">
+    Desde ISO o USB
+  </Step>
+  <Step title="Editar opciones de arranque">
+    Pulsar TAB y añadir:
+    ```
+    auto=true priority=critical url=http://IP_SERVIDOR/preseed.cfg
+    ```
+  </Step>
+  <Step title="Iniciar instalación">
+    Pulsar ENTER y dejar que instale automáticamente
+  </Step>
+  <Step title="Verificar resultado">
+    Al finalizar, comprobar:
+    - Usuario creado correctamente
+    - Hostname correcto
+    - Paquetes instalados
+    - Configuración de red
+  </Step>
+</Steps>
+
+**Documenta:**
+- Fichero preseed completo
+- Capturas del proceso
+- Tiempo de instalación
+- Diferencias con instalación manual
+
+---
+
+## Tarea 8: GLPI - Gestión de Incidencias
+
+En esta práctica entrarás en el servidor del aula donde está instalado GLPI y comprobarás las tareas asignadas.
+
+### ¿Qué es GLPI?
+
+**GLPI** (Gestion Libre de Parc Informatique) es un sistema de gestión de servicios IT que permite:
+
+- Gestión de inventario de hardware y software
+- Gestión de tickets (incidencias y solicitudes)
+- Base de conocimientos
+- Gestión de contratos y proveedores
+- Reserva de recursos
+- Generación de informes
+
+### Ejercicio 1: Resolver Incidencia
+
+<Steps>
+  <Step title="Acceder a GLPI">
+    URL proporcionada por el profesor
+    Credenciales asignadas
+  </Step>
+  <Step title="Ver tickets asignados">
+    Menú: Asistencia → Tickets → Mis Tickets
+  </Step>
+  <Step title="Abrir ticket">
+    Selecciona un ticket asignado a ti
+  </Step>
+  <Step title="Analizar incidencia">
+    Lee la descripción completa:
+    - ¿Qué problema reporta el usuario?
+    - ¿Qué información adicional necesitas?
+    - ¿Cuál es la prioridad?
+  </Step>
+  <Step title="Investigar y resolver">
+    Aplica los conocimientos adquiridos en el módulo
+  </Step>
+  <Step title="Documentar la resolución">
+    En el ticket, añade un seguimiento detallando:
+    - Diagnóstico realizado
+    - Pasos seguidos
+    - Solución aplicada
+    - Verificación de la resolución
+  </Step>
+  <Step title="Cambiar estado">
+    Marca el ticket como "Resuelto" o "Cerrado"
+  </Step>
+</Steps>
+
+**Documenta el proceso:**
+- Descripción de la incidencia original
+- Análisis realizado
+- Acciones tomadas
+- Capturas de pantalla
+- Resultado final
+- Tiempo empleado
+- Lecciones aprendidas
+
+---
+
+## Recursos Adicionales
+
+<CardGroup cols={2}>
+  <Card title="OpenSSH" icon="lock" href="https://www.openssh.com/">
+    Documentación oficial de OpenSSH
+  </Card>
+  <Card title="Microsoft RDP" icon="windows" href="https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/">
+    Guía de Remote Desktop Services
+  </Card>
+  <Card title="Clonezilla" icon="clone" href="https://clonezilla.org/">
+    Documentación y tutoriales de Clonezilla
+  </Card>
+  <Card title="Preseed" icon="file-code" href="https://wiki.debian.org/DebianInstaller/Preseed">
+    Guía completa de Preseed para Debian
+  </Card>
+  <Card title="GLPI" icon="ticket" href="https://glpi-project.org/">
+    Documentación oficial de GLPI
+  </Card>
+  <Card title="PuTTY" icon="terminal" href="https://www.putty.org/">
+    Cliente SSH para Windows
+  </Card>
+</CardGroup>

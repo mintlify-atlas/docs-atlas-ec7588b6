@@ -1,0 +1,129 @@
+---
+title: 'UD02: Sistemas de Virtualización'
+description: 'Introduction to virtualization technologies including VirtualBox and Docker'
+---
+
+# Sistemas de Virtualización
+
+Los sistemas de virtualización de hardware y software son fundamentales en la administración moderna de sistemas, permitiendo trabajar sin la complejidad de gestionar dispositivos físicos.
+
+## Objetivos de Aprendizaje
+
+Al completar esta unidad, serás capaz de:
+
+<CardGroup cols={2}>
+  <Card title="Conceptos" icon="brain">
+    Comprender qué es la virtualización y sus tipos
+  </Card>
+  <Card title="VirtualBox" icon="box">
+    Instalar y configurar VirtualBox para gestionar máquinas virtuales
+  </Card>
+  <Card title="Recursos" icon="network-wired">
+    Gestionar recursos compartidos entre sistemas virtuales y físicos
+  </Card>
+  <Card title="Docker" icon="docker">
+    Introducirse en la virtualización por contenedores
+  </Card>
+</CardGroup>
+
+## ¿Por qué Virtualización?
+
+La virtualización se ha convertido en un requisito esencial para administradores de sistemas debido a sus múltiples beneficios:
+
+<Steps>
+  <Step title="Aprovechamiento de Recursos">
+    Múltiples sistemas en un solo hardware físico
+  </Step>
+  
+  <Step title="Flexibilidad">
+    Crear, clonar y eliminar sistemas fácilmente
+  </Step>
+  
+  <Step title="Aislamiento">
+    Probar configuraciones sin afectar el sistema principal
+  </Step>
+  
+  <Step title="Portabilidad">
+    Mover sistemas completos entre diferentes máquinas
+  </Step>
+</Steps>
+
+## Contenidos de la Unidad
+
+### 1. Fundamentos de Virtualización
+
+- ¿Qué es un sistema de virtualización?
+- Ventajas y desventajas
+- Conceptos Guest y Host
+- Tipos de virtualización
+
+### 2. VirtualBox
+
+<Note>
+  VirtualBox es un sistema de virtualización completa (Tipo 2) gratuito y multiplataforma.
+</Note>
+
+- Instalación en Windows y GNU/Linux
+- Creación de máquinas virtuales
+- Configuración de red
+- Gestión de recursos compartidos
+- Importación y exportación (OVA)
+
+### 3. Docker y Contenedores
+
+- Virtualización en la nube
+- Conceptos de contenedores
+- Escalabilidad y elasticidad
+- Introducción a Docker
+
+## Ventajas Clave
+
+<CardGroup cols={2}>
+  <Card title="Educación" icon="graduation-cap">
+    Prácticas antes inviables son ahora posibles en una sola máquina
+  </Card>
+  <Card title="Pruebas" icon="flask">
+    Probar configuraciones sin riesgo para el sistema principal
+  </Card>
+  <Card title="Recuperación" icon="clock-rotate-left">
+    Snapshots permiten volver atrás en el tiempo
+  </Card>
+  <Card title="Distribución" icon="share-nodes">
+    Compartir sistemas completos mediante archivos OVA
+  </Card>
+</CardGroup>
+
+## Tecnologías que Estudiaremos
+
+<Accordion title="VirtualBox">
+  Sistema de virtualización completa de Oracle, gratuito y de código abierto (OSE). Ideal para entornos de desarrollo y educación.
+</Accordion>
+
+<Accordion title="Docker">
+  Plataforma de contenedores que permite empaquetar aplicaciones con sus dependencias, facilitando el despliegue en cualquier entorno.
+</Accordion>
+
+## Recursos de la Unidad
+
+<CardGroup cols={3}>
+  <Card title="Teoría" icon="book" href="/units/ud02/theory">
+    Conceptos fundamentales de virtualización
+  </Card>
+  <Card title="VirtualBox" icon="box" href="/units/ud02/virtualbox">
+    Guía completa de VirtualBox
+  </Card>
+  <Card title="Docker" icon="docker" href="/units/ud02/docker">
+    Introducción a contenedores
+  </Card>
+  <Card title="Tareas" icon="list-check" href="/units/ud02/tasks">
+    Ejercicios prácticos
+  </Card>
+</CardGroup>
+
+<Warning>
+  Para trabajar con virtualización necesitas un equipo con recursos suficientes: mínimo 8GB RAM y procesador con soporte para virtualización (VT-x/AMD-V).
+</Warning>
+
+## Próximos Pasos
+
+Comienza estudiando los conceptos teóricos de virtualización, luego procede con la instalación de VirtualBox y la creación de tu primera máquina virtual.

@@ -1,0 +1,236 @@
+---
+title: 'Teoría: Sistemas de Virtualización'
+description: 'Fundamental concepts of virtualization systems, types, and technologies'
+---
+
+# ¿Qué es un Sistema de Virtualización?
+
+En informática, un **sistema de virtualización** se refiere a la creación a través de *Software* de un recurso tecnológico:
+
+- Un ordenador físico completo
+- Otros recursos de hardware
+- Recursos de red
+- Dispositivos de almacenamiento
+
+<Note>
+  La virtualización ofrece una **abstracción** de los recursos hardware de un ordenador a través del **Hypervisor**.
+</Note>
+
+## Beneficios de la Virtualización
+
+Los sistemas virtualizados representan un gran avance en las tecnologías de la información:
+
+- Mejor aprovechamiento de recursos
+- Prácticas educativas antes inviables
+- Pruebas sin riesgo para sistemas en producción
+- Facilidad para crear entornos de prueba
+
+### Ejemplos Prácticos
+
+<Accordion title="Interconexiones de Red">
+  Antes: Necesidad de coordinar mínimo dos ordenadores con sus respectivos alumnos.
+  
+  Ahora: Una sola máquina anfitriona y otra virtualizada.
+</Accordion>
+
+<Accordion title="Instalaciones Múltiples">
+  Antes: Riesgo de alterar el arranque o particiones al instalar varios sistemas operativos.
+  
+  Ahora: Instalaciones sin peligro en máquinas virtuales aisladas.
+</Accordion>
+
+---
+
+## Conceptos Fundamentales
+
+### Guest y Host
+
+Terminología esencial en virtualización:
+
+<CardGroup cols={2}>
+  <Card title="Host (Anfitrión)" icon="server">
+    La máquina real que dispone de hardware físico y virtualiza las otras
+  </Card>
+  <Card title="Guest (Invitado)" icon="computer">
+    La máquina virtualizada que "vive" dentro de la máquina real
+  </Card>
+</CardGroup>
+
+### Hypervisor
+
+El **Hypervisor** o monitor de máquina virtual es el administrador de recursos hardware:
+
+- Gestiona peticiones a la CPU
+- Administra privilegios de las peticiones
+- Crea el modelo cliente/servidor
+- En nuestro caso: VirtualBox actúa como Hypervisor
+
+---
+
+## Ventajas de la Virtualización
+
+La principal ventaja es tener **varios sistemas dentro de un solo hardware físico**, siendo independientes entre sí.
+
+### Ventajas Adicionales
+
+<Steps>
+  <Step title="Recursos Dedicados">
+    Los usuarios ven los recursos como si fueran dedicados exclusivamente para ellos
+  </Step>
+  
+  <Step title="Administración Centralizada">
+    Gestión de múltiples sistemas desde una sola interfaz
+  </Step>
+  
+  <Step title="Homogeneidad">
+    Facilita crear recursos homogéneos y estandarizados
+  </Step>
+  
+  <Step title="Movilidad">
+    Trasladar sistemas y configuraciones entre máquinas, incluso en "caliente"
+  </Step>
+  
+  <Step title="Eficiencia">
+    Mejor aprovechamiento de recursos y consumo eléctrico
+  </Step>
+  
+  <Step title="Tolerancia a Fallos">
+    Si cae un sistema, los otros continúan inalterados
+  </Step>
+  
+  <Step title="Backups">
+    Facilita enormemente las copias de seguridad
+  </Step>
+</Steps>
+
+---
+
+## Desventajas de la Virtualización
+
+<Warning>
+  **Requisito principal**: El sistema host debe disponer de mayor cantidad y potencia de recursos según el número de máquinas virtuales.
+</Warning>
+
+### Factores Críticos
+
+Componentes que determinan el rendimiento:
+
+- **RAM**: Cantidad y velocidad de memoria
+- **CPU**: Potencia del procesador
+- **Disco**: Velocidad de lectura, acceso y transferencia
+- **Red**: Ancho de banda disponible
+
+### Otras Desventajas
+
+- Problemas ocasionales de compatibilidad con hardware virtualizado
+- Dificultad para configurar ciertos recursos
+- Limitaciones del software de virtualización
+- Overhead de recursos del hypervisor
+
+---
+
+## Tipos de Virtualización
+
+Existen dos grandes grupos de virtualizadores o **Hypervisors**:
+
+### Tipo 1: Para-Virtualización (Bare Metal)
+
+También denominado **nativo** o **sobre el metal desnudo**.
+
+<Accordion title="Características">
+  - Se ejecuta directamente sobre el hardware
+  - El hardware está compartido entre las VMs y el SO del hypervisor
+  - Cada sistema instalado gestiona recursos físicos directamente
+  - Mejor aprovechamiento de recursos
+</Accordion>
+
+**Ejemplos de Bare Metal:**
+
+```text Hypervisors Tipo 1
+VMware ESXi Free (gratis)
+VMware ESX (de pago)
+Xen (libre)
+Microsoft Hyper-V Server (gratis)
+Proxmox (gratis/de pago)
+```
+
+<Note>
+  En paravirtualización de componentes hardware, muchos sistemas operativos (Linux, etc.) llevan los controladores, pero Windows generalmente requiere descargarlos.
+</Note>
+
+### Tipo 2: Virtualización Completa
+
+También llamada **completa** porque virtualiza todo el hardware.
+
+<Accordion title="Características">
+  - Requiere mayores recursos
+  - El SO anfitrión debe gestionar todos los recursos
+  - Gestión de discos, RAM, CPU a través del SO host
+  - Más fácil de instalar y configurar
+</Accordion>
+
+**Ejemplos de Virtualización Completa:**
+
+```text Hypervisors Tipo 2
+VirtualBox (gratis)
+VirtualBox OSE (libre)
+VMware Workstation (de pago)
+VMware Server (gratis)
+QEMU (libre)
+```
+
+---
+
+## Máquinas Virtuales
+
+Una **máquina virtual** es un contenedor de software perfectamente aislado que puede ejecutar:
+
+- Sus propios sistemas operativos
+- Aplicaciones independientes
+- Como si fuera un ordenador físico
+
+### Componentes Virtuales
+
+Cada máquina virtual contiene:
+
+<CardGroup cols={2}>
+  <Card title="CPU Virtual" icon="microchip">
+    Procesador virtualizado
+  </Card>
+  <Card title="Memoria" icon="memory">
+    RAM asignada
+  </Card>
+  <Card title="Disco Duro" icon="hard-drive">
+    Almacenamiento virtual
+  </Card>
+  <Card title="Tarjeta de Red" icon="network-wired">
+    Interfaz de red virtualizada
+  </Card>
+</CardGroup>
+
+### Comportamiento
+
+<Note>
+  A todos los efectos, una máquina virtual se considera como una máquina con su sistema operativo propio. Incluso otros ordenadores de la red la verán así.
+</Note>
+
+Aunque todo está basado en software, esto reporta:
+- **Ventajas**: Flexibilidad, portabilidad, aislamiento
+- **Inconvenientes**: Overhead de recursos, complejidad adicional
+
+---
+
+## Recursos Adicionales
+
+<CardGroup cols={2}>
+  <Card title="VirtualBox" icon="box" href="/units/ud02/virtualbox">
+    Guía de instalación y configuración
+  </Card>
+  <Card title="Docker" icon="docker" href="/units/ud02/docker">
+    Virtualización por contenedores
+  </Card>
+</CardGroup>
+
+### Vídeo Recomendado
+
+- [Conceptos Básicos de Virtualización](https://www.youtube.com/watch?v=iSvjBc-JwPs)

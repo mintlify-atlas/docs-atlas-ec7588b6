@@ -1,0 +1,299 @@
+---
+title: UD09 - Administración del Dominio
+description: Configuración y administración de dominios con Active Directory y OpenLDAP
+---
+
+# UD09 - Administración del Dominio
+
+## Descripción General
+
+La administración centralizada en los sistemas informáticos facilita las tareas de configuración y explotación. Los dominios eliminan la duplicidad y facilitan la labor del administrador de sistemas, proporcionando un punto central de gestión para usuarios, grupos, equipos y recursos.
+
+<Note>
+  **Objetivo**: Aprender a configurar un dominio y administrar usuarios, grupos y recursos de manera centralizada.
+</Note>
+
+## Objetivos de Aprendizaje
+
+Al completar esta unidad, serás capaz de:
+
+<CardGroup cols={2}>
+  <Card title="Conceptos de Dominio" icon="network-wired">
+    Comprender LDAP, DNS, Kerberos y servicios de directorio
+  </Card>
+  
+  <Card title="Active Directory" icon="windows">
+    Configurar y administrar dominios en Windows Server
+  </Card>
+  
+  <Card title="OpenLDAP" icon="linux">
+    Implementar servicios de directorio en GNU/Linux
+  </Card>
+  
+  <Card title="Gestión de Usuarios" icon="users">
+    Crear y administrar usuarios, grupos y perfiles móviles
+  </Card>
+</CardGroup>
+
+## Contenidos de la Unidad
+
+### Problema: Administración Descentralizada
+
+Sin dominios, nos encontramos con:
+
+- **Duplicación de usuarios** en cada servidor
+- **Múltiples contraseñas** para los mismos usuarios
+- **Dificultad para localizar** recursos en la red
+- **Administración compleja** y propensa a errores
+
+<Warning>
+  Los grupos de trabajo y servicios individuales son útiles en empresas pequeñas, pero no escalan bien en organizaciones grandes.
+</Warning>
+
+### Solución: Dominios y Directorios
+
+<Steps>
+  <Step title="Centralización">
+    Un servidor controla usuarios, grupos y permisos
+  </Step>
+  
+  <Step title="Autenticación única">
+    Los usuarios inician sesión una vez y acceden a todos los recursos
+  </Step>
+  
+  <Step title="Administración unificada">
+    Cambios centralizados se propagan automáticamente
+  </Step>
+  
+  <Step title="Seguridad mejorada">
+    Políticas de seguridad consistentes en toda la red
+  </Step>
+</Steps>
+
+## Componentes de un Dominio
+
+Para que un dominio funcione correctamente, necesitamos:
+
+<Accordion title="LDAP - Servicio de Directorio">
+  Almacena información sobre usuarios, grupos, permisos y recursos del dominio.
+  
+  **Implementaciones**:
+  - Active Directory (Microsoft)
+  - OpenLDAP (Open Source)
+  - Novell Directory Services
+  - Red Hat DS
+</Accordion>
+
+<Accordion title="DNS - Resolución de Nombres">
+  Permite trabajar con nombres en lugar de direcciones IP.
+  
+  **Funciones**:
+  - Resolución de nombres de máquinas
+  - Localización de servicios (SRV records)
+  - Integración con LDAP
+</Accordion>
+
+<Accordion title="Kerberos - Autenticación">
+  Sistema de autenticación que asegura que los usuarios son quienes dicen ser.
+  
+  **Características**:
+  - Autenticación mutua
+  - Basado en tickets
+  - Requiere sincronización de tiempo
+</Accordion>
+
+<Accordion title="SMB/NFS - Compartición de Recursos">
+  Protocolos para compartir archivos y carpetas en red.
+  
+  **Opciones**:
+  - SMB/CIFS (Server Message Block)
+  - NFS (Network File System)
+</Accordion>
+
+<Accordion title="NTP - Sincronización de Tiempo">
+  Asegura que todas las máquinas estén en la misma hora.
+  
+  **Importancia**: Requisito crítico para Kerberos
+</Accordion>
+
+## LDAP - Lightweight Directory Access Protocol
+
+### ¿Qué es LDAP?
+
+Protocolo que permite el acceso a un servicio de directorio ordenado y distribuido para buscar información en un entorno de red.
+
+<Note>
+  **Definición**: Un Directorio es un conjunto de objetos con atributos organizados de manera lógica y jerárquica.
+</Note>
+
+### Estructura Jerárquica
+
+LDAP se apoya en DNS para estructurar recursos:
+
+```
+dc=iso,dc=com
+    ou=valencia
+        ou=esbirros
+            ou=tecnicos
+                uid=esbirro01
+            ou=transportistas
+        ou=dispositivos
+        ou=grupos
+```
+
+### Ventajas de LDAP
+
+- **Universal**: Accesible desde casi cualquier dispositivo
+- **Multiplataforma**: No depende del sistema operativo
+- **Estándar**: Basado en estándares de Internet
+- **Replicable**: Datos distribuidos y sincronizados
+- **Seguro**: ACLs para control de acceso
+- **Optimizado**: Para operaciones de lectura
+
+## Estructura de Dominios
+
+### Dominio
+
+Conjunto de computadoras conectadas en red que confían a uno de los equipos (Controlador de Dominio) la administración de usuarios y privilegios.
+
+**Componentes**:
+- Máquinas clientes
+- Recursos compartidos
+- Al menos un **Controlador de Dominio (DC)**
+
+### Árbol de Dominios
+
+Estructura jerárquica de dominios anidados:
+
+```
+iso.com (raíz)
+    valencia.iso.com
+        utiel.valencia.iso.com
+        torrent.valencia.iso.com
+    castellon.iso.com
+```
+
+### Bosque (Forest)
+
+Colección de uno o más árboles de dominios que comparten:
+- Esquema común
+- Catálogo global
+- Relaciones de confianza
+
+<Note>
+  El modelo de bosque permite a organizaciones con espacios de nombres no contiguos mantener la continuidad en su estructura de dominios.
+</Note>
+
+## Active Directory vs OpenLDAP
+
+<CardGroup cols={2}>
+  <Card title="Active Directory" icon="windows">
+    **Plataforma**: Windows Server
+    
+    **Ventajas**:
+    - Integración completa con Windows
+    - Interfaz gráfica intuitiva
+    - Políticas de grupo (GPO)
+    - Soporte comercial
+    
+    **Ideal para**: Redes principalmente Windows
+  </Card>
+  
+  <Card title="OpenLDAP" icon="linux">
+    **Plataforma**: Multiplataforma (principalmente Linux)
+    
+    **Ventajas**:
+    - Código abierto y gratuito
+    - Flexible y personalizable
+    - Rendimiento excelente
+    - Estándares abiertos
+    
+    **Ideal para**: Redes heterogéneas, entornos Linux
+  </Card>
+</CardGroup>
+
+## Perfiles Móviles
+
+Capacidad del sistema para que los usuarios inicien sesión en diferentes equipos manteniendo sus datos y configuraciones sincronizados.
+
+### Componentes de Perfiles Móviles
+
+<Steps>
+  <Step title="Sincronización de usuarios y grupos">
+    Base de datos centralizada en LDAP
+  </Step>
+  
+  <Step title="Sincronización de ficheros">
+    Carpetas personales en recursos compartidos (NFS/SMB)
+  </Step>
+  
+  <Step title="Sincronización de configuraciones">
+    Políticas de grupo y scripts de inicio
+  </Step>
+  
+  <Step title="Sincronización de aplicaciones">
+    Software instalado/desinstalado según usuario
+  </Step>
+</Steps>
+
+### Ventajas
+
+- **Movilidad**: El usuario accede a sus datos desde cualquier equipo
+- **Copias de seguridad simplificadas**: Solo el servidor necesita copias
+- **Administración centralizada**: Cambios aplicados una vez
+- **Mayor disponibilidad**: Con RAID y copias, mejor protección ante desastres
+
+## Usuarios y Grupos en Active Directory
+
+### Tipos de Cuentas
+
+- **Usuarios normales**: Personas físicas
+- **Cuentas de servicio**: Para aplicaciones y servicios
+- **Entidades de seguridad**: Objetos con SID asignado
+
+### Grupos de Seguridad
+
+Permiten agrupar cuentas en unidades fáciles de administrar.
+
+**Tipos**:
+- **Grupos de distribución**: Para correo electrónico
+- **Grupos de seguridad**: Para permisos y accesos
+
+**Ámbitos**:
+- **Local**: Recursos del dominio local
+- **Global**: Usuarios del dominio local, recursos de cualquier dominio
+- **Universal**: Miembros y recursos de cualquier dominio
+
+## Contenido Específico
+
+<CardGroup cols={2}>
+  <Card title="Active Directory" icon="windows" href="/units/ud09/active-directory">
+    Configuración y administración de dominios Windows
+  </Card>
+  
+  <Card title="OpenLDAP" icon="linux" href="/units/ud09/openldap">
+    Implementación de directorio en GNU/Linux
+  </Card>
+</CardGroup>
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Contenido Teórico" icon="book" href="/units/ud09/theory">
+    Profundiza en conceptos de dominios y LDAP
+  </Card>
+  
+  <Card title="Tareas Prácticas" icon="code" href="/units/ud09/tasks">
+    Configura dominios en Windows y Linux
+  </Card>
+</CardGroup>
+
+---
+
+<Note>
+  **Importante**: En esta unidad trabajaremos con dos dominios diferentes:
+  - Windows: `iso.com`
+  - Linux: `valencia.iso.com`
+  
+  En el módulo de ASO (segundo curso) se verán las relaciones de confianza entre dominios.
+</Note>

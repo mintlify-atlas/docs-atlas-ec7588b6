@@ -1,0 +1,302 @@
+---
+title: QEMU/KVM Installation Guide
+description: Guide for installing and using QEMU with KVM acceleration on Linux
+---
+
+# QEMU/KVM Installation Guide
+
+QEMU is a generic open-source machine emulator and virtualizer. When combined with KVM (Kernel-based Virtual Machine), it provides near-native performance for virtual machines on Linux.
+
+## About QEMU and KVM
+
+<Info>
+**QEMU** is a flexible emulator that can:
+- Emulate different CPU architectures
+- Run virtual machines with various operating systems
+- Work with or without hardware acceleration
+
+**KVM** is a Linux kernel module that:
+- Provides hardware virtualization support
+- Allows QEMU to run VMs at near-native speed
+- Requires CPU virtualization extensions (Intel VT-x or AMD-V)
+</Info>
+
+## Prerequisites
+
+**System Requirements**
+- Linux operating system
+- 64-bit CPU with virtualization extensions (Intel VT-x or AMD-V)
+- Sudo/root access for installation
+- Basic command-line knowledge
+
+## Checking Virtualization Support
+
+Before installing KVM, verify your CPU supports virtualization extensions:
+
+```bash
+egrep '(vmx|svm)' /proc/cpuinfo
+```
+
+<Note>
+If this command returns no output, your CPU doesn't support virtualization extensions or they're disabled in BIOS. You can still use QEMU without KVM, but performance will be significantly slower.
+</Note>
+
+<Accordion title="Interpreting the results">
+- **vmx**: Intel VT-x virtualization technology
+- **svm**: AMD-V virtualization technology
+
+If you see multiple lines with these flags, your CPU supports virtualization.
+</Accordion>
+
+## Installing QEMU and KVM
+
+<Steps>
+  <Step title="Install KVM">
+    If your CPU supports virtualization, install KVM:
+    
+    ```bash
+    sudo apt install kvm
+    ```
+    
+    <Warning>
+    If the check in the previous step returned nothing, skip KVM installation. You can still use QEMU without it.
+    </Warning>
+  </Step>
+
+  <Step title="Install QEMU">
+    Install the QEMU emulator:
+    
+    ```bash
+    sudo apt install qemu
+    ```
+    
+    This installs the core QEMU packages for various architectures.
+  </Step>
+
+  <Step title="Verify Installation">
+    Check that QEMU is installed correctly:
+    
+    ```bash
+    qemu-system-x86_64 --version
+    ```
+  </Step>
+</Steps>
+
+## Testing QEMU
+
+<Info>
+You can test QEMU with pre-built images from the [QEMU Testing wiki](http://wiki.qemu.org/Testing).
+</Info>
+
+```bash
+# Download a test image
+wget http://wiki.qemu.org/download/linux-0.2.img.bz2
+bunzip2 linux-0.2.img.bz2
+
+# Run the test image
+qemu-system-x86_64 linux-0.2.img
+```
+
+## Creating a Virtual Disk
+
+QEMU supports various disk image formats:
+- **raw**: Simple binary image (compatible but large)
+- **qcow2**: QEMU's native format (flexible, supports snapshots)
+- **vmdk**: VMware format
+- **vdi**: VirtualBox format
+
+### Create a qcow2 disk:
+
+```bash
+qemu-img create -f qcow2 debian9.img 3G
+```
+
+<Accordion title="Understanding the command">
+- `qemu-img create`: Creates a new disk image
+- `-f qcow2`: Specifies the format (qcow2 is recommended)
+- `debian9.img`: Name of the image file
+- `3G`: Size of the virtual disk (3 gigabytes)
+</Accordion>
+
+## Installing an Operating System
+
+<Steps>
+  <Step title="Download an ISO">
+    Download an operating system ISO. For example, Debian:
+    
+    ```bash
+    wget https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-12.0.0-amd64-xfce.iso
+    ```
+  </Step>
+
+  <Step title="Start Installation">
+    Boot the VM with the ISO attached:
+    
+    ```bash
+    qemu-system-x86_64 -m 2048 -hda debian9.img -cdrom debian-live-12.0.0-amd64-xfce.iso -boot d
+    ```
+    
+    <Accordion title="Command breakdown">
+    - `qemu-system-x86_64`: 64-bit x86 emulator
+    - `-m 2048`: Allocate 2048 MB (2 GB) RAM
+    - `-hda debian9.img`: Attach the virtual disk as the primary hard drive
+    - `-cdrom file.iso`: Attach the ISO as a CD-ROM
+    - `-boot d`: Boot from CD-ROM (d = CD-ROM drive)
+    </Accordion>
+  </Step>
+
+  <Step title="Complete Installation">
+    Follow the OS installation process as you would on a physical machine.
+    
+    When complete, shut down the VM normally.
+  </Step>
+</Steps>
+
+## Running the Installed System
+
+After installation, boot from the hard disk:
+
+```bash
+qemu-system-x86_64 -m 2048 -hda debian9.img
+```
+
+<Note>
+The `-boot d` option is removed, so QEMU boots from the hard disk by default.
+</Note>
+
+## Using Physical CD/DVD
+
+To use a physical CD-ROM or DVD:
+
+```bash
+# For CD-ROM
+qemu-system-x86_64 -m 2048 -hda myvm.img -cdrom /dev/cdrom -boot d
+
+# For DVD
+qemu-system-x86_64 -m 2048 -hda myvm.img -cdrom /dev/dvd -boot d
+```
+
+## Enabling KVM Acceleration
+
+If you installed KVM, enable it for better performance:
+
+```bash
+qemu-system-x86_64 -enable-kvm -m 2048 -hda debian9.img
+```
+
+<Info>
+KVM acceleration can improve VM performance by 10-20x compared to pure emulation.
+</Info>
+
+## Common QEMU Options
+
+<Accordion title="Useful QEMU command-line options">
+**Memory and CPU**
+```bash
+-m 2048              # Allocate 2 GB RAM
+-smp 2               # Use 2 CPU cores
+-enable-kvm          # Enable KVM acceleration
+```
+
+**Storage**
+```bash
+-hda disk.img        # Primary hard disk
+-hdb disk2.img       # Secondary hard disk
+-cdrom file.iso      # CD-ROM drive
+```
+
+**Networking**
+```bash
+-net nic             # Add a network interface card
+-net user            # Use user-mode networking (NAT)
+```
+
+**Display**
+```bash
+-vga std             # Standard VGA
+-vga qxl             # QXL paravirtual graphics
+-display sdl         # Use SDL display
+-display gtk         # Use GTK display
+```
+
+**Boot Options**
+```bash
+-boot d              # Boot from CD-ROM
+-boot c              # Boot from hard disk (default)
+```
+</Accordion>
+
+## Disk Image Management
+
+### Check image information:
+```bash
+qemu-img info debian9.img
+```
+
+### Convert image formats:
+```bash
+# Convert VDI to qcow2
+qemu-img convert -f vdi -O qcow2 source.vdi destination.qcow2
+
+# Convert VMDK to qcow2
+qemu-img convert -f vmdk -O qcow2 source.vmdk destination.qcow2
+```
+
+### Resize disk:
+```bash
+qemu-img resize debian9.img +5G
+```
+
+## Networking Configuration
+
+### User-mode networking (NAT):
+```bash
+qemu-system-x86_64 -m 2048 -hda myvm.img -net nic -net user
+```
+
+### Bridge networking:
+```bash
+qemu-system-x86_64 -m 2048 -hda myvm.img -net nic -net bridge,br=virbr0
+```
+
+<Warning>
+Bridge networking requires additional configuration on the host system and may need root privileges.
+</Warning>
+
+## Next Steps
+
+After mastering basic QEMU usage:
+
+- **libvirt**: Use `virt-manager` for graphical VM management
+- **Snapshots**: Take VM snapshots with qcow2 format
+- **Networking**: Configure advanced network topologies
+- **Performance**: Optimize VMs with virtio drivers
+- **Cloud Images**: Use cloud-init images for automation
+
+## Troubleshooting
+
+**VM is very slow**
+- Ensure KVM is installed and `-enable-kvm` is used
+- Check that virtualization is enabled in BIOS
+- Allocate more RAM with `-m`
+- Try `-cpu host` for better CPU passthrough
+
+**No display window appears**
+- Try different display options: `-display sdl` or `-display gtk`
+- Check that X11 is running if on Linux desktop
+- Use `-nographic` for serial console only
+
+**Network not working**
+- Verify `-net nic -net user` is specified
+- Check firewall settings on host
+- Try different network modes
+
+## Additional Resources
+
+<Note>
+This tutorial is based on content from [Fortinux](https://fortinux.com/tutoriales/linux-2-tutoriales/tutorial-instalar-kmv-y-qemu-en-gnulinux/)
+</Note>
+
+- [QEMU Official Documentation](https://www.qemu.org/docs/master/)
+- [KVM Documentation](https://www.linux-kvm.org/)
+- [QEMU Wiki](https://wiki.qemu.org/)

@@ -1,0 +1,299 @@
+---
+title: 'UD03: Instalación y Arranque'
+description: 'Operating system installation, boot processes, BIOS/UEFI, and boot managers'
+---
+
+# Instalación y Arranque de Sistemas Operativos
+
+En esta unidad aprenderemos cómo instalar diferentes sistemas operativos, comprender sus procesos de arranque, y configurar gestores de arranque.
+
+## Objetivos de Aprendizaje
+
+Al completar esta unidad, serás capaz de:
+
+<CardGroup cols={2}>
+  <Card title="Obtener Imágenes" icon="download">
+    Descargar y preparar imágenes de instalación de sistemas operativos
+  </Card>
+  <Card title="Instalación" icon="hard-drive">
+    Realizar instalaciones de Windows y Linux
+  </Card>
+  <Card title="BIOS/UEFI" icon="microchip">
+    Comprender las diferencias entre BIOS y UEFI
+  </Card>
+  <Card title="Gestores de Arranque" icon="power-off">
+    Configurar y gestionar GRUB y Windows Boot Manager
+  </Card>
+</CardGroup>
+
+## Contenidos de la Unidad
+
+<Steps>
+  <Step title="Obtención de Sistemas Operativos">
+    Dónde y cómo obtener imágenes de Windows y Linux
+  </Step>
+  
+  <Step title="Preparación de Medios">
+    Grabación de imágenes en USB y DVD
+  </Step>
+  
+  <Step title="BIOS vs UEFI">
+    Diferencias, características y cómo identificarlos
+  </Step>
+  
+  <Step title="Proceso de Arranque">
+    Cómo arranca un sistema operativo paso a paso
+  </Step>
+  
+  <Step title="Gestores de Arranque">
+    BOOTMGR, BCD, GRUB y su configuración
+  </Step>
+  
+  <Step title="Diagnóstico y Recuperación">
+    Modo seguro, modo recovery y herramientas de diagnóstico
+  </Step>
+</Steps>
+
+---
+
+## Sistemas Operativos que Instalaremos
+
+### Windows
+
+<Accordion title="Windows 10/11">
+  Sistema operativo de escritorio más utilizado en entornos empresariales y domésticos.
+  
+  **Características:**
+  - Interfaz gráfica intuitiva
+  - Amplia compatibilidad de hardware
+  - Actualizaciones continuas
+  - Soporte extendido
+</Accordion>
+
+<Accordion title="Windows Server">
+  Sistema operativo para servidores empresariales.
+  
+  **Características:**
+  - Active Directory
+  - Servicios de dominio
+  - Roles de servidor especializados
+  - Herramientas de administración avanzadas
+</Accordion>
+
+### GNU/Linux
+
+<Accordion title="Distribuciones Ubuntu/Debian">
+  Distribuciones populares basadas en Debian, ideales para aprendizaje.
+  
+  **Ventajas:**
+  - Código abierto
+  - Gran comunidad
+  - Documentación extensa
+  - Repositorios amplios
+</Accordion>
+
+---
+
+## BIOS vs UEFI
+
+<Note>
+  UEFI está reemplazando a BIOS como el firmware estándar en ordenadores modernos.
+</Note>
+
+### Comparación Rápida
+
+| Aspecto | BIOS | UEFI |
+|---------|------|------|
+| **Año de introducción** | 1975 | 2005 |
+| **Interfaz** | Texto | Gráfica y texto |
+| **Tamaño máximo de disco** | 2TB (MBR) | 9ZB (GPT) |
+| **Particiones** | 4 primarias | 128 particiones |
+| **Tiempo de arranque** | Más lento | Más rápido |
+| **Secure Boot** | No | Sí |
+| **Modo** | 16-bit | 32/64-bit |
+
+---
+
+## Gestores de Arranque
+
+### Windows Boot Manager (BOOTMGR)
+
+<CardGroup cols={2}>
+  <Card title="BOOTMGR" icon="windows">
+    Cargador de arranque de Windows Vista y posteriores
+  </Card>
+  <Card title="BCD" icon="database">
+    Base de datos de configuración del arranque
+  </Card>
+  <Card title="BCDEdit" icon="terminal">
+    Herramienta de línea de comandos para modificar BCD
+  </Card>
+  <Card title="MSConfig" icon="gear">
+    Interfaz gráfica para configuración de arranque
+  </Card>
+</CardGroup>
+
+### GRUB (GRand Unified Bootloader)
+
+<CardGroup cols={2}>
+  <Card title="GRUB2" icon="linux">
+    Gestor de arranque modular para sistemas Linux
+  </Card>
+  <Card title="Configuración" icon="file-code">
+    Archivos en /boot/grub/ y /etc/default/grub
+  </Card>
+  <Card title="update-grub" icon="arrows-rotate">
+    Comando para regenerar configuración
+  </Card>
+  <Card title="Dual Boot" icon="circle-half-stroke">
+    Permite arrancar múltiples sistemas operativos
+  </Card>
+</CardGroup>
+
+---
+
+## Sistemas LIVE
+
+<Note>
+  Los sistemas LIVE permiten ejecutar un sistema operativo completo sin instalarlo en el disco duro.
+</Note>
+
+### Ventajas de Sistemas LIVE
+
+<Steps>
+  <Step title="Prueba sin Compromiso">
+    Probar el sistema operativo antes de instalarlo
+  </Step>
+  
+  <Step title="Recuperación">
+    Acceder a datos cuando el sistema instalado no arranca
+  </Step>
+  
+  <Step title="Diagnóstico">
+    Realizar diagnóstico de hardware
+  </Step>
+  
+  <Step title="Tareas Portátiles">
+    Llevar tu sistema operativo en un USB
+  </Step>
+</Steps>
+
+---
+
+## Proceso de Instalación
+
+### Pasos Generales
+
+<Steps>
+  <Step title="Requisitos Previos">
+    - Verificar requisitos del sistema
+    - Descargar imagen ISO
+    - Preparar medio de instalación (USB/DVD)
+    - Hacer backup de datos importantes
+  </Step>
+  
+  <Step title="Configurar BIOS/UEFI">
+    - Configurar orden de arranque
+    - Habilitar/deshabilitar Secure Boot según necesidad
+    - Verificar modo de arranque (Legacy/UEFI)
+  </Step>
+  
+  <Step title="Arrancar desde Medio">
+    - Iniciar desde USB/DVD
+    - Acceder al menú de instalación
+  </Step>
+  
+  <Step title="Particionado">
+    - Elegir esquema de particiones
+    - Formatear particiones
+    - Asignar puntos de montaje (Linux)
+  </Step>
+  
+  <Step title="Instalación">
+    - Copiar archivos del sistema
+    - Configurar usuarios
+    - Instalar gestor de arranque
+  </Step>
+  
+  <Step title="Configuración Inicial">
+    - Actualizaciones
+    - Drivers
+    - Configuración de red
+  </Step>
+</Steps>
+
+---
+
+## Modos de Arranque Especiales
+
+### Windows
+
+<Accordion title="Modo Seguro">
+  Arranca Windows con drivers y servicios mínimos para diagnóstico y reparación.
+  
+  **Variantes:**
+  - Modo Seguro
+  - Modo Seguro con Funciones de Red
+  - Modo Seguro con Símbolo del Sistema
+</Accordion>
+
+<Accordion title="Entorno de Recuperación (WinRE)">
+  Conjunto de herramientas para reparar problemas de arranque.
+  
+  **Herramientas:**
+  - Restaurar sistema
+  - Reparación de inicio
+  - Símbolo del sistema
+  - Desinstalar actualizaciones
+</Accordion>
+
+### Linux
+
+<Accordion title="Modo Recovery">
+  Modo de recuperación con acceso root para reparaciones.
+  
+  **Usos:**
+  - Reparar sistema de archivos
+  - Resetear contraseñas
+  - Actualizar GRUB
+  - Reparar paquetes rotos
+</Accordion>
+
+<Accordion title="Single User Mode">
+  Modo de usuario único para mantenimiento del sistema.
+</Accordion>
+
+---
+
+## Recursos de la Unidad
+
+<CardGroup cols={3}>
+  <Card title="Teoría" icon="book" href="/units/ud03/theory">
+    Conceptos fundamentales
+  </Card>
+  <Card title="BIOS/UEFI" icon="microchip" href="/units/ud03/bios-uefi">
+    Guía completa de firmware
+  </Card>
+  <Card title="Gestores" icon="power-off" href="/units/ud03/boot-managers">
+    GRUB y BOOTMGR en detalle
+  </Card>
+  <Card title="Tareas" icon="list-check" href="/units/ud03/tasks">
+    Ejercicios prácticos
+  </Card>
+</CardGroup>
+
+---
+
+## Consideraciones Importantes
+
+<Warning>
+  **Siempre** realiza copias de seguridad antes de instalar o modificar sistemas operativos. Las operaciones sobre particiones pueden causar pérdida de datos.
+</Warning>
+
+<Note>
+  En entornos de producción, documenta todos los cambios realizados en la configuración de arranque.
+</Note>
+
+## Próximos Pasos
+
+Comienza estudiando los conceptos teóricos de instalación y arranque, luego profundiza en BIOS/UEFI y gestores de arranque antes de realizar las prácticas.

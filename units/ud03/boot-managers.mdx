@@ -1,0 +1,671 @@
+---
+title: 'Gestores de Arranque'
+description: 'Complete guide to GRUB and Windows Boot Manager configuration'
+---
+
+# Gestores de Arranque
+
+Los gestores de arranque son programas que permiten cargar el sistema operativo y gestionar el proceso de inicio del equipo.
+
+---
+
+# Windows Boot Manager (BOOTMGR)
+
+## Introducción
+
+<Note>
+  **BOOTMGR** es el cargador de arranque utilizado desde Windows Vista en adelante, reemplazando a NTLDR.
+</Note>
+
+### Características
+
+- Archivo de solo lectura y oculto
+- Ubicado en la partición "System Reserved"
+- Gestiona el arranque de Windows y aplicaciones de arranque
+- Lee la base de datos BCD para configuración
+
+---
+
+## Boot Configuration Data (BCD)
+
+La **BCD** es la base de datos de configuración del arranque.
+
+### Estructura
+
+<Accordion title="Formato">
+  Similar al registro de Windows, almacenada en formato binario.
+  
+  **Montada como clave de registro en:**
+  ```text
+  HKEY_LOCAL_MACHINE\BCD00000
+  ```
+</Accordion>
+
+### Ubicación
+
+<CodeGroup>
+```text UEFI
+\EFI\Microsoft\Boot\BCD
+
+En la partición EFI (ESP)
+```
+
+```text BIOS
+\boot\BCD
+
+En la partición activa (System Reserved)
+```
+</CodeGroup>
+
+---
+
+## Ficheros Importantes
+
+### Winload.exe
+
+<Note>
+  **Winload.exe** es el cargador del sistema operativo que BOOTMGR ejecuta.
+</Note>
+
+**Funciones:**
+- Cargar drivers esenciales (BOOT_START)
+- Cargar el núcleo del sistema (ntoskrnl.exe)
+- Inicializar la memoria
+- Preparar el entorno para Windows
+
+### Winresume.exe
+
+<Warning>
+  **Winresume.exe** gestiona la hibernación. Esto puede causar problemas en dual boot con particiones NTFS compartidas.
+</Warning>
+
+**Funciones:**
+- Leer imagen de hibernación
+- Cargar estado previo en RAM
+- Reanudar sesión rápidamente
+
+---
+
+## Proceso de Arranque de Windows
+
+<Steps>
+  <Step title="POST (Power-On Self-Test)">
+    BIOS/UEFI realiza comprobaciones de hardware
+    - Verifica RAM
+    - Detecta dispositivos
+    - Comprueba integridad
+  </Step>
+  
+  <Step title="Lectura de MBR/GPT">
+    BIOS/UEFI localiza disco con MBR o tabla GPT
+    - Lee primeros 512 bytes (MBR) o ESP (GPT)
+    - Identifica partición activa
+    - Localiza BOOTMGR
+  </Step>
+  
+  <Step title="Carga de BOOTMGR">
+    El Boot Manager se carga en memoria y toma control
+  </Step>
+  
+  <Step title="Lectura de BCD">
+    BOOTMGR lee la base de datos BCD
+    - Obtiene lista de sistemas operativos
+    - Lee configuración de arranque
+    - Muestra menú si hay múltiples SO
+  </Step>
+  
+  <Step title="Selección de SO">
+    Usuario selecciona sistema operativo (o arranca el predeterminado)
+  </Step>
+  
+  <Step title="Winload.exe / Winresume.exe">
+    **Si sistema normal:** Ejecuta Winload.exe
+    
+    **Si hibernación:** Ejecuta Winresume.exe
+  </Step>
+  
+  <Step title="Carga de Drivers BOOT_START">
+    Winload.exe carga controladores críticos:
+    - Controladores de disco
+    - Controladores de bus
+  </Step>
+  
+  <Step title="Kernel (ntoskrnl.exe)">
+    Se carga el núcleo del sistema operativo
+  </Step>
+  
+  <Step title="Drivers y Servicios">
+    Carga de drivers de alto nivel y servicios del sistema
+  </Step>
+  
+  <Step title="Subsistema de Windows">
+    Smss.exe inicializa el subsistema gráfico
+  </Step>
+  
+  <Step title="Winlogon">
+    Muestra pantalla de inicio de sesión
+  </Step>
+  
+  <Step title="Windows Explorer">
+    Tras autenticación, se carga el explorador y escritorio
+  </Step>
+</Steps>
+
+---
+
+## BCDEdit
+
+**BCDEdit.exe** es la herramienta de línea de comandos para modificar la BCD.
+
+### Comandos Básicos
+
+<CodeGroup>
+```powershell Ver Configuración
+# Mostrar toda la configuración BCD
+bcdedit /enum
+
+# Solo entradas de arranque
+bcdedit /enum ACTIVE
+
+# Solo configuración del firmware
+bcdedit /enum FIRMWARE
+
+# Configuración completa
+bcdedit /enum ALL
+```
+
+```powershell Backup y Restauración
+# Exportar BCD (backup)
+bcdedit /export C:\backup_bcd.dat
+
+# Importar BCD (restaurar)
+bcdedit /import C:\backup_bcd.dat
+```
+
+```powershell Crear Entrada
+# Copiar entrada existente
+bcdedit /copy {current} /d "Descripción"
+
+# Crear entrada nueva
+bcdedit /create /d "Mi Sistema" /application osloader
+```
+
+```powershell Modificar Entrada
+# Cambiar descripción
+bcdedit /set {current} description "Windows 10 Pro"
+
+# Cambiar timeout
+bcdedit /timeout 10
+
+# Establecer SO por defecto
+bcdedit /default {identificador}
+
+# Cambiar ruta de winload
+bcdedit /set {current} osdevice partition=C:
+```
+
+```powershell Eliminar Entrada
+# Eliminar entrada específica
+bcdedit /delete {identificador}
+
+# Limpiar entradas antiguas
+bcdedit /deletevalue {current} opción
+```
+</CodeGroup>
+
+### Ejemplos Prácticos
+
+<Accordion title="Cambiar Tiempo de Espera del Menú">
+  ```powershell
+  # Ver configuración actual
+  bcdedit /enum {bootmgr}
+  
+  # Cambiar a 5 segundos
+  bcdedit /timeout 5
+  ```
+</Accordion>
+
+<Accordion title="Añadir Opción de Modo Seguro">
+  ```powershell
+  # Crear copia de entrada actual
+  bcdedit /copy {current} /d "Windows 10 - Modo Seguro"
+  
+  # Anotar el identificador devuelto, luego:
+  bcdedit /set {identificador} safeboot minimal
+  ```
+</Accordion>
+
+<Accordion title="Reparar BCD Corrupta">
+  ```powershell
+  # Desde entorno de recuperación
+  bootrec /fixmbr
+  bootrec /fixboot
+  bootrec /rebuildbcd
+  ```
+</Accordion>
+
+---
+
+## MSConfig
+
+**MSConfig** es la herramienta gráfica para configurar el arranque de Windows.
+
+### Pestañas
+
+#### General
+
+<Accordion title="Modos de Inicio">
+  - **Inicio Normal**: Todos los drivers y servicios
+  - **Inicio con Diagnóstico**: Solo servicios básicos
+  - **Inicio Selectivo**: Personalizar servicios que arrancan
+</Accordion>
+
+#### Arranque
+
+<Note>
+  Esta pestaña modifica directamente la BCD.
+</Note>
+
+**Opciones disponibles:**
+
+- **Sin arranque de GUI**: No carga entorno gráfico
+- **Registro de arranque**: Guarda log detallado en `ntbtlog.txt`
+- **Video base**: Resolución mínima (modo VGA)
+- **Información de arranque del SO**: Muestra drivers mientras cargan
+
+<Warning>
+  Por defecto, los cambios solo aplican al siguiente arranque. Para hacerlos permanentes, marca "Convertir en permanente".
+</Warning>
+
+**Opciones Avanzadas:**
+
+```text
+Número de procesadores: Limitar CPUs usadas
+Cantidad máxima de memoria: Limitar RAM
+Bloqueo de PCI: No reasignar dispositivos PCI
+Depuración: Habilitar modo debug
+```
+
+#### Servicios
+
+<Accordion title="Gestión de Servicios">
+  Lista todos los servicios configurados para arranque automático.
+  
+  **Tip:** Marca "Ocultar todos los servicios de Microsoft" para ver solo servicios de terceros.
+</Accordion>
+
+#### Inicio de Windows
+
+<Note>
+  En Windows 10/11, esta sección redirige al Administrador de tareas.
+</Note>
+
+Gestiona programas que se ejecutan al iniciar sesión:
+- Deshabilitar programas innecesarios
+- Identificar software que ralentiza el inicio
+- Ver impacto en el rendimiento
+
+---
+
+# GRUB (GRand Unified Bootloader)
+
+GRUB es el gestor de arranque estándar en sistemas GNU/Linux.
+
+## Introducción a GRUB2
+
+<Note>
+  **GRUB2** es la versión moderna de GRUB, reescrita desde cero con arquitectura modular.
+</Note>
+
+### Características
+
+- Soporta BIOS y UEFI
+- Sistemas de archivos: ext2/3/4, XFS, Btrfs, ZFS, FAT, NTFS (lectura)
+- Arranque de múltiples sistemas operativos
+- Línea de comandos interactiva
+- Scripts y configuración flexible
+- Temas y personalización
+
+---
+
+## Archivos de Configuración
+
+### /etc/default/grub
+
+<Note>
+  Archivo principal de configuración que controla el comportamiento de GRUB.
+</Note>
+
+**Variables importantes:**
+
+<CodeGroup>
+```bash Variables Comunes
+# Sistema operativo por defecto (0 = primero, 1 = segundo, etc.)
+GRUB_DEFAULT=0
+
+# Tiempo de espera en segundos
+GRUB_TIMEOUT=5
+
+# Mostrar menú oculto al mantener Shift
+GRUB_TIMEOUT_STYLE=hidden
+
+# Distribuidor (aparece en el menú)
+GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
+
+# Parámetros del kernel
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+GRUB_CMDLINE_LINUX=""
+```
+
+```bash Configuración Gráfica
+# Resolución del menú GRUB
+GRUB_GFXMODE=1024x768
+
+# Resolución de la consola
+GRUB_GFXPAYLOAD_LINUX=keep
+
+# Tema
+GRUB_THEME="/path/to/theme"
+```
+
+```bash Opciones Avanzadas
+# Deshabilitar submenu
+GRUB_DISABLE_SUBMENU=y
+
+# Recuperación en el menú principal
+GRUB_DISABLE_RECOVERY="false"
+
+# Deshabilitar detección de otros SO
+GRUB_DISABLE_OS_PROBER=false
+```
+</CodeGroup>
+
+### /boot/grub/grub.cfg
+
+<Warning>
+  **NO editar manualmente** este archivo. Se genera automáticamente.
+</Warning>
+
+Para regenerar:
+
+```bash
+# Debian/Ubuntu
+sudo update-grub
+
+# Fedora/RHEL
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+
+# UEFI
+sudo grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+```
+
+---
+
+## Modificar GRUB
+
+### Cambiar Tiempo de Espera
+
+<Steps>
+  <Step title="Editar Configuración">
+    ```bash
+    sudo nano /etc/default/grub
+    ```
+  </Step>
+  
+  <Step title="Modificar GRUB_TIMEOUT">
+    ```bash
+    GRUB_TIMEOUT=10
+    ```
+  </Step>
+  
+  <Step title="Actualizar GRUB">
+    ```bash
+    sudo update-grub
+    ```
+  </Step>
+  
+  <Step title="Reiniciar">
+    Verifica los cambios al reiniciar
+  </Step>
+</Steps>
+
+### Cambiar Texto del Menú
+
+<Accordion title="Añadir Nombre al Título">
+  ```bash
+  # Editar /etc/default/grub
+  GRUB_DISTRIBUTOR="Ubuntu +NombreAlumno"
+  
+  # Actualizar
+  sudo update-grub
+  ```
+  
+  Resultado: "Ubuntu +NombreAlumno GNU/Linux"
+</Accordion>
+
+### Cambiar Resolución
+
+```bash
+# Editar /etc/default/grub
+GRUB_GFXMODE=1024x768
+
+# O para múltiples resoluciones (prueba en orden)
+GRUB_GFXMODE=1920x1080,1024x768,auto
+
+# Actualizar
+sudo update-grub
+```
+
+### Parámetros del Kernel
+
+<Accordion title="Remover quiet splash">
+  ```bash
+  # De:
+  GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+  
+  # A:
+  GRUB_CMDLINE_LINUX_DEFAULT=""
+  
+  # O para ver más información:
+  GRUB_CMDLINE_LINUX_DEFAULT="verbose"
+  ```
+  
+  Esto mostrará todos los mensajes del kernel durante el arranque.
+</Accordion>
+
+<Accordion title="nomodeset">
+  ```bash
+  GRUB_CMDLINE_LINUX_DEFAULT="nomodeset"
+  ```
+  
+  **Uso:** Problemas con drivers gráficos. No carga drivers de vídeo hasta que inicia el servidor X.
+</Accordion>
+
+<Accordion title="Blacklistear Módulos">
+  ```bash
+  # Deshabilitar driver nouveau (NVIDIA)
+  GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nouveau.modeset=0"
+  
+  # O con modprobe.blacklist
+  GRUB_CMDLINE_LINUX_DEFAULT="quiet splash modprobe.blacklist=nouveau"
+  ```
+  
+  **Uso:** Cuando un driver causa problemas.
+</Accordion>
+
+---
+
+## Scripts de GRUB
+
+Los scripts en `/etc/grub.d/` generan la configuración final:
+
+```bash
+/etc/grub.d/
+├── 00_header          # Configuración inicial
+├── 05_debian_theme    # Tema de Debian
+├── 10_linux           # Entradas del kernel Linux
+├── 20_linux_xen       # Entradas Xen
+├── 30_os-prober       # Detecta otros SO
+├── 40_custom          # Entradas personalizadas
+└── 41_custom          # Más personalizaciones
+```
+
+<Note>
+  Los archivos se ejecutan en orden numérico. El número determina la prioridad.
+</Note>
+
+### Añadir Entrada Personalizada
+
+Edita `/etc/grub.d/40_custom`:
+
+```bash
+#!/bin/sh
+exec tail -n +3 $0
+
+menuentry "Memtest86+" {
+    linux16 /boot/memtest86+.bin
+}
+
+menuentry "Sistema de Recuperación" {
+    search --set=root --file /vmlinuz
+    linux /vmlinuz root=/dev/sda1 ro single
+    initrd /initrd.img
+}
+```
+
+Luego:
+
+```bash
+sudo update-grub
+```
+
+---
+
+## Modo Recovery
+
+El modo de recuperación permite reparar el sistema con acceso root.
+
+### Acceder al Modo Recovery
+
+<Steps>
+  <Step title="Menú de GRUB">
+    En el arranque, selecciona "Advanced options"
+  </Step>
+  
+  <Step title="Modo Recovery">
+    Selecciona la entrada con "(recovery mode)"
+  </Step>
+  
+  <Step title="Menú de Recuperación">
+    Aparecerá un menú con opciones:
+    - resume: Continuar arranque normal
+    - clean: Limpiar espacio en disco
+    - dpkg: Reparar paquetes
+    - fsck: Verificar sistema de archivos
+    - grub: Actualizar GRUB
+    - network: Habilitar red
+    - root: Shell de root
+    - system-summary: Resumen del sistema
+  </Step>
+</Steps>
+
+### Tareas Comunes en Recovery
+
+<Accordion title="Resetear Contraseña de Root">
+  ```bash
+  # En el shell de root
+  passwd usuario
+  
+  # Remontar / en modo lectura-escritura si es necesario
+  mount -o remount,rw /
+  ```
+</Accordion>
+
+<Accordion title="Reparar Sistema de Archivos">
+  ```bash
+  # Verificar y reparar
+  fsck -y /dev/sda1
+  ```
+</Accordion>
+
+<Accordion title="Actualizar GRUB">
+  ```bash
+  # Habilitar red primero
+  # Luego en shell root:
+  mount -o remount,rw /
+  update-grub
+  ```
+</Accordion>
+
+---
+
+## Reinstalar GRUB
+
+### Desde Sistema Live
+
+<Steps>
+  <Step title="Identificar Particiones">
+    ```bash
+    sudo fdisk -l
+    # O
+    lsblk -f
+    ```
+  </Step>
+  
+  <Step title="Montar Sistema">
+    ```bash
+    sudo mount /dev/sda1 /mnt
+    sudo mount /dev/sda2 /mnt/boot  # si /boot está separado
+    
+    # Para UEFI, montar ESP
+    sudo mount /dev/sda1 /mnt/boot/efi
+    ```
+  </Step>
+  
+  <Step title="Montar Sistemas Virtuales">
+    ```bash
+    sudo mount --bind /dev /mnt/dev
+    sudo mount --bind /proc /mnt/proc
+    sudo mount --bind /sys /mnt/sys
+    ```
+  </Step>
+  
+  <Step title="Chroot">
+    ```bash
+    sudo chroot /mnt
+    ```
+  </Step>
+  
+  <Step title="Reinstalar GRUB">
+    ```bash
+    # Para BIOS
+    grub-install /dev/sda
+    update-grub
+    
+    # Para UEFI
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ubuntu
+    update-grub
+    ```
+  </Step>
+  
+  <Step title="Salir y Reiniciar">
+    ```bash
+    exit
+    sudo umount -R /mnt
+    sudo reboot
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="BIOS/UEFI" icon="microchip" href="/units/ud03/bios-uefi">
+    Vuelve a la guía de firmware
+  </Card>
+  <Card title="Tareas" icon="list-check" href="/units/ud03/tasks">
+    Practica con ejercicios
+  </Card>
+</CardGroup>

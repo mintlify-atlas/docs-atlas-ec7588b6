@@ -1,0 +1,582 @@
+---
+title: OpenLDAP en GNU/Linux
+description: Instalación y configuración de OpenLDAP
+---
+
+# OpenLDAP en GNU/Linux
+
+## Introducción
+
+OpenLDAP es una implementación de código abierto del protocolo LDAP. Es ampliamente utilizado en entornos Linux/UNIX para proporcionar servicios de directorio centralizados.
+
+<Note>
+  OpenLDAP es especialmente útil para redes heterogéneas y entornos que requieren flexibilidad y personalización.
+</Note>
+
+## Requisitos Previos
+
+### Sistema
+- Xubuntu o Ubuntu Server
+- Mínimo 1GB RAM
+- 10GB espacio en disco
+- Conexión a Internet
+
+### Configuración de Red
+
+IP estática recomendada (ejemplo):
+```bash
+# En /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+  ethernets:
+    enp0s3:
+      addresses: [10.0.2.43/24]
+      gateway4: 10.0.2.1
+      nameservers:
+        addresses: [127.0.0.1, 1.1.1.1]
+```
+
+## Instalación de slapd
+
+### Instalación Inicial
+
+<Steps>
+  <Step title="Actualizar repositorios">
+    ```bash
+    sudo apt update
+    ```
+  </Step>
+  
+  <Step title="Instalar slapd">
+    ```bash
+    sudo apt install slapd
+    ```
+    
+    **Durante la instalación**:
+    - Se solicitará contraseña del administrador LDAP
+    - Usar: `admin1s0`
+  </Step>
+  
+  <Step title="Verificar instalación">
+    ```bash
+    sudo systemctl status slapd
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  **slapd** = Stand-Alone LDAP Daemon (servidor OpenLDAP)
+</Note>
+
+## Reconfiguración de slapd
+
+La configuración inicial es básica. Necesitamos reconfigurarla para nuestras necesidades.
+
+<Steps>
+  <Step title="Ejecutar reconfiguración">
+    ```bash
+    sudo dpkg-reconfigure slapd
+    ```
+  </Step>
+  
+  <Step title="Omitir configuración">
+    ¿Omitir la configuración del servidor OpenLDAP? **No**
+  </Step>
+  
+  <Step title="Nombre de dominio DNS">
+    Introducir: `valencia.iso.com`
+    
+    Esto creará el DN base: `dc=valencia,dc=iso,dc=com`
+  </Step>
+  
+  <Step title="Nombre de la organización">
+    Introducir: `iso`
+  </Step>
+  
+  <Step title="Contraseña de administrador">
+    Confirmar o cambiar: `admin1s0`
+  </Step>
+  
+  <Step title="Motor de base de datos">
+    Seleccionar: **HDB** (o MDB en versiones recientes)
+  </Step>
+  
+  <Step title="Eliminar base de datos">
+    ¿Eliminar la base de datos al purgar slapd? **No**
+    
+    (Permite recuperación ante desastres)
+  </Step>
+  
+  <Step title="Mover base de datos antigua">
+    ¿Mover base de datos antigua? **Sí**
+  </Step>
+</Steps>
+
+### Verificar Configuración
+
+```bash
+# Ver configuración
+sudo slapcat
+
+# O buscar en configuración
+sudo ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=config dn
+```
+
+## Instalación de phpLDAPadmin
+
+Herramienta web para administrar LDAP gráficamente.
+
+### Instalación
+
+<Steps>
+  <Step title="Buscar paquete">
+    ```bash
+    apt search ldapadmin
+    ```
+  </Step>
+  
+  <Step title="Instalar phpldapadmin">
+    ```bash
+    sudo apt install phpldapadmin
+    ```
+    
+    Instalará automáticamente:
+    - Apache2 (servidor web)
+    - PHP y módulos necesarios
+    - Dependencias
+  </Step>
+  
+  <Step title="Verificar instalación">
+    Abrir navegador: `http://localhost/phpldapadmin/`
+  </Step>
+</Steps>
+
+### Configurar phpLDAPadmin
+
+Editar archivo de configuración:
+
+```bash
+sudo mousepad /etc/phpldapadmin/config.php
+```
+
+Buscar y modificar:
+
+<CodeGroup>
+```php Servidor LDAP
+// Línea ~300
+$servers->setValue('server','host','127.0.0.1');
+$servers->setValue('server','port',389);
+$servers->setValue('server','base',array('dc=valencia,dc=iso,dc=com'));
+```
+
+```php DN de Login
+// Línea ~300
+$servers->setValue('login','bind_id','cn=admin,dc=valencia,dc=iso,dc=com');
+```
+
+```php Ocultar avisos
+// Línea ~20 (opcional)
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+```
+</CodeGroup>
+
+Reiniciar Apache:
+
+```bash
+sudo systemctl restart apache2
+```
+
+### Acceder a phpLDAPadmin
+
+<Steps>
+  <Step title="Abrir navegador">
+    `http://localhost/phpldapadmin/`
+  </Step>
+  
+  <Step title="Iniciar sesión">
+    - **DN**: `cn=admin,dc=valencia,dc=iso,dc=com`
+    - **Contraseña**: `admin1s0`
+  </Step>
+</Steps>
+
+## Crear Estructura LDAP
+
+### Estructura Objetivo
+
+```
+dc=valencia,dc=iso,dc=com
+    ou=esbirros
+        cn=esbirrosldap (grupo POSIX)
+            uid=esbirroldap01 (usuario)
+            uid=esbirroldap02 (usuario)
+```
+
+### Crear Unidad Organizativa (OU)
+
+<Steps>
+  <Step title="En phpLDAPadmin">
+    - Click en `dc=valencia,dc=iso,dc=com`
+    - Click en "Crear una entrada hija aquí"
+  </Step>
+  
+  <Step title="Seleccionar plantilla">
+    Plantilla: **Unidad Organizativa Genérica**
+  </Step>
+  
+  <Step title="Configurar OU">
+    - **ou**: `esbirros`
+    - Confirmar creación
+  </Step>
+</Steps>
+
+### Crear Grupo POSIX
+
+<Steps>
+  <Step title="Crear entrada hija">
+    - Click en `ou=esbirros`
+    - "Crear una entrada hija aquí"
+  </Step>
+  
+  <Step title="Seleccionar plantilla">
+    Plantilla: **Grupo POSIX Genérico**
+  </Step>
+  
+  <Step title="Configurar grupo">
+    - **cn**: `esbirrosldap`
+    - **gidNumber**: `10000`
+    - Confirmar
+  </Step>
+</Steps>
+
+### Crear Usuario
+
+<Steps>
+  <Step title="Crear entrada hija">
+    - Click en `cn=esbirrosldap`
+    - "Crear una entrada hija aquí"
+  </Step>
+  
+  <Step title="Seleccionar plantilla">
+    Plantilla: **Cuenta de Usuario Genérica**
+  </Step>
+  
+  <Step title="Configurar usuario">
+    - **cn**: `esbirroldap01`
+    - **givenName**: `Esbirro`
+    - **sn**: `LDAP Uno`
+    - **uid**: `esbirroldap01`
+    - **uidNumber**: `10001`
+    - **gidNumber**: `10000`
+    - **homeDirectory**: `/home/esbirroldap01`
+    - **loginShell**: `/bin/bash`
+    - **userPassword**: Establecer contraseña (ejemplo: `esbirro123`)
+  </Step>
+  
+  <Step title="Confirmar">
+    Confirmar creación
+  </Step>
+</Steps>
+
+<Note>
+  **uidNumber** y **gidNumber** son los equivalentes a los IDs numéricos de usuario y grupo en sistemas UNIX/Linux.
+</Note>
+
+## Herramientas de Línea de Comandos
+
+### Instalación de ldap-utils
+
+```bash
+sudo apt install ldap-utils
+```
+
+Proporciona herramientas como:
+- `ldapsearch` - Buscar entradas
+- `ldapadd` - Añadir entradas
+- `ldapmodify` - Modificar entradas
+- `ldapdelete` - Eliminar entradas
+
+### ldapsearch - Buscar Entradas
+
+<CodeGroup>
+```bash Buscar Todo
+# Buscar todo en el directorio
+ldapsearch -x -h localhost -p 389 -b "dc=valencia,dc=iso,dc=com"
+```
+
+```bash Buscar Usuario
+# Buscar usuario específico
+ldapsearch -x -h localhost -p 389 \
+  -b "dc=valencia,dc=iso,dc=com" \
+  "(uid=esbirroldap01)"
+```
+
+```bash Buscar con Autenticación
+# Buscar autenticado como admin
+ldapsearch -x -D "cn=admin,dc=valencia,dc=iso,dc=com" \
+  -W -b "dc=valencia,dc=iso,dc=com"
+# Solicitará contraseña
+```
+
+```bash Filtros Avanzados
+# Buscar todos los usuarios
+ldapsearch -x -b "dc=valencia,dc=iso,dc=com" "(objectClass=posixAccount)"
+
+# Buscar todos los grupos
+ldapsearch -x -b "dc=valencia,dc=iso,dc=com" "(objectClass=posixGroup)"
+```
+</CodeGroup>
+
+### Parámetros de ldapsearch
+
+| Parámetro | Descripción |
+|-----------|---------------|
+| `-x` | Autenticación simple (sin SASL) |
+| `-h` | Host del servidor LDAP |
+| `-p` | Puerto (389 por defecto) |
+| `-b` | Base de búsqueda (DN base) |
+| `-D` | DN para autenticarse |
+| `-W` | Solicitar contraseña interactivamente |
+| `-w` | Contraseña en línea de comandos (inseguro) |
+
+### ldapadd - Añadir Entradas
+
+Crear archivo LDIF:
+
+```ldif
+# nuevo_usuario.ldif
+dn: uid=esbirroldap02,cn=esbirrosldap,ou=esbirros,dc=valencia,dc=iso,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+cn: esbirroldap02
+givenName: Esbirro
+sn: LDAP Dos
+uid: esbirroldap02
+uidNumber: 10002
+gidNumber: 10000
+homeDirectory: /home/esbirroldap02
+loginShell: /bin/bash
+userPassword: esbirro456
+```
+
+Añadir al directorio:
+
+```bash
+ldapadd -x -D "cn=admin,dc=valencia,dc=iso,dc=com" \
+  -W -f nuevo_usuario.ldif
+```
+
+### ldapmodify - Modificar Entradas
+
+Crear archivo LDIF con cambios:
+
+```ldif
+# modificar_usuario.ldif
+dn: uid=esbirroldap01,cn=esbirrosldap,ou=esbirros,dc=valencia,dc=iso,dc=com
+changetype: modify
+replace: loginShell
+loginShell: /bin/zsh
+-
+add: mail
+mail: esbirroldap01@iso.com
+```
+
+Aplicar cambios:
+
+```bash
+ldapmodify -x -D "cn=admin,dc=valencia,dc=iso,dc=com" \
+  -W -f modificar_usuario.ldif
+```
+
+### ldapdelete - Eliminar Entradas
+
+```bash
+# Eliminar usuario
+ldapdelete -x -D "cn=admin,dc=valencia,dc=iso,dc=com" -W \
+  "uid=esbirroldap02,cn=esbirrosldap,ou=esbirros,dc=valencia,dc=iso,dc=com"
+```
+
+<Warning>
+  **Precaución**: ldapdelete no pide confirmación. La eliminación es inmediata.
+</Warning>
+
+## Integración con Sistema Linux
+
+### Configurar NSS y PAM
+
+Para que el sistema Linux use LDAP para autenticación:
+
+<Steps>
+  <Step title="Instalar paquetes">
+    ```bash
+    sudo apt install libnss-ldap libpam-ldap ldap-utils
+    ```
+  </Step>
+  
+  <Step title="Configurar durante instalación">
+    - URI: `ldap://localhost/`
+    - DN base: `dc=valencia,dc=iso,dc=com`
+    - Versión LDAP: 3
+    - Admin: `cn=admin,dc=valencia,dc=iso,dc=com`
+    - Contraseña: `admin1s0`
+  </Step>
+  
+  <Step title="Configurar NSS">
+    Editar `/etc/nsswitch.conf`:
+    ```
+    passwd: files ldap
+    group:  files ldap
+    shadow: files ldap
+    ```
+  </Step>
+  
+  <Step title="Configurar PAM">
+    ```bash
+    sudo pam-auth-update
+    ```
+    Activar:
+    - ☑ LDAP Authentication
+    - ☑ Create home directory on login
+  </Step>
+  
+  <Step title="Reiniciar servicios">
+    ```bash
+    sudo systemctl restart nscd
+    ```
+  </Step>
+</Steps>
+
+### Verificar Integración
+
+```bash
+# Ver usuarios LDAP
+getent passwd | grep ldap
+
+# Ver grupos LDAP  
+getent group | grep ldap
+
+# Probar autenticación
+su - esbirroldap01
+```
+
+## Copias de Seguridad de LDAP
+
+### Exportar Base de Datos
+
+<CodeGroup>
+```bash Exportar Todo (LDIF)
+# Exportar toda la base de datos
+sudo slapcat -v -l backup_ldap.ldif
+```
+
+```bash Exportar Subtree
+# Exportar solo una rama
+sudo slapcat -b "dc=valencia,dc=iso,dc=com" -l backup_esbirros.ldif
+```
+
+```bash Exportar con ldapsearch
+# Exportar usando ldapsearch
+ldapsearch -x -D "cn=admin,dc=valencia,dc=iso,dc=com" -W \
+  -b "dc=valencia,dc=iso,dc=com" -LLL > backup.ldif
+```
+</CodeGroup>
+
+### Importar/Restaurar
+
+<Steps>
+  <Step title="Detener slapd">
+    ```bash
+    sudo systemctl stop slapd
+    ```
+  </Step>
+  
+  <Step title="Importar datos">
+    ```bash
+    sudo slapadd -v -l backup_ldap.ldif
+    ```
+  </Step>
+  
+  <Step title="Corregir permisos">
+    ```bash
+    sudo chown -R openldap:openldap /var/lib/ldap
+    ```
+  </Step>
+  
+  <Step title="Iniciar slapd">
+    ```bash
+    sudo systemctl start slapd
+    ```
+  </Step>
+</Steps>
+
+## Seguridad
+
+### Configurar TLS/SSL
+
+Para cifrar comunicaciones LDAP:
+
+<Steps>
+  <Step title="Generar certificados">
+    ```bash
+    sudo apt install gnutls-bin ssl-cert
+    sudo sh -c "certtool --generate-privkey > /etc/ssl/private/cakey.pem"
+    ```
+  </Step>
+  
+  <Step title="Configurar slapd para TLS">
+    Editar configuración (requiere conocimientos avanzados)
+  </Step>
+</Steps>
+
+<Note>
+  La configuración completa de TLS/SSL se verá en el módulo de ASO.
+</Note>
+
+### ACLs (Listas de Control de Acceso)
+
+Controlar quién puede leer/escribir qué:
+
+```ldif
+# Ejemplo de ACL
+olcAccess: to attrs=userPassword
+  by self write
+  by anonymous auth
+  by * none
+```
+
+## Monitorización
+
+### Ver Logs
+
+```bash
+# Ver logs de slapd
+sudo journalctl -u slapd -f
+
+# O en syslog
+sudo tail -f /var/log/syslog | grep slapd
+```
+
+### Estadísticas
+
+```bash
+# Ver estadísticas del servidor
+ldapsearch -x -b "cn=Monitor" -s base
+```
+
+## Recursos Adicionales
+
+<CardGroup cols={2}>
+  <Card title="Teoría LDAP" icon="book" href="/units/ud09/theory">
+    Conceptos teóricos sobre LDAP
+  </Card>
+  
+  <Card title="Tareas Prácticas" icon="code" href="/units/ud09/tasks">
+    Ejercicios de configuración de OpenLDAP
+  </Card>
+</CardGroup>
+
+---
+
+<Warning>
+  **Importante**: OpenLDAP requiere conocimientos sólidos de Linux. La configuración avanzada (replicación, alta disponibilidad) se verá en ASO.
+</Warning>

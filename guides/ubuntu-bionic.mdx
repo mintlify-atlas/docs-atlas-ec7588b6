@@ -1,0 +1,187 @@
+---
+title: Ubuntu 18.04 Bionic Installation Guide
+description: Complete guide for installing Ubuntu 18.04 (Bionic Beaver) on VirtualBox
+---
+
+# Ubuntu 18.04 Bionic Installation Guide
+
+This guide walks you through installing Ubuntu 18.04 (Bionic Beaver) in VirtualBox 5.2 or later.
+
+## Prerequisites
+
+<Info>
+**System Requirements**
+- VirtualBox 5.2 or later
+- 64-bit processor with virtualization extensions enabled in BIOS
+- Minimum 2 GB RAM available for the VM
+- At least 25 GB free disk space
+- Ubuntu 18.04 ISO image ([download here](http://releases.ubuntu.com/18.04/))
+</Info>
+
+<Warning>
+If you only see 32-bit options in VirtualBox, your virtualization extensions are likely disabled in BIOS/EFI. You'll need to enable Intel VT-x or AMD-V before proceeding.
+</Warning>
+
+## Creating the Virtual Machine
+
+<Steps>
+  <Step title="Download Ubuntu ISO">
+    Download the Ubuntu 18.04 LTS Desktop 64-bit ISO from the [official Ubuntu releases page](http://releases.ubuntu.com/18.04/).
+    
+    <Note>
+    If you're in the classroom, ISOs are available at `http://172.29.0.254/`
+    </Note>
+  </Step>
+
+  <Step title="Create New Virtual Machine">
+    1. Open VirtualBox and click **New**
+    2. Set the following:
+       - **Name**: Ubuntu-Bionic or any descriptive name
+       - **Type**: Linux
+       - **Version**: Ubuntu (64-bit)
+  </Step>
+
+  <Step title="Allocate Memory">
+    Assign at least **2048 MB** (2 GB) of RAM. If running multiple VMs simultaneously, consider the total available RAM on your host system.
+  </Step>
+
+  <Step title="Create Virtual Hard Disk">
+    1. Select **Create a virtual hard disk now**
+    2. Choose **VDI (VirtualBox Disk Image)**
+    3. Select **Dynamically allocated** for better space efficiency
+    4. Set disk size to at least **25 GB**
+    
+    <Accordion title="Dynamic vs Fixed Size Disks">
+    **Dynamically allocated**: The disk file grows as you add data, up to the maximum size. Better for saving space.
+    
+    **Fixed size**: The entire disk space is allocated immediately. Better performance for disk-intensive operations like RAID.
+    </Accordion>
+  </Step>
+
+  <Step title="Configure Network">
+    1. Right-click the VM and select **Settings**
+    2. Go to **Network** → **Adapter 1**
+    3. Enable the adapter and set to **NAT**
+    
+    <Note>
+    Alternatively, you can use **Bridged Adapter** connected to your Ethernet interface for direct network access.
+    </Note>
+  </Step>
+
+  <Step title="Attach Installation ISO">
+    1. In VM Settings, go to **Storage**
+    2. Under **Controller: IDE**, click the empty optical drive
+    3. Click the disc icon and select **Choose a disk file**
+    4. Browse to your downloaded Ubuntu 18.04 ISO
+  </Step>
+</Steps>
+
+## Installing Ubuntu
+
+<Steps>
+  <Step title="Start the VM and Boot">
+    Start the virtual machine. You'll see the VirtualBox logo followed by a purple/brown Ubuntu boot screen.
+    
+    <Note>
+    Press any key during the boot screen to change language or access boot options. Otherwise, it boots automatically in English after a few seconds.
+    </Note>
+  </Step>
+
+  <Step title="Select Language">
+    Choose your preferred installation language (e.g., Español for Spanish).
+  </Step>
+
+  <Step title="Configure Keyboard Layout">
+    Select your keyboard layout (e.g., Spanish - ES-es).
+  </Step>
+
+  <Step title="Choose Installation Type">
+    - Select **Normal installation** for a full desktop environment
+    - **Uncheck** all options under "Other options":
+      - Don't download updates during installation (faster, can update later)
+      - Third-party software can be installed later if needed
+  </Step>
+
+  <Step title="Partition the Disk">
+    Select **Erase disk and install Ubuntu** since this is a new virtual disk.
+    
+    <Warning>
+    In a real dual-boot scenario, carefully review partition operations before confirming. For this VM with a new empty disk, it's safe to proceed.
+    </Warning>
+    
+    Confirm the changes when prompted.
+  </Step>
+
+  <Step title="Set Timezone">
+    Select your timezone (e.g., Madrid for Spain).
+  </Step>
+
+  <Step title="Create User Account">
+    Configure the installation user:
+    
+    - **Your name**: Full name with capitals (e.g., Pedro García García)
+    - **Computer name**: Machine hostname (e.g., pc02, ubuntu-desktop)
+    - **Username**: Login identifier (e.g., adminiso, usuario)
+    - **Password**: Suggested password: `admin1s0`
+    - Select **Require my password to log in**
+    
+    <Info>
+    This user will have sudo and adm privileges, making them the local administrator.
+    </Info>
+  </Step>
+
+  <Step title="Complete Installation">
+    Wait for the installation to complete. Ubuntu will show a carousel of included applications during this process.
+    
+    When finished, you'll see: **"Remove the installation medium, then press Enter"**
+    
+    <Note>
+    This message may not appear if the display isn't detected properly. Just press Enter to reboot.
+    </Note>
+  </Step>
+</Steps>
+
+## First Boot Configuration
+
+<Steps>
+  <Step title="Login">
+    At the LightDM login screen, click your user icon and enter your password.
+  </Step>
+
+  <Step title="Welcome Tutorial">
+    A welcome wizard will appear on first login. You can skip this tutorial or go through it to familiarize yourself with the Ubuntu desktop.
+  </Step>
+
+  <Step title="Skip Livepatch">
+    When prompted about Ubuntu Livepatch, select **Skip** for now. This can be configured later if needed.
+  </Step>
+
+  <Step title="Error Reporting">
+    Choose whether to send error reports and system statistics to Ubuntu. This helps developers but is optional.
+  </Step>
+
+  <Step title="Install Updates">
+    Click **Install Now** when prompted for updates. Enter your password when requested.
+    
+    <Warning>
+    Always keep your system updated for security and stability. Ubuntu 18.04 has received many updates since its April 2018 release.
+    </Warning>
+  </Step>
+
+  <Step title="Restart">
+    After updates complete, restart the system. Pending updates may be applied during shutdown.
+  </Step>
+</Steps>
+
+## Next Steps
+
+Your Ubuntu 18.04 system is now ready! You can:
+
+- Install additional software from the Ubuntu Software Center
+- Configure additional users
+- Set up shared folders with VirtualBox
+- Install VirtualBox Guest Additions for better integration
+
+<Note>
+For classroom environments, the default administrator password is `admin1s0`.
+</Note>

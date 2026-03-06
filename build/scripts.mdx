@@ -1,0 +1,458 @@
+---
+title: Build Scripts
+description: Understanding and using the md-to-pdf.sh script to generate course materials
+---
+
+The `md-to-pdf.sh` script is the heart of the ASIR-ISO build system. It orchestrates the conversion of Markdown source files into professionally formatted PDF documents for all 12 didactic units.
+
+## Script Location
+
+The build script is located at:
+
+```
+bin/md-to-pdf.sh
+```
+
+## Basic Usage
+
+<CodeGroup>
+
+```bash Build Single Unit
+cd bin
+./md-to-pdf.sh 01    # Build UD01
+./md-to-pdf.sh 05    # Build UD05
+./md-to-pdf.sh 12    # Build UD12
+```
+
+```bash Build All Units
+cd bin
+./md-to-pdf.sh all
+```
+
+```bash From Repository Root
+bash bin/md-to-pdf.sh 03
+```
+
+</CodeGroup>
+
+<Note>
+The script must be run from the `bin/` directory or with the correct relative paths to source files and templates.
+</Note>
+
+## Script Architecture
+
+The script is organized into several key sections:
+
+### 1. Environment Setup
+
+The script begins by preparing the output directory:
+
+```bash
+echo "Preparando el entorno"
+mkdir -p PDFS
+```
+
+### 2. Configuration Variables
+
+Defines templates, paths, and pandoc options:
+
+<CodeGroup>
+
+```bash Templates
+TEMPLATE_TEX="../rsrc/templates/temas-tpl.latex"
+TEMPLATE_TEX_TAREAS="../rsrc/templates/tareas-tpl.latex"
+TEMPLATE_TEX_ANEXOS="../rsrc/templates/anexos-tpl.latex"
+```
+
+```bash Pandoc Options
+PANDOC_OPTIONS="-V fontsize=12pt -V mainfont=\"Ubuntu\" --pdf-engine=xelatex"
+```
+
+```bash Output Path
+PDF_PATH="$(readlink -f PDFS)"
+```
+
+</CodeGroup>
+
+### 3. Didactic Unit Definitions
+
+Maps unit numbers to directory names:
+
+```bash
+UD01_NAME="UD01_IntroduccionSistemasOperativos"
+UD02_NAME="UD02_Virtualizacion"
+UD03_NAME="UD03_Instalacion_Arranque"
+# ... through UD12
+```
+
+### 4. Helper Functions
+
+Provides utilities for output formatting and file processing:
+
+- `say_ok()`: Display success messages in green
+- `say_error()`: Display error messages in red
+- `say_file()`: Check file existence and report status
+- `make_teoria()`: Generate theory PDFs
+- `make_practicas()`: Generate task PDFs
+- `make_anexos()`: Generate annex PDFs
+- `move_pdfs()`: Organize output files
+
+### 5. Main Processing Logic
+
+A case statement handles the user's selection:
+
+```bash
+case $1 in 
+    "01") make_UD01 ;;
+    "02") make_UD02 ;;
+    # ...
+    "all") make_UD01; make_UD02; ... ;;
+esac
+```
+
+## Core Functions
+
+### make_teoria()
+
+Combines all theory files into a single PDF:
+
+<Steps>
+
+### Navigate to Unit Directory
+
+```bash
+cd ${UD01_NAME}
+```
+
+### Run Pandoc
+
+Process all `Teoria_*.md` files:
+
+```bash
+pandoc --template ${TEMPLATE_TEX} \
+  ${PANDOC_OPTIONS} \
+  -o ${PDF_PATH}/${UDTEORIA}_Teoria.pdf \
+  Teoria_*.md
+```
+
+### Report Status
+
+```bash
+say_ok "$(readlink -f ${PDF_PATH}/${UDTEORIA}_Teoria.pdf)"
+```
+
+</Steps>
+
+### make_practicas()
+
+Generates individual PDFs for each task:
+
+<Steps>
+
+### Iterate Through Task Files
+
+```bash
+for ejer in $(ls -1 Tarea_*.md); do
+```
+
+### Extract Number and Name
+
+Parse the filename to get metadata:
+
+```bash
+NUM=$(echo $ejer | cut -d "_" -f2 | cut -d "." -f1)
+NOMBRE=$(echo $ejer | cut -d "_" -f3 | cut -d "." -f1)
+```
+
+### Generate PDF
+
+```bash
+pandoc --template ${TEMPLATE_TEX_TAREAS} \
+  ${PANDOC_OPTIONS} \
+  -o ${PDF_PATH}/${UDPRACTICAS}_Tarea_${NUMP}_${NOMBRE}.pdf \
+  $ejer
+```
+
+### Increment Counter
+
+```bash
+let NUMP=NUMP+1
+```
+
+</Steps>
+
+<Warning>
+The task numbering in output filenames is sequential based on alphabetical order of source files, not the number in the filename.
+</Warning>
+
+### make_anexos()
+
+Works similarly to `make_practicas()` but processes `Anexo_*.md` files using the annexes template.
+
+### move_pdfs()
+
+Organizes generated PDFs into unit-specific folders:
+
+```bash
+mkdir -p PDFS/${UDNAME}
+mv PDFS/*.pdf PDFS/${UDNAME}/
+say_ok "PDFS generados en : PDFS/${UDNAME}/"
+```
+
+## Pandoc Configuration
+
+The script uses consistent pandoc options across all conversions:
+
+<Accordion title="Pandoc Options Explained">
+
+**Font Size**
+```bash
+-V fontsize=12pt
+```
+Sets the base font size to 12 points for comfortable reading.
+
+**Main Font**
+```bash
+-V mainfont="Ubuntu"
+```
+Uses the Ubuntu font family for all text.
+
+**PDF Engine**
+```bash
+--pdf-engine=xelatex
+```
+Uses XeTeX for Unicode support and modern typography.
+
+**Template**
+```bash
+--template ${TEMPLATE_TEX}
+```
+Applies custom LaTeX template for consistent styling.
+
+</Accordion>
+
+## Installation Guides
+
+Some units include installation guides that are processed alongside regular materials:
+
+<CodeGroup>
+
+```bash Ubuntu Guide
+make_guia_ubuntu_bionic(){
+    echo " * [ GUIA ] : Ubuntu Bionic"
+    cd ${GUIAS_PATH}
+    pandoc --template ${TEMPLATE_TEX} \
+      ${PANDOC_OPTIONS} \
+      -o ${PDF_PATH}/${GUIA_BIONIC}.pdf \
+      ${GUIA_BIONIC}.md
+    cd ..
+}
+```
+
+```bash Windows Guide
+make_guia_windows_2019(){
+    echo " * [ GUIA ] : Windows 2019 Server"
+    cd ${GUIAS_PATH}
+    pandoc --template ${TEMPLATE_TEX} \
+      ${PANDOC_OPTIONS} \
+      -o ${PDF_PATH}/${GUIA_WIN2019}.pdf \
+      ${GUIA_WIN2019}.md
+    cd ..
+}
+```
+
+</CodeGroup>
+
+Guides are called from unit-specific functions:
+
+```bash
+make_UD02(){
+    cd ${UD02_NAME}
+    make_teoria ${UD02_NAME}
+    make_practicas ${UD02_NAME}
+    cd ..
+    
+    # Installation guides for this unit
+    make_guia_ubuntu_bionic
+    make_guia_xubuntu_bionic
+    
+    move_pdfs ${UD02_NAME}
+}
+```
+
+## Output Structure
+
+After running the script, PDFs are organized as follows:
+
+```
+PDFS/
+├── UD01_IntroduccionSistemasOperativos/
+│   ├── UD01_Teoria.pdf
+│   ├── UD01_Tarea_1_TiposDeAplicaciones.pdf
+│   ├── UD01_Tarea_2_SistemasOperativos.pdf
+│   └── UD01_Tarea_3_Licencias.pdf
+├── UD02_Virtualizacion/
+│   ├── UD02_Teoria.pdf
+│   ├── UD02_Tarea_1_DiscosDurosVirtuales.pdf
+│   ├── Guia_Ubuntu_Bionic.pdf
+│   └── Guia_Xubuntu_Bionic.pdf
+└── ...
+```
+
+## Status Indicators
+
+The script uses color-coded output to show progress:
+
+<CodeGroup>
+
+```bash Success (Green)
+ * [ OK ] : /home/user/ASIR-ISO/bin/PDFS/UD01_Teoria.pdf
+```
+
+```bash Error (Red)
+ * [ Error ] : Not a file /path/to/missing.pdf
+```
+
+</CodeGroup>
+
+Color codes:
+- `RED='\033[0;31m'`
+- `GREEN="\033[0;32m"`
+- `NC='\033[0m'` (No Color)
+
+## Customization
+
+### Changing Font Size
+
+Modify the `PANDOC_OPTIONS` variable:
+
+```bash
+PANDOC_OPTIONS="-V fontsize=14pt -V mainfont=\"Ubuntu\" --pdf-engine=xelatex"
+```
+
+### Using Different Fonts
+
+Change the `mainfont` variable:
+
+```bash
+PANDOC_OPTIONS="-V fontsize=12pt -V mainfont=\"Liberation Sans\" --pdf-engine=xelatex"
+```
+
+<Note>
+Ensure the font is installed on your system. Check with `fc-list | grep "FontName"`
+</Note>
+
+### Adding New Units
+
+To add a 13th didactic unit:
+
+<Steps>
+
+### Define the Unit Name
+
+```bash
+UD13_NAME="UD13_NewTopicName"
+```
+
+### Create Processing Function
+
+```bash
+make_UD13(){
+    cd ${UD13_NAME}
+    make_teoria ${UD13_NAME}
+    make_practicas ${UD13_NAME}
+    cd ..
+    move_pdfs ${UD13_NAME}
+}
+```
+
+### Add to Case Statement
+
+```bash
+case $1 in
+    # ... existing cases
+    "13")
+        make_UD13
+        ;;
+    "all")
+        make_UD01
+        # ... existing units
+        make_UD13
+        ;;
+esac
+```
+
+</Steps>
+
+## Error Handling
+
+The script includes basic error handling:
+
+```bash
+if [ -f $1 ]; then 
+    say_ok "$(readlink -f $1)"
+else
+    say_error " [ Warning ] : Not a file $1 "
+fi
+```
+
+Exit codes:
+- `exit 0`: Successful completion
+- `exit 1`: Unknown unit specified
+
+## Performance
+
+Processing times vary by unit:
+
+- **Single unit**: 10-30 seconds
+- **All units**: 3-5 minutes
+- **With guides**: Additional 10-15 seconds per guide
+
+<Note>
+Performance depends on the number of files, document length, and system resources.
+</Note>
+
+## Troubleshooting
+
+### Script Won't Run
+
+**Problem**: Permission denied
+
+**Solution**: Make the script executable:
+
+```bash
+chmod +x bin/md-to-pdf.sh
+```
+
+### PDFs Not Generated
+
+**Problem**: No output files
+
+**Solution**: Check that:
+- You're running from the correct directory
+- Source `.md` files exist in unit folders
+- Dependencies are installed (see [Dependencies](/build/dependencies))
+
+### Template Not Found
+
+**Problem**: `--template` error from pandoc
+
+**Solution**: Verify template paths:
+
+```bash
+ls -la ../rsrc/templates/
+```
+
+### Wrong Output Location
+
+**Problem**: PDFs appear in unexpected location
+
+**Solution**: The script uses `readlink -f` to resolve absolute paths. Ensure you run it from `bin/` directory.
+
+## Next Steps
+
+Now that you understand the build scripts:
+
+1. Review the [Style Guide](/style-guide) - Learn formatting conventions
+2. Check the [Build Overview](/build/overview) - Understand the complete workflow
+3. Try building a unit - Generate your first PDFs

@@ -1,0 +1,181 @@
+---
+title: UD11 - Rendimiento y Auditorías
+description: Overview of system performance monitoring and auditing tools
+---
+
+## Objetivos de la Unidad
+
+A lo largo de las unidades hemos ido configurando servicios y aplicaciones para dar respuesta a las diferentes necesidades que podemos tener en un sistema informático. Tan importante como instalarlas y configurarlas, es asegurarnos de que todos los componentes de nuestro sistema están funcionando de manera adecuada.
+
+En esta unidad aprenderás a:
+
+<CardGroup cols={2}>
+  <Card title="Monitorizar rendimiento" icon="chart-line">
+    Utilizar herramientas para supervisar el rendimiento del sistema
+  </Card>
+  <Card title="Analizar registros" icon="file-lines">
+    Revisar logs de servicios para detectar fallos y problemas
+  </Card>
+  <Card title="Auditar sistemas" icon="magnifying-glass">
+    Realizar auditorías de seguridad en sistemas operativos
+  </Card>
+  <Card title="Herramientas forenses" icon="fingerprint">
+    Aplicar técnicas forenses para recuperación de datos
+  </Card>
+</CardGroup>
+
+## Contenidos
+
+La unidad cubre los siguientes temas principales:
+
+### Monitorización de Rendimiento
+
+Herramientas para supervisar el estado y rendimiento de sistemas:
+
+- **Monitor de Rendimiento Windows**: Configuración de contadores y gráficos
+- **RRDtool**: Estándar de la industria para gráficos de tiempo
+- **MRTG**: Multi Router Traffic Grapher para visualización de datos
+
+### Monitorización de Red
+
+<Steps>
+  <Step title="bmon">
+    Monitor básico de ancho de banda para interfaces de red
+  </Step>
+  <Step title="Wireshark">
+    Analizador de protocolos de red para captura y análisis de paquetes
+  </Step>
+  <Step title="Estadísticas de tráfico">
+    Análisis de destinos, puertos y protocolos utilizados
+  </Step>
+</Steps>
+
+### Sistemas de Monitorización Centralizada
+
+**Nagios**: Sistema de monitorización de infraestructura que permite:
+
+- Monitorización de servicios de red
+- Monitorización de recursos de host
+- Alertas y notificaciones
+- Extensibilidad mediante plugins
+
+### Auditorías y Registros
+
+Análisis de logs del sistema:
+
+- Registros de Windows (Event Viewer)
+- Registros de Linux (syslog, journalctl)
+- Análisis forense básico
+- Recolección de evidencias
+
+## Áreas de Aplicación
+
+Las herramientas y técnicas de esta unidad son aplicables en diversos escenarios:
+
+<CardGroup cols={2}>
+  <Card title="Detección de Cuellos de Botella" icon="bottle-droplet">
+    Identificar recursos del sistema que limitan el rendimiento
+  </Card>
+  <Card title="Planificación de Capacidad" icon="calendar-days">
+    Determinar cuándo es necesario ampliar recursos
+  </Card>
+  <Card title="Resolución de Incidencias" icon="wrench">
+    Diagnosticar problemas mediante análisis de logs y métricas
+  </Card>
+  <Card title="Cumplimiento Normativo" icon="scale-balanced">
+    Mantener registros de auditoría para requisitos legales
+  </Card>
+</CardGroup>
+
+## Indicadores Clave de Rendimiento (KPIs)
+
+Algunos de los indicadores más importantes a monitorizar:
+
+### Recursos del Sistema
+
+- **CPU**: Porcentaje de uso, procesos en espera
+- **Memoria**: Uso de RAM, memoria disponible, paginación
+- **Disco**: % tiempo de lectura/escritura, operaciones por segundo, espacio disponible
+- **Red**: Bytes enviados/recibidos, paquetes perdidos, latencia
+
+### Servicios Específicos
+
+<Accordion title="Active Directory">
+  - Autenticaciones por segundo
+  - Tiempo de respuesta LDAP
+  - Replicación entre controladores
+</Accordion>
+
+<Accordion title="DNS">
+  - Consultas por segundo
+  - Consultas recursivas
+  - Respuestas negativas
+</Accordion>
+
+<Accordion title="DHCP">
+  - Direcciones asignadas vs disponibles
+  - Tiempo de concesión
+  - Solicitudes rechazadas
+</Accordion>
+
+<Accordion title="Servidores Web">
+  - Peticiones por segundo
+  - Tiempo de respuesta
+  - Códigos de error (4xx, 5xx)
+</Accordion>
+
+## Herramientas por Plataforma
+
+### Windows
+
+- **Monitor de Rendimiento (perfmon)**: Contadores y alertas
+- **Resource Monitor**: Vista en tiempo real de recursos
+- **Event Viewer**: Registros del sistema y aplicaciones
+- **Network Monitor**: Captura de tráfico de red
+
+### Linux
+
+- **top/htop**: Uso de CPU y memoria en tiempo real
+- **iotop**: Monitorización de E/S de disco
+- **bmon**: Monitor de ancho de banda
+- **journalctl**: Consulta de logs de systemd
+- **tcpdump/Wireshark**: Análisis de tráfico de red
+
+### Multiplataforma
+
+- **Nagios**: Monitorización de infraestructura
+- **Wireshark**: Análisis de protocolos de red
+- **Grafana**: Visualización de métricas
+- **Prometheus**: Recolección de métricas
+
+<Note>
+La elección de herramientas depende del entorno, los requisitos específicos y los recursos disponibles.
+</Note>
+
+## Prácticas
+
+La unidad incluye tareas prácticas que te permitirán:
+
+1. **Monitor de Rendimiento Windows 2019**: Configurar contadores personalizados
+2. **Monitorización de Red**: Usar bmon y Wireshark para analizar tráfico
+3. **Nagios**: Evaluar alertas y configurar monitorización de servicios
+4. **Registros de Linux**: Analizar logs del sistema para diagnóstico
+5. **Forense Básico**: Recolección y análisis de evidencias
+
+## Mejores Prácticas
+
+<Warning>
+**Consideraciones importantes:**
+- Establecer líneas base de rendimiento en condiciones normales
+- No monitorizar en exceso - puede afectar al rendimiento
+- Configurar alertas para incidentes críticos
+- Mantener registros de auditoría de manera segura
+- Revisar regularmente las métricas y ajustar umbrales
+</Warning>
+
+## Recursos Adicionales
+
+- [RRDtool Documentation](https://oss.oetiker.ch/rrdtool/)
+- [Wireshark User Guide](https://www.wireshark.org/docs/)
+- [Nagios Documentation](https://www.nagios.org/documentation/)
+- [Windows Performance Monitor Guide](https://docs.microsoft.com/en-us/windows-server/administration/performance-tuning/)

@@ -1,0 +1,300 @@
+---
+title: Teoría - Acceso al Dominio
+description: Conceptos teóricos sobre la unión de equipos al dominio y gestión de recursos
+---
+
+## Introducción
+
+En la unidad anterior hemos visto cuales son los motivos por los que implementar un dominio, así como los pasos necesarios para ponerlo en marcha en nuestro servidor.
+
+En esta unidad veremos como se _unen_ las máquinas al dominio, ya sean Windows o GNU/Linux y cuáles son las herramientas que podemos utilizar para aprovechar la estructura de dominio.
+
+Configuraremos los usuarios de la red, las carpetas compartidas, los recursos disponibles, etc. que nos permitirán aprovechar los recursos de la red de manera más optimizada.
+
+## Conceptos Fundamentales
+
+### ¿Qué es la Unión al Dominio?
+
+La unión al dominio es el proceso mediante el cual una estación de trabajo se integra en una infraestructura de Active Directory o LDAP, permitiendo:
+
+<CardGroup cols={2}>
+  <Card title="Autenticación Centralizada" icon="key">
+    Los usuarios pueden iniciar sesión con las mismas credenciales en cualquier equipo del dominio
+  </Card>
+  <Card title="Gestión Centralizada" icon="users-gear">
+    Los administradores pueden aplicar políticas y configuraciones desde un punto central
+  </Card>
+  <Card title="Recursos Compartidos" icon="share-nodes">
+    Acceso controlado a carpetas, impresoras y aplicaciones de red
+  </Card>
+  <Card title="Seguridad Mejorada" icon="shield-check">
+    Control de acceso basado en grupos y políticas de seguridad
+  </Card>
+</CardGroup>
+
+## Equipos del Dominio
+
+### Tipos de Equipos
+
+En un dominio podemos encontrar diferentes tipos de equipos:
+
+- **Controladores de Dominio (DC)**: Servidores que gestionan la autenticación y la base de datos del dominio
+- **Servidores Miembro**: Servidores que ofrecen servicios específicos dentro del dominio
+- **Estaciones de Trabajo**: Equipos cliente utilizados por los usuarios finales
+
+### Requisitos para la Unión
+
+<Steps>
+  <Step title="Conectividad de Red">
+    El equipo debe poder comunicarse con el controlador de dominio mediante la red
+  </Step>
+  <Step title="Resolución DNS">
+    Configuración correcta del DNS apuntando al servidor de Active Directory
+  </Step>
+  <Step title="Sincronización de Tiempo">
+    El tiempo del cliente debe estar sincronizado con el servidor (especialmente crítico para Kerberos)
+  </Step>
+  <Step title="Credenciales Administrativas">
+    Acceso a una cuenta con permisos para unir equipos al dominio
+  </Step>
+</Steps>
+
+## Conexión de Estaciones Windows
+
+### Proceso de Unión
+
+Para unir un equipo Windows al dominio:
+
+1. **Configuración de DNS**: Establecer el servidor DNS apuntando al controlador de dominio
+2. **Verificar conectividad**: Asegurar que el equipo puede resolver el nombre del dominio
+3. **Ejecutar el asistente**: Utilizar el asistente de unión al dominio desde las propiedades del sistema
+4. **Proporcionar credenciales**: Introducir usuario y contraseña con permisos de administrador del dominio
+5. **Reiniciar**: El equipo debe reiniciarse para aplicar los cambios
+
+<Note>
+El nombre del equipo en el dominio debe ser único y descriptivo para facilitar su identificación y gestión.
+</Note>
+
+### Después de la Unión
+
+Una vez el equipo está unido al dominio:
+
+- Los usuarios del dominio pueden iniciar sesión
+- Se pueden aplicar políticas de grupo (GPO)
+- El equipo aparece en la consola de Active Directory
+- Se puede gestionar remotamente
+
+## Conexión de Estaciones GNU/Linux
+
+### Componentes Necesarios
+
+Para integrar un sistema Linux con Active Directory se requieren varios componentes:
+
+```bash
+# Paquetes principales
+apt install realmd sssd sssd-tools samba-common krb5-user \
+  packagekit samba-common-bin samba-libs adcli ntp
+```
+
+### Servicios Involucrados
+
+<Accordion title="realmd">
+  Servicio que descubre y se une a dominios de Active Directory o LDAP de manera simplificada.
+</Accordion>
+
+<Accordion title="sssd (System Security Services Daemon)">
+  Proporciona acceso a diferentes proveedores de identidad (Active Directory, LDAP) y gestiona la caché de credenciales.
+</Accordion>
+
+<Accordion title="Kerberos (krb5)">
+  Sistema de autenticación utilizado por Active Directory. Es crítico que la hora esté sincronizada.
+</Accordion>
+
+<Accordion title="Samba">
+  Implementa el protocolo SMB/CIFS y permite la interoperabilidad con sistemas Windows.
+</Accordion>
+
+<Accordion title="NTP (Network Time Protocol)">
+  Sincroniza el reloj del sistema con el servidor de dominio. Esencial para Kerberos.
+</Accordion>
+
+### Configuración Paso a Paso
+
+<Steps>
+  <Step title="Configurar resolución de nombres">
+    Editar `/etc/hosts` y `/etc/systemd/resolved.conf` para apuntar al DNS del dominio
+  </Step>
+  <Step title="Sincronizar tiempo">
+    Configurar NTP para sincronizar con el servidor del dominio en `/etc/ntp.conf`
+  </Step>
+  <Step title="Configurar realmd">
+    Crear `/etc/realmd.conf` con los parámetros del dominio
+  </Step>
+  <Step title="Obtener ticket de Kerberos">
+    Ejecutar `kinit Administrador@DOMINIO.COM` para obtener un ticket válido
+  </Step>
+  <Step title="Unirse al dominio">
+    Usar el comando `realm join` para unir el equipo al dominio
+  </Step>
+  <Step title="Configurar SSSD">
+    Ajustar `/etc/sssd/sssd.conf` para permitir el inicio de sesión
+  </Step>
+  <Step title="Configurar PAM">
+    Modificar la configuración de PAM para crear directorios de usuario automáticamente
+  </Step>
+  <Step title="Configurar LightDM">
+    Ajustar `/etc/lightdm/lightdm.conf` para permitir el inicio de sesión manual
+  </Step>
+</Steps>
+
+<Warning>
+La sincronización de tiempo es crítica. Si el desfase es superior a 5 minutos, Kerberos rechazará la autenticación.
+</Warning>
+
+## Integración con OpenLDAP
+
+### Diferencias con Active Directory
+
+OpenLDAP es una implementación de código abierto del protocolo LDAP, más ligera que Active Directory pero con menos funcionalidades integradas.
+
+**Ventajas de OpenLDAP:**
+- Menor consumo de recursos
+- Mayor flexibilidad y personalización
+- Sin costes de licencia
+- Integración nativa con sistemas Linux
+
+**Limitaciones:**
+- No incluye Kerberos por defecto (debe configurarse por separado)
+- Sin políticas de grupo nativas
+- Interfaz de administración menos intuitiva
+
+### Configuración de Cliente OpenLDAP
+
+Para configurar un cliente LDAP en Linux:
+
+```bash
+# Instalar paquetes necesarios
+sudo apt install libnss-ldap libpam-ldap ldap-utils
+```
+
+**Parámetros de configuración:**
+
+- **URI del servidor**: `ldapi:///servidor.dominio.com`
+- **Base DN**: `dc=servidor,dc=dominio,dc=com`
+- **Versión LDAP**: 3
+
+<Note>
+Debe modificarse `/etc/nsswitch.conf` para que el sistema consulte LDAP para usuarios y grupos.
+</Note>
+
+## Recursos del Dominio
+
+### Carpetas Compartidas
+
+Las carpetas compartidas en un dominio permiten:
+
+- Almacenamiento centralizado de documentos
+- Control de acceso basado en usuarios y grupos
+- Copias de seguridad centralizadas
+- Perfiles móviles de usuario
+
+### Permisos
+
+<Accordion title="Permisos de Red (Share Permissions)">
+  Controlan el acceso a través de la red. Se aplican antes que los permisos NTFS.
+</Accordion>
+
+<Accordion title="Permisos NTFS">
+  Permisos del sistema de archivos que se aplican tanto local como remotamente. Más granulares que los permisos de red.
+</Accordion>
+
+<Accordion title="Permisos Efectivos">
+  El resultado de combinar permisos de red y NTFS. Se aplica el más restrictivo.
+</Accordion>
+
+<Accordion title="Herencia">
+  Los permisos se heredan de carpetas superiores. Puede bloquearse o modificarse selectivamente.
+</Accordion>
+
+### Listas de Control de Acceso (ACL)
+
+Las ACL permiten definir permisos específicos para cada usuario o grupo:
+
+- **Lectura**: Ver el contenido
+- **Escritura**: Modificar y crear archivos
+- **Ejecución**: Ejecutar programas
+- **Control total**: Todos los permisos incluyendo cambiar permisos
+- **Permisos especiales**: Permisos granulares avanzados
+
+## Inicios de Sesión y Scripts
+
+### Scripts de Inicio de Sesión
+
+Los scripts de inicio de sesión se ejecutan automáticamente cuando un usuario inicia sesión en el dominio. Permiten:
+
+- Mapear unidades de red
+- Configurar impresoras
+- Ejecutar tareas de mantenimiento
+- Aplicar configuraciones específicas del usuario
+
+### Perfiles de Usuario
+
+<CardGroup cols={2}>
+  <Card title="Perfil Local" icon="computer">
+    Almacenado en el equipo local. No se sincroniza entre máquinas.
+  </Card>
+  <Card title="Perfil Móvil" icon="cloud">
+    Almacenado en el servidor. Sigue al usuario entre diferentes equipos.
+  </Card>
+  <Card title="Perfil Obligatorio" icon="lock">
+    Perfil de solo lectura que se restaura en cada inicio de sesión.
+  </Card>
+  <Card title="Carpeta Personal" icon="folder">
+    Directorio privado del usuario en el servidor.
+  </Card>
+</CardGroup>
+
+## Políticas de Grupo (GPO)
+
+Las Group Policy Objects (GPO) son el mecanismo principal de gestión centralizada en Active Directory.
+
+### ¿Qué se puede configurar con GPO?
+
+- **Seguridad**: Políticas de contraseñas, firewall, AppLocker
+- **Software**: Instalación y desinstalación automática
+- **Configuración**: Fondo de pantalla, configuración de red, restricciones
+- **Scripts**: Scripts de inicio, cierre, inicio de sesión y cierre de sesión
+
+### Ámbito de Aplicación
+
+Las GPO se pueden aplicar a:
+
+- **Sitios**: Ubicaciones físicas de la red
+- **Dominios**: Todo el dominio de Active Directory
+- **Unidades Organizativas (OU)**: Grupos específicos de usuarios o equipos
+
+<Note>
+El orden de aplicación es: Local → Sitio → Dominio → OU. Las políticas posteriores sobreescriben las anteriores a menos que estén configuradas como "No override".
+</Note>
+
+## Mejores Prácticas
+
+<Warning>
+**Seguridad:**
+- Cambiar los usuarios y contraseñas por defecto
+- Limitar los usuarios con permisos de administrador de dominio
+- Implementar políticas de contraseñas robustas
+- Revisar regularmente los logs de inicio de sesión
+</Warning>
+
+**Organización:**
+- Usar nombres descriptivos para equipos y usuarios
+- Organizar los recursos en OUs lógicas
+- Documentar las GPO y sus efectos
+- Probar las políticas en un grupo reducido antes de aplicarlas masivamente
+
+**Rendimiento:**
+- No aplicar demasiadas GPO a un mismo objeto
+- Optimizar los scripts de inicio de sesión
+- Usar perfiles móviles solo cuando sea necesario
+- Implementar caché de credenciales en equipos portátiles

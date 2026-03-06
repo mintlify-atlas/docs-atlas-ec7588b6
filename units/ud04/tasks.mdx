@@ -1,0 +1,403 @@
+---
+title: 'UD04 Practical Tasks'
+description: 'Hands-on exercises for process management and network configuration'
+---
+
+# Practical Tasks - UD04
+
+These tasks cover the practical application of process management and network configuration concepts.
+
+## Process Management Tasks
+
+### Task 1: Windows Task Manager
+
+Practice using the Windows Task Manager for process management.
+
+<Accordion title="Exercise 1: Terminating Processes">
+**Objective:** End processes using Task Manager
+
+<Steps>
+  <Step title="Launch Applications">
+    Start Notepad, Microsoft Edge, and Calculator
+  </Step>
+  
+  <Step title="Open Task Manager">
+    Right-click Start button → Task Manager
+  </Step>
+  
+  <Step title="End Tasks">
+    Terminate each application from Task Manager
+  </Step>
+  
+  <Step title="Document">
+    Take screenshots of each terminated application
+  </Step>
+</Steps>
+</Accordion>
+
+<Accordion title="Exercise 2: System Uptime">
+**Objective:** Find system uptime
+
+1. Open Task Manager
+2. Navigate to Performance tab
+3. Find and document the system uptime
+4. Take a screenshot
+</Accordion>
+
+<Accordion title="Exercise 3: Application History">
+**Objective:** Identify most used applications
+
+Create a list of the top 3 most used applications by the `adminiso` user based on the App History tab.
+</Accordion>
+
+<Accordion title="Exercise 4: Process Details">
+**Objective:** Document process information
+
+Fill in the table with executable names and descriptions:
+
+| Application | Executable Name | Description |
+|-------------|-----------------|-------------|
+| Notepad | | |
+| Edge | | |
+| File Explorer | | |
+| Paint 3D | | |
+| Solitaire | | |
+| Microsoft Store | | |
+| Photos | | |
+
+Use the Details tab in Task Manager.
+</Accordion>
+
+<Accordion title="Exercise 5: Startup Programs">
+**Objective:** Audit startup programs
+
+1. Check your home computer (or VM)
+2. Count how many applications start at login
+3. Take a screenshot of the Startup tab
+4. Identify programs that could be disabled to improve boot time
+</Accordion>
+
+### Task 2: Process Explorer
+
+<Accordion title="Exercise 1: Install Process Explorer">
+1. Download Process Explorer from Microsoft Sysinternals
+2. Extract and run the executable
+3. Explore the process tree view
+4. Compare with Task Manager
+</Accordion>
+
+<Accordion title="Exercise 2: Analyze Process">
+1. Find a running application in Process Explorer
+2. View its properties (right-click → Properties)
+3. Examine the Threads, TCP/IP, and Security tabs
+4. Document interesting findings
+</Accordion>
+
+### Task 3: PowerShell Process Management
+
+<Accordion title="Exercise 1: List Processes">
+Write a PowerShell script to:
+1. List all processes sorted by CPU usage (descending)
+2. Show only Name, Id, and CPU columns
+3. Export results to CSV file
+
+```powershell
+# Your script here
+```
+</Accordion>
+
+<Accordion title="Exercise 2: Monitor Memory">
+Create a script that:
+1. Finds processes using more than 100MB of RAM
+2. Displays Name, Id, and WorkingSet
+3. Runs continuously (refreshing every 5 seconds)
+
+<Note>
+Use `while ($true)` loop and `Start-Sleep`
+</Note>
+</Accordion>
+
+### Task 4: Linux Process Management
+
+Modify and complete these scripts:
+
+<Accordion title="Exercise 1: Kill Process">
+Modify the script to send SIGKILL (signal 9):
+
+```bash
+#!/bin/bash
+
+echo " Obtenemos el PID"
+PID_AUX=$(ps -e | grep firefox | cut -d " " -f2)
+echo " - PID : $PID_AUX"
+kill -10 $PID_AUX
+exit 0
+```
+
+**Task:** Change `-10` to `-9` to send SIGKILL.
+</Accordion>
+
+<Accordion title="Exercise 2: Process Tree with PIDs">
+Modify to show PIDs in the process tree:
+
+```bash
+#!/bin/bash
+
+echo " Obtenemos el PID"
+PID_AUX=$(ps -e | grep firefox | cut -d " " -f2)
+echo " - PID : $PID_AUX"
+pstree $PID_AUX
+exit 0
+```
+
+**Task:** Add the `-p` parameter to pstree to show PIDs.
+</Accordion>
+
+<Accordion title="Exercise 3: Launch with Priority">
+Modify to launch process with priority 10:
+
+```bash
+#!/bin/bash
+
+echo -n " Indique el proceso : "
+read PROCESO
+nice $PROCESO
+exit 0
+```
+
+**Task:** Add the `-n 10` parameter to the nice command.
+</Accordion>
+
+<Accordion title="Exercise 4: Process Monitor and Launcher">
+**Scenario:** The company "Creando, Creando, vamos mejorando" has problems with nightly print processes.
+
+Two processes run each night:
+- `imprime-normal`
+- `imprime-3d`
+
+Sometimes they don't finish properly and become zombies.
+
+**Requirements:**
+1. Check if processes are already running
+2. Kill them if they're zombies
+3. Launch both processes with high priority (nice -4 to -6)
+
+```bash
+#!/bin/bash
+# Your solution here
+```
+</Accordion>
+
+---
+
+## Network Configuration Tasks
+
+### Task 5: PowerShell Network Configuration
+
+<Accordion title="Exercise 1: Network Inventory">
+Create a script that generates a network inventory:
+
+1. List all network adapters
+2. Show IP addresses for each adapter
+3. Display DNS servers
+4. Test connectivity to 8.8.8.8
+5. Export results to text file
+</Accordion>
+
+<Accordion title="Exercise 2: Network Diagnostics">
+Write a script that:
+1. Tests connectivity to multiple servers
+2. Resolves DNS for each server
+3. Displays results in a formatted table
+4. Saves failed tests to error log
+
+**Servers to test:**
+- www.google.com
+- www.microsoft.com
+- 8.8.8.8
+- Your local gateway
+</Accordion>
+
+### Task 6: Linux Network Configuration
+
+<Accordion title="Exercise 1: netplan Configuration">
+**Objective:** Configure static IP using netplan
+
+<Steps>
+  <Step title="Backup Current Config">
+    ```bash
+    sudo cp /etc/netplan/01-netcfg.yaml /etc/netplan/01-netcfg.yaml.backup
+    ```
+  </Step>
+  
+  <Step title="Edit Configuration">
+    Create a static IP configuration:
+    - IP: 192.168.1.100/24
+    - Gateway: 192.168.1.1
+    - DNS: 8.8.8.8, 8.8.4.4
+  </Step>
+  
+  <Step title="Apply Configuration">
+    ```bash
+    sudo netplan try
+    ```
+  </Step>
+  
+  <Step title="Verify">
+    ```bash
+    ip addr
+    ip route
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+Use `netplan try` - it auto-reverts if you lose connection!
+</Warning>
+</Accordion>
+
+<Accordion title="Exercise 2: Network Troubleshooting">
+Create a BASH script that:
+1. Checks if network interface is up
+2. Pings local gateway
+3. Pings 8.8.8.8
+4. Tests DNS resolution
+5. Reports which step failed (if any)
+
+```bash
+#!/bin/bash
+# Network troubleshooting script
+# Your code here
+```
+</Accordion>
+
+### Task 7: Cross-Platform Network Commands
+
+<Accordion title="Exercise 1: Command Comparison">
+Complete the table with equivalent commands:
+
+| Task | Windows (PowerShell) | Linux |
+|------|---------------------|-------|
+| Show IP config | `Get-NetIPConfiguration` | |
+| Test connectivity | | `ping -c 5` |
+| DNS lookup | `Resolve-DnsName` | |
+| Show route table | | `ip route` |
+| Disable adapter | | `sudo ip link set eth0 down` |
+</Accordion>
+
+<Accordion title="Exercise 2: Network Documentation">
+For both Windows and Linux systems, document:
+
+1. Network adapter name
+2. MAC address
+3. IP address
+4. Subnet mask
+5. Default gateway
+6. DNS servers
+7. Connection speed
+8. How to change these settings
+</Accordion>
+
+---
+
+## Advanced Challenges
+
+### Challenge 1: Process Monitor Dashboard
+
+<Accordion title="Windows PowerShell">
+Create an advanced monitoring script that:
+- Shows top 5 CPU-intensive processes
+- Shows top 5 memory-intensive processes
+- Shows network usage by process
+- Refreshes every 3 seconds
+- Uses colored output
+- Allows user to kill a process by entering PID
+</Accordion>
+
+<Accordion title="Linux BASH">
+Create a system monitor that:
+- Shows CPU usage percentage
+- Shows memory usage
+- Lists processes using most resources
+- Tests network connectivity
+- Displays everything in a formatted dashboard
+- Refreshes automatically
+</Accordion>
+
+### Challenge 2: Network Configuration Backup
+
+<Accordion title="Windows">
+Create a script that:
+1. Exports all network adapter configurations
+2. Saves to timestamped backup file
+3. Can restore from backup file
+4. Validates configuration before applying
+</Accordion>
+
+<Accordion title="Linux">
+Create a script that:
+1. Backs up netplan configuration
+2. Backs up /etc/hosts and /etc/resolv.conf
+3. Creates restore script automatically
+4. Tests network after restore
+</Accordion>
+
+### Challenge 3: Service Monitoring
+
+**Scenario:** Create a monitoring system that:
+- Checks if critical services/processes are running
+- Automatically restarts them if stopped
+- Logs all actions with timestamps
+- Sends alert if restart fails
+- Works on both Windows and Linux
+
+<Steps>
+  <Step title="Define Critical Services">
+    List 3-5 services/processes to monitor
+  </Step>
+  
+  <Step title="Check Status">
+    Implement check for each service
+  </Step>
+  
+  <Step title="Auto-Restart">
+    Restart service if stopped
+  </Step>
+  
+  <Step title="Logging">
+    Log all checks and actions
+  </Step>
+  
+  <Step title="Alerting">
+    Create alert mechanism for failures
+  </Step>
+</Steps>
+
+---
+
+## Submission Guidelines
+
+<Note>
+**What to Submit:**
+- All completed scripts (in a single ZIP file)
+- Screenshots where requested
+- Completed tables and documentation
+- Brief explanation of your solutions
+
+**File Naming:**
+- `UD04_Task[Number]_[YourName].zip`
+- Include README.md with instructions
+</Note>
+
+## Grading Criteria
+
+| Criteria | Points |
+|----------|--------|
+| Scripts execute without errors | 30% |
+| Correct functionality | 30% |
+| Code quality and comments | 20% |
+| Documentation and screenshots | 20% |
+
+<Warning>
+Test all scripts before submission. Scripts that don't run will receive reduced scores.
+</Warning>

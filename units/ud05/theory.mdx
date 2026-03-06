@@ -1,0 +1,686 @@
+---
+title: 'Theory - Users, Groups, and Permissions'
+description: 'Core concepts of user management and access control in operating systems'
+---
+
+# Users and Groups in Operating Systems
+
+## What are Users?
+
+Users are entities allowed to perform actions on processes and files in an operating system. Modern desktop operating systems are **multiuser**, meaning multiple users can execute programs simultaneously.
+
+### User Capabilities
+
+When a user logs in, the system provides an environment with access to:
+
+<CardGroup cols={2}>
+  <Card title="File Operations" icon="file">
+    - Read files
+    - Modify content
+    - Change ownership
+    - Delete files
+  </Card>
+  
+  <Card title="Process Execution" icon="gears">
+    - Launch applications
+    - Access configurations
+    - Use hardware resources
+    - All within permission bounds
+  </Card>
+</CardGroup>
+
+### Multi-user Environment
+
+Modern systems support multiple concurrent login sessions:
+- **Console logins** (tty1-6 in Linux)
+- **Graphical sessions** (tty7 in Linux)
+- **Remote connections** (SSH, RDP)
+
+## What are Groups?
+
+Groups are collections of users that can be assigned permissions collectively.
+
+**Why use groups?**
+
+<Steps>
+  <Step title="Create a Group">
+    Define a group for a specific purpose (e.g., "developers")
+  </Step>
+  
+  <Step title="Assign Permissions">
+    Grant permissions to the group (e.g., access to /var/www)
+  </Step>
+  
+  <Step title="Add Users">
+    Add all relevant users to the group
+  </Step>
+  
+  <Step title="Automatic Inheritance">
+    Users automatically receive group permissions
+  </Step>
+</Steps>
+
+<Note>
+This is much more efficient than assigning permissions to individual users.
+</Note>
+
+---
+
+# Windows Users and Groups
+
+## Built-in Users
+
+| User | Description |
+|------|-------------|
+| **Administrator** | Full system access, created during installation |
+| **Guest** | Limited access for temporary users |
+| **DefaultUser0** | Template for new user profiles |
+
+## Built-in Groups
+
+| Group | Description |
+|-------|-------------|
+| **Administrators** | Complete and unrestricted access to computer/domain |
+| **Users** | Can run most applications but cannot make system changes |
+| **Power Users** | Compatibility group with limited admin rights |
+| **Remote Desktop Users** | Can log in remotely |
+| **Backup Operators** | Can override security for backup/restore operations |
+| **Guests** | Same access as Users, but more restricted |
+| **Network Configuration Operators** | Can manage network features |
+| **IIS_IUSRS** | Used by Internet Information Services |
+| **Hyper-V Administrators** | Full access to Hyper-V features |
+| **Event Log Readers** | Can read event logs |
+| **Performance Monitor Users** | Can access performance counter data |
+
+## Access Control in Windows
+
+### How Access Control Works
+
+<Steps>
+  <Step title="User Authentication">
+    User logs in and receives an **authentication token** from the security subsystem
+  </Step>
+  
+  <Step title="Resource Access Attempt">
+    User tries to access an object (file, printer, etc.)
+  </Step>
+  
+  <Step title="Token Presentation">
+    User's token is presented to the system
+  </Step>
+  
+  <Step title="ACL Comparison">
+    System compares token with object's **Access Control List (ACL)**
+  </Step>
+  
+  <Step title="Decision">
+    Access granted or denied based on **Access Control Entries (ACE)**
+  </Step>
+</Steps>
+
+### ACE Types
+
+**For Files:**
+- **Read (r)**: View file contents
+- **Write (w)**: Modify files
+- **Execute (x)**: Run programs
+
+**For Printers:**
+- Print documents
+- Manage printers
+- Manage documents
+
+### ACL Evaluation Order
+
+The system checks ACEs in descending order:
+
+1. Check each ACE sequentially
+2. First allow or deny match returns immediately
+3. If no match found at end, deny access
+
+<Warning>
+Explicit deny permissions always override allow permissions.
+</Warning>
+
+### NTFS Permissions
+
+NTFS (NT File System) supports detailed permissions:
+
+**Standard Permissions:**
+- Full Control
+- Modify
+- Read & Execute
+- Read
+- Write
+
+**Permission Targets:**
+- Groups
+- Users
+- Computer accounts (in domains)
+- Domain users and groups
+- Local users and groups
+
+### Permission Inheritance
+
+Objects inherit permissions from parent containers:
+
+- **Owner**: Creator of object (can always change permissions)
+- **Child objects**: Automatically inherit parent permissions (if enabled)
+- **Benefit**: Easier administration and consistent security
+
+**Example:**
+When you create files in a folder, they inherit the folder's permissions.
+
+### User Rights
+
+User rights differ from permissions:
+
+| Aspect | Permissions | User Rights |
+|--------|-------------|-------------|
+| Apply to | Objects (files, printers) | User accounts |
+| Examples | Read, Write, Execute | Log on locally, Backup files |
+| Location | Object properties | Security Policy → User Rights Assignment |
+
+<Note>
+**Best Practice:** Assign user rights to groups rather than individual users.
+</Note>
+
+---
+
+# Linux Users and Groups
+
+## User Management
+
+Linux is a multiuser system that uses different users for secure management of applications and services.
+
+### User Login Requirements
+
+- **Login name** (username)
+- **Password**
+
+<Note>
+Don't confuse login name with full name. Login is typically lowercase, no spaces.
+</Note>
+
+### The root User
+
+The **root** user (UID 0) is the superuser:
+
+- Full system access
+- Can create/delete users
+- Unrestricted file system access
+- Can modify any system setting
+
+**Ubuntu Approach:**
+- root account is disabled by default
+- Use `sudo` for administrative tasks
+- Adds security layer (must know specific user account)
+
+**Other Distributions:**
+- root account enabled
+- Direct root login disabled via SSH
+- Must log in as regular user first
+
+### User Information Storage
+
+| File | Contents |
+|------|----------|
+| `/etc/passwd` | User account information |
+| `/etc/shadow` | Encrypted passwords and password policies |
+| `/etc/group` | Group information and memberships |
+
+### User Directories
+
+- Regular users: `/home/username`
+- root user: `/root`
+
+## Group Management
+
+Groups allow assigning privileges to multiple users:
+
+- **Primary group**: Created automatically with same name as user
+- **Secondary groups**: Users can belong to multiple groups
+- **Group ID (gid)**: Numeric identifier
+- **User ID (uid)**: Numeric identifier (root is always 0)
+
+### Check User ID and Groups
+
+```bash
+id
+```
+
+Output:
+```
+uid=1000(violin) gid=1000(violin) groups=1000(violin),27(sudo),100(users)
+```
+
+## User Administration Commands
+
+### Creating Users
+
+<CodeGroup>
+```bash useradd (low-level)
+# Basic user creation
+sudo useradd violonchelo
+
+# Show defaults
+useradd -D
+```
+
+```bash adduser (recommended)
+# Interactive user creation
+sudo adduser trombon
+# Prompts for password, full name, etc.
+
+# Add user to group
+sudo adduser trombon orquesta
+```
+</CodeGroup>
+
+<Note>
+`adduser` is preferred as it creates home directory, sets up shell, and provides interactive prompts.
+</Note>
+
+### Setting Passwords
+
+<CodeGroup>
+```bash passwd (interactive)
+# Set password for user
+sudo passwd violin
+# Prompts twice for password
+```
+
+```bash chpasswd (scriptable)
+# Set password from stdin (for automation)
+echo "violin:violinPass123" | sudo chpasswd
+```
+</CodeGroup>
+
+<Warning>
+Using `chpasswd` in scripts is risky - passwords are known to multiple people. Force password change on first login for security.
+</Warning>
+
+### Modifying Users
+
+```bash
+# Change home directory
+sudo usermod -d /home/primer_violin violin
+
+# Change shell
+sudo usermod -s /bin/zsh violin
+
+# Add to secondary groups
+sudo usermod -G users,disk violin
+
+# Set account expiry
+sudo usermod -e 2025-12-31 violin
+
+# Lock account
+sudo passwd -l violin
+
+# Unlock account
+sudo passwd -u violin
+```
+
+### Deleting Users
+
+```bash
+# Delete user (keep home directory)
+sudo userdel viola
+
+# Delete user and home directory
+sudo userdel -r viola
+```
+
+### Group Management
+
+<CodeGroup>
+```bash Create Group
+# Create new group
+sudo groupadd metal
+sudo addgroup viento
+```
+
+```bash Modify Group
+# Rename group
+sudo groupmod -n new-name old-name
+
+# Change GID
+sudo groupmod -g 5000 metal
+```
+
+```bash Delete Group
+# Delete group
+sudo groupdel metal
+```
+
+```bash Group Membership
+# Add user to group
+sudo adduser trompa metal
+
+# Remove user from group
+sudo deluser trompa metal
+
+# Manage group with gpasswd
+sudo gpasswd -a viola admin     # Add user
+sudo gpasswd -d viola admin     # Remove user
+sudo gpasswd -A violin admin    # Set admin
+```
+</CodeGroup>
+
+### User Information Commands
+
+```bash
+# Show user IDs and groups
+id violin
+
+# List logged-in users
+who
+who am i
+
+# Detailed user activity
+w
+w violin
+
+# Last logins
+last
+
+# Active user database (includes LDAP)
+getent passwd
+getent group
+```
+
+### Switching Users
+
+<CodeGroup>
+```bash su Command
+# Switch to root (login shell)
+su -
+
+# Switch to specific user
+su violin
+
+# Run single command as root
+su -c "cat /etc/shadow"
+```
+
+```bash sudo Command
+# Run command as root
+sudo gedit /etc/shadow
+
+# Become root temporarily
+sudo su
+
+# Open root login shell
+sudo su -
+```
+</CodeGroup>
+
+---
+
+# File Permissions
+
+## Linux Permission System
+
+### Owner and Group
+
+Every file has:
+- **User owner**: Creator of the file
+- **Group owner**: Primary group of creator
+
+```bash
+ls -l
+```
+
+Output:
+```
+-rw-r--r-- 1 violin cuerda 359 2024-03-06 18:02 apuntes.doc
+```
+
+- Owner: violin
+- Group: cuerda
+
+### Permission Types
+
+#### Read Permission (r)
+
+**For files:**
+- View file contents
+- Open with applications
+
+**For directories:**
+- List directory contents
+- See files and subdirectories
+
+#### Write Permission (w)
+
+**For files:**
+- Modify file contents
+- Delete file
+- Change permissions (chmod)
+- Change ownership (chown)
+
+**For directories:**
+- Create files and subdirectories
+- Delete files and subdirectories
+
+#### Execute Permission (x)
+
+**For files:**
+- Run as program/script
+
+**For directories:**
+- Enter directory (cd)
+- Access files within (if you know names)
+
+### Permission Targets
+
+Permissions can be granted to:
+
+1. **User owner** (u)
+2. **Group owner** (g)
+3. **Others** (o) - all other users
+
+<Note>
+You cannot assign permissions to specific users or groups beyond owner/group owner. To grant access to specific users, add them to the group owner.
+</Note>
+
+### Viewing Permissions
+
+```bash
+ls -l
+```
+
+Output format:
+```
+-rw-r--r-- 1 violin cuerda 11 2024-03-06 19:26 examen.txt
+│││││││││
+│└┬┘└┬┘└┬┘
+│ │  │  └─ Others: read
+│ │  └──── Group: read
+│ └─────── User: read, write
+└────────── File type (- = regular file)
+```
+
+**File type indicators:**
+- `-` : Regular file
+- `d` : Directory
+- `l` : Symbolic link
+- `s` : Socket
+- `p` : Pipe
+- `b` : Block device
+
+### Changing Permissions (chmod)
+
+#### Symbolic Method
+
+```bash
+# Add permission
+chmod u+w examen.txt      # User: add write
+chmod g+x script.sh       # Group: add execute
+chmod o+r doc.txt         # Others: add read
+
+# Remove permission
+chmod o-w examen.txt      # Others: remove write
+chmod g-r doc.txt         # Group: remove read
+
+# Multiple changes
+chmod u+w,g-r,o-r examen.txt
+
+# Multiple targets
+chmod ug+w examen.txt     # User and group: add write
+
+# Set exact permissions
+chmod u=rwx,g=rx,o=r file.txt
+```
+
+#### Numeric Method
+
+Permissions as octal numbers:
+
+| Number | Binary | Permissions |
+|--------|--------|-------------|
+| 0 | 000 | --- |
+| 1 | 001 | --x |
+| 2 | 010 | -w- |
+| 3 | 011 | -wx |
+| 4 | 100 | r-- |
+| 5 | 101 | r-x |
+| 6 | 110 | rw- |
+| 7 | 111 | rwx |
+
+```bash
+# rwx r-x r-- (755)
+chmod 755 script.sh
+
+# rw- r-- r-- (644)
+chmod 644 document.txt
+
+# rwx ------ (700)
+chmod 700 private.sh
+
+# Recursive
+chmod -R 755 /var/www
+```
+
+### Changing Ownership (chown)
+
+```bash
+# Change owner
+sudo chown viola examen.txt
+
+# Change owner and group
+sudo chown viola:viola examen.txt
+sudo chown violonchelo:instrumentos examen.txt
+
+# Recursive
+sudo chown -R www-data:www-data /var/www
+```
+
+### Special Permissions
+
+#### SUID (Set User ID)
+
+File executes with owner's permissions:
+
+```bash
+# Set SUID
+chmod u+s program
+chmod 4755 program
+```
+
+<Warning>
+SUID on root-owned files is a security risk. Use carefully.
+</Warning>
+
+#### SGID (Set Group ID)
+
+**On files:** Execute with group's permissions
+**On directories:** New files inherit directory's group
+
+```bash
+# Set SGID
+chmod g+s directory
+chmod 2755 directory
+```
+
+**Use case:** Shared project directory where all files should belong to project group.
+
+#### Sticky Bit
+
+On directories: Only file owner can delete files
+
+```bash
+# Set sticky bit
+chmod +t directory
+chmod 1777 /tmp
+```
+
+**Example:** `/tmp` directory - users can create files but only delete their own.
+
+### umask
+
+Default permissions for new files/directories:
+
+- **Default file**: 666 (rw-rw-rw-)
+- **Default directory**: 777 (rwxrwxrwx)
+- **umask**: Subtracts from defaults
+
+```bash
+# View current umask
+umask
+
+# Set umask (022 = u=rwx,g=rx,o=rx)
+umask 022
+# New files: 644 (rw-r--r--)
+# New dirs: 755 (rwxr-xr-x)
+
+# Set umask (002 = u=rwx,g=rwx,o=rx)
+umask 002
+# New files: 664 (rw-rw-r--)
+# New dirs: 775 (rwxrwxr-x)
+```
+
+## Windows NTFS Permissions
+
+NTFS supports detailed permissions, but basic concepts are similar:
+
+- **Read**: View files and folders
+- **Write**: Create and modify files
+- **Execute**: Run programs, access folders
+
+<Note>
+FAT32 file system does NOT support permissions - all users have full access to all files.
+</Note>
+
+**Key differences from Linux:**
+- More granular permission control
+- Explicit deny permissions
+- Permission inheritance settings
+- Can assign to specific users (not just owner/group/others)
+
+---
+
+## Best Practices
+
+<Steps>
+  <Step title="Principle of Least Privilege">
+    Grant minimum permissions necessary for tasks
+  </Step>
+  
+  <Step title="Use Groups">
+    Assign permissions to groups, not individual users
+  </Step>
+  
+  <Step title="Regular Audits">
+    Review user accounts and permissions periodically
+  </Step>
+  
+  <Step title="Document Everything">
+    Keep records of permission structures and reasons
+  </Step>
+  
+  <Step title="Test Changes">
+    Verify permissions work as intended before deploying
+  </Step>
+</Steps>

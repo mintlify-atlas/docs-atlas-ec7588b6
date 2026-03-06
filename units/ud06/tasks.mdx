@@ -1,0 +1,515 @@
+---
+title: 'UD06 Practical Tasks'
+description: 'Hands-on exercises for file system navigation and management'
+---
+
+# Practical Tasks - UD06
+
+These tasks provide practical experience with file systems, commands, and file management.
+
+## File System Navigation
+
+### Task 1: Basic File Commands
+
+<Accordion title="Exercise 1: Path Understanding">
+**Objective:** Understand absolute and relative paths
+
+1. What does `cd ..` do in both Linux and Windows?
+2. Describe in your own words:
+   - What is an absolute path?
+   - What is a relative path?
+   - Give examples of each
+
+**Deliverable:** Written explanations with examples
+</Accordion>
+
+<Accordion title="Exercise 2: Command Equivalents">
+**Objective:** Learn equivalent commands across systems
+
+Complete the table:
+
+| Windows (PowerShell) | Linux (Bash) | Description |
+|---------------------|--------------|-------------|
+| `Get-Content` | | View file contents |
+| | `mkdir` | Create directory |
+| `Get-ChildItem -Force C:\` | | List all files including hidden |
+| | `touch ficheroVacio.txt` | Create empty file |
+| `Copy-Item -Path C:\asir -Destination C:\copiaAsir` | | Copy directory |
+| | `rm -rf /asir/carpetaABorrar` | Delete directory recursively |
+| `Rename-Item C:\asir\prueba.txt -NewName prueba2.txt` | | Rename file |
+
+</Accordion>
+
+<Accordion title="Exercise 3: mkdir Options">
+**Objective:** Understand command options
+
+Explain why this command doesn't fail:
+```bash
+mkdir -p RutaQueNoExiste/CarpetaQueQueremos
+```
+
+**Hint:** What does the `-p` option do?
+</Accordion>
+
+### Task 2: Script Translation
+
+<Accordion title="Exercise 1: File Deletion Script">
+**Objective:** Translate PowerShell to BASH
+
+Convert this PowerShell script to BASH:
+
+```powershell
+$FileName = 'C:\asir\log.txt'
+If (Test-Path $FileName){
+   Remove-Item $FileName
+}
+```
+
+**Your BASH script:**
+```bash
+#!/bin/bash
+# Your solution here
+```
+</Accordion>
+
+<Accordion title="Exercise 2: File Copy Script">
+**Objective:** Translate PowerShell to BASH
+
+Convert this PowerShell script to BASH:
+
+```powershell
+$DESTINO = 'C:\asir\ficherosDeTexto'
+New-Item -Type directory -Name $DESTINO
+Copy-Item -Filter *.txt -Path C:\asir\ -Destination $DESTINO
+```
+
+**Your BASH script:**
+```bash
+#!/bin/bash
+# Your solution here
+```
+</Accordion>
+
+<Accordion title="Exercise 3: File Rename Script">
+**Objective:** Translate PowerShell to BASH
+
+Convert this PowerShell script to BASH:
+
+```powershell
+$files = Get-ChildItem -Path C:\asir
+foreach ($file in $files)
+{
+    $newFileName=$file.Name.Replace("A","B") 
+    Rename-Item $file $newFileName
+}
+```
+
+**Your BASH script:**
+```bash
+#!/bin/bash
+# Your solution here
+```
+
+<Note>
+Hint: Use parameter expansion `${variable//search/replace}` or `sed` command
+</Note>
+</Accordion>
+
+---
+
+## Linux File Operations
+
+### Task 3: Using find Command
+
+<Accordion title="Exercise: Explain find Commands">
+**Objective:** Understand the find command
+
+Describe what each find command does:
+
+```bash
+# 1
+find /dev/ -iname sda*
+
+# 2
+find /lib -name libc* -type f
+
+# 3
+find /usr/share -type l 
+
+# 4
+find /tmp -user $USER
+
+# 5
+find /usr/bin/ -type f -executable
+
+# 6
+find /var/log/ -daystart -ctime -1
+
+# 7 (this is difficult)
+find /boot/ -follow -lname "*"
+
+# 8
+find /tmp/ -mtime +31 -delete
+
+# 9
+find ./ -size +100M
+```
+
+**Research:**
+- What does `-iname` do?
+- What's the difference between `-name` and `-iname`?
+- What is `-type f` vs `-type l`?
+- What does `-mtime +31` mean?
+- Why is command #8 dangerous?
+</Accordion>
+
+### Task 4: File Information
+
+<Accordion title="Exercise: file Command">
+**Objective:** Find PowerShell equivalent
+
+The Linux `file` command shows file type information:
+
+```bash
+file document.pdf
+# Output: document.pdf: PDF document, version 1.4
+
+file script.sh
+# Output: script.sh: Bash script, ASCII text executable
+```
+
+**Task:**
+1. Research and find a PowerShell cmdlet with similar functionality
+2. Demonstrate with examples
+3. Compare the outputs
+</Accordion>
+
+---
+
+## Windows File System
+
+### Task 5: Drive Letter Management
+
+<Accordion title="Exercise: subst Command">
+**Objective:** Understand drive mapping
+
+Explain what happens when you run:
+
+```powershell
+subst M: $env:ProgramFiles
+```
+
+**Questions:**
+1. What appears in File Explorer?
+2. What is M:\ pointing to?
+3. What are practical uses for this?
+4. How do you remove the mapping?
+5. Is the mapping permanent?
+</Accordion>
+
+---
+
+## Advanced File System Tasks
+
+### Task 6: File System Exploration
+
+<Accordion title="Windows Exercise">
+**Objective:** Explore Windows directory structure
+
+<Steps>
+  <Step title="Document System Directories">
+    Create a table of important Windows directories:
+    
+    | Directory | Purpose | Example Contents | Can Delete? |
+    |-----------|---------|------------------|-------------|
+    | C:\Windows | | | |
+    | C:\Program Files | | | |
+    | C:\Users | | | |
+    | C:\ProgramData | | | |
+    | C:\Windows\System32 | | | |
+  </Step>
+  
+  <Step title="Environment Variables">
+    List and explain 10 important Windows environment variables
+  </Step>
+  
+  <Step title="User Profile Structure">
+    Document your user profile structure
+    ```
+    C:\Users\YourName\
+    ├── Desktop
+    ├── Documents
+    ...
+    ```
+  </Step>
+</Steps>
+</Accordion>
+
+<Accordion title="Linux Exercise">
+**Objective:** Explore Linux directory hierarchy
+
+<Steps>
+  <Step title="Document Important Directories">
+    Create a comprehensive table:
+    
+    | Directory | Purpose | Typical Size | Can Delete? |
+    |-----------|---------|--------------|-------------|
+    | / | | | |
+    | /boot | | | |
+    | /etc | | | |
+    | /home | | | |
+    | /var | | | |
+    | /tmp | | | |
+    | /usr | | | |
+  </Step>
+  
+  <Step title="Check Disk Usage">
+    ```bash
+    df -h
+    du -sh /*
+    ```
+    Document which directories use most space
+  </Step>
+  
+  <Step title="Explore /etc">
+    List and explain 15 important files in /etc
+  </Step>
+</Steps>
+</Accordion>
+
+### Task 7: Links and Shortcuts
+
+<Accordion title="Windows: Creating Links">
+**Objective:** Create symbolic links and shortcuts in Windows
+
+<Steps>
+  <Step title="Create Symbolic Link">
+    ```powershell
+    # Requires Administrator
+    New-Item -ItemType SymbolicLink -Path C:\Link -Target C:\Original
+    ```
+  </Step>
+  
+  <Step title="Create Hard Link">
+    ```powershell
+    New-Item -ItemType HardLink -Path C:\HardLink.txt -Target C:\Original.txt
+    ```
+  </Step>
+  
+  <Step title="Create Junction">
+    ```powershell
+    New-Item -ItemType Junction -Path C:\Junction -Target C:\OriginalFolder
+    ```
+  </Step>
+  
+  <Step title="Document Differences">
+    Explain:
+    - Symbolic link vs hard link vs junction
+    - When to use each type
+    - Limitations of each
+  </Step>
+</Steps>
+</Accordion>
+
+<Accordion title="Linux: Creating Links">
+**Objective:** Create symbolic and hard links in Linux
+
+<Steps>
+  <Step title="Create Symbolic Link">
+    ```bash
+    ln -s /original/path /link/path
+    ```
+  </Step>
+  
+  <Step title="Create Hard Link">
+    ```bash
+    ln /original/file.txt /hardlink/file.txt
+    ```
+  </Step>
+  
+  <Step title="Experiment and Document">
+    1. Create a file with content
+    2. Create both symbolic and hard links to it
+    3. Modify original - check links
+    4. Delete original - check links
+    5. Document behavior differences
+  </Step>
+  
+  <Step title="Research Questions">
+    Answer:
+    - Can symbolic links cross file systems?
+    - Can hard links cross file systems?
+    - What happens to hard link when original is deleted?
+    - What happens to symbolic link when original is deleted?
+  </Step>
+</Steps>
+</Accordion>
+
+---
+
+## Comprehensive Challenges
+
+### Task 8: 11 de Febrero - Ada Lovelace Day
+
+This is a comprehensive exercise combining file systems, permissions, and automation.
+
+<Accordion title="Challenge Description">
+**Scenario:** Create a tribute to Ada Lovelace with an automated file system structure.
+
+**Requirements:**
+
+<Steps>
+  <Step title="Directory Structure">
+    Create:
+    ```
+    /tribute/ada_lovelace/
+    ├── biography/
+    ├── achievements/
+    ├── legacy/
+    └── resources/
+    ```
+  </Step>
+  
+  <Step title="Populate with Content">
+    - Download or create relevant content
+    - Organize into appropriate folders
+    - Include text files with information
+  </Step>
+  
+  <Step title="Set Permissions">
+    - Everyone can read
+    - Only admins can modify
+    - Executable files in resources
+  </Step>
+  
+  <Step title="Create Automation Script">
+    Script should:
+    - Create entire structure
+    - Set all permissions
+    - Generate summary report
+    - Work on both Windows and Linux
+  </Step>
+</Steps>
+</Accordion>
+
+### Task 9: File System Partition Project
+
+<Accordion title="Research and Document">
+**Objective:** Understand partitioning and formatting
+
+**Research:**
+1. What is a partition?
+2. Difference between MBR and GPT
+3. File system format comparison:
+   - NTFS vs FAT32 vs exFAT (Windows)
+   - ext4 vs xfs vs btrfs (Linux)
+
+**Practical (Virtual Environment Recommended):**
+1. Create virtual disk in VirtualBox/VMware
+2. Partition the disk
+3. Format with different file systems
+4. Compare performance and features
+5. Document everything
+</Accordion>
+
+### Task 10: System Cleanup Automation
+
+<Accordion title="Windows Cleanup Script">
+**Objective:** Automate cleanup of temporary files
+
+Create PowerShell script that:
+1. Cleans Windows temp folder
+2. Cleans user temp folder
+3. Cleans browser caches
+4. Removes old log files
+5. Empties Recycle Bin
+6. Reports space freed
+7. Logs all actions
+
+```powershell
+#!/usr/bin/env pwsh
+# System Cleanup Script
+```
+
+<Warning>
+Test carefully! Don't delete important files.
+</Warning>
+</Accordion>
+
+<Accordion title="Linux Cleanup Script">
+**Objective:** Automate cleanup of temporary files
+
+Create BASH script that:
+1. Cleans /tmp (preserving system files)
+2. Cleans package manager cache
+3. Removes old log files from /var/log
+4. Finds and reports large files
+5. Identifies old files in /home
+6. Reports space freed
+7. Logs all actions
+
+```bash
+#!/bin/bash
+# System Cleanup Script
+```
+</Accordion>
+
+---
+
+## Submission Guidelines
+
+<Note>
+**What to Submit:**
+- All scripts in ZIP file: `UD06_Tasks_YourName.zip`
+- Completed tables and documentation
+- Screenshots where requested
+- README.md explaining:
+  - How to run each script
+  - What each script does
+  - Test results
+  - Challenges encountered
+
+**Script Requirements:**
+- Include comments
+- Error handling
+- Clear output messages
+- Tested and working
+</Note>
+
+## Grading Criteria
+
+| Criteria | Points |
+|----------|--------|
+| Command understanding | 25% |
+| Script functionality | 30% |
+| Cross-platform knowledge | 20% |
+| Documentation quality | 15% |
+| Advanced features | 10% |
+
+<Warning>
+**Testing:**
+- Test all scripts before submission
+- Test in clean environment
+- Verify file operations don't cause data loss
+- Document any system requirements
+</Warning>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="Windows Docs" icon="windows">
+    Microsoft documentation on file systems and PowerShell commands
+  </Card>
+  
+  <Card title="Linux Man Pages" icon="linux">
+    `man hier` - File system hierarchy description
+  </Card>
+  
+  <Card title="FHS Standard" icon="book">
+    Filesystem Hierarchy Standard documentation
+  </Card>
+  
+  <Card title="Bash Guide" icon="terminal">
+    Advanced Bash-Scripting Guide for file operations
+  </Card>
+</CardGroup>

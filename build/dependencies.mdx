@@ -1,0 +1,263 @@
+---
+title: Build Dependencies
+description: Installing the required tools and packages for PDF generation
+---
+
+The ASIR-ISO build system relies on several external tools to convert Markdown files into professionally formatted PDFs. This page covers all required dependencies and their installation.
+
+## Core Requirements
+
+The build system requires the following packages:
+
+<CardGroup cols={2}>
+
+<Card title="Pandoc" icon="file-export">
+Universal document converter that transforms Markdown to PDF via LaTeX
+</Card>
+
+<Card title="TeX Live" icon="file-pdf">
+Comprehensive TeX distribution for typesetting and PDF generation
+</Card>
+
+<Card title="XeTeX" icon="font">
+TeX engine with advanced font support for Unicode and modern typography
+</Card>
+
+<Card title="Ubuntu Fonts" icon="a">
+Custom font family used for consistent document appearance
+</Card>
+
+</CardGroup>
+
+## Installation
+
+### Debian/Ubuntu Systems
+
+Install all required dependencies with a single command:
+
+<CodeGroup>
+
+```bash One-Line Installation
+sudo apt install pandoc texlive-extra-utils git fonts-ubuntu texlive-xetex
+```
+
+```bash Step-by-Step Installation
+# Update package lists
+sudo apt update
+
+# Install pandoc
+sudo apt install pandoc
+
+# Install TeX Live utilities
+sudo apt install texlive-extra-utils
+
+# Install XeTeX engine
+sudo apt install texlive-xetex
+
+# Install Ubuntu font family
+sudo apt install fonts-ubuntu
+
+# Install git (if not already installed)
+sudo apt install git
+```
+
+</CodeGroup>
+
+<Note>
+These packages are available in the standard Debian and Ubuntu repositories.
+</Note>
+
+## Package Details
+
+### Pandoc
+
+**Purpose**: Converts Markdown files to PDF using LaTeX as an intermediary format.
+
+**Minimum Version**: The build system requires pandoc version 2.0 or higher.
+
+<Warning>
+**Ubuntu 18.04 (Bionic) Note**: The default pandoc version in Ubuntu 18.04 repositories is outdated. You can install a newer version from Ubuntu 19.04 (Disco Dingo) repositories or download directly from the [Pandoc releases page](https://github.com/jgm/pandoc/releases).
+</Warning>
+
+**Key Features Used**:
+- LaTeX template support (`--template`)
+- Variable substitution (`-V`)
+- Custom PDF engines (`--pdf-engine`)
+
+### TeX Live Extra Utils
+
+**Purpose**: Provides additional utilities for TeX document processing.
+
+**Package**: `texlive-extra-utils`
+
+**Included Tools**:
+- PDF manipulation utilities
+- Document conversion helpers
+- Font and graphics utilities
+
+### XeTeX
+
+**Purpose**: Modern TeX engine that supports Unicode and system fonts.
+
+**Package**: `texlive-xetex`
+
+**Why XeTeX?**
+- Native Unicode support for Spanish characters (á, é, í, ó, ú, ñ)
+- Direct use of system fonts (Ubuntu font family)
+- Better handling of modern typography
+
+**Usage in Build Script**:
+```bash
+pandoc --pdf-engine=xelatex ...
+```
+
+### Ubuntu Fonts
+
+**Purpose**: Provides the Ubuntu font family used throughout all generated PDFs.
+
+**Package**: `fonts-ubuntu`
+
+**Font Family**:
+- Ubuntu Regular
+- Ubuntu Bold
+- Ubuntu Italic
+- Ubuntu Mono (for code blocks)
+
+**Usage in Build Script**:
+```bash
+pandoc -V mainfont="Ubuntu" ...
+```
+
+### Git
+
+**Purpose**: Version control system for managing source materials.
+
+**Package**: `git`
+
+**Use Cases**:
+- Cloning the ASIR-ISO repository
+- Tracking changes to course materials
+- Collaborating with other educators
+
+## Additional Dependencies for Trivial Generation
+
+The repository includes a "Trivial" quiz generation system with additional requirements:
+
+<Steps>
+
+### Install librsvg2-bin
+
+Provides tools for rendering SVG graphics:
+
+```bash
+sudo apt install librsvg2-bin
+```
+
+### Install pdftk
+
+PDF toolkit for manipulating PDF documents:
+
+```bash
+sudo apt install pdftk
+```
+
+### Install python3-openpyxl
+
+Python library for reading/writing Excel files:
+
+```bash
+sudo apt install python3-openpyxl
+```
+
+</Steps>
+
+<Note>
+Trivial generation is optional. If you only need to build the main course materials (theory and tasks), the core dependencies are sufficient.
+</Note>
+
+## Verification
+
+Verify that all dependencies are installed correctly:
+
+<CodeGroup>
+
+```bash Check Pandoc
+pandoc --version
+# Expected output: pandoc 2.x.x or higher
+```
+
+```bash Check XeTeX
+xelatex --version
+# Expected output: XeTeX version info
+```
+
+```bash Check Ubuntu Fonts
+fc-list | grep Ubuntu
+# Expected output: List of Ubuntu font files
+```
+
+```bash Check Git
+git --version
+# Expected output: git version 2.x.x
+```
+
+</CodeGroup>
+
+## System Requirements
+
+### Disk Space
+
+- **TeX Live**: ~500 MB
+- **Pandoc**: ~50 MB
+- **Fonts**: ~5 MB
+- **Generated PDFs**: Varies by unit (~1-5 MB per PDF)
+
+### Operating System
+
+The build system is designed for Debian-based Linux distributions:
+
+- Ubuntu 18.04 LTS or later (with pandoc upgrade)
+- Ubuntu 20.04 LTS (recommended)
+- Ubuntu 22.04 LTS
+- Debian 10 (Buster) or later
+
+<Warning>
+Other Linux distributions may work but require different package names or installation methods.
+</Warning>
+
+## Troubleshooting
+
+### Pandoc Too Old
+
+**Problem**: Ubuntu 18.04's pandoc is version 1.x
+
+**Solution**: Install from Ubuntu 19.04 repos or download from GitHub:
+
+```bash
+wget https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-1-amd64.deb
+sudo dpkg -i pandoc-2.19.2-1-amd64.deb
+```
+
+### Missing Fonts
+
+**Problem**: PDF generation fails with font errors
+
+**Solution**: Rebuild font cache:
+
+```bash
+sudo fc-cache -f -v
+```
+
+### XeTeX Errors
+
+**Problem**: Unicode characters not rendering correctly
+
+**Solution**: Ensure texlive-xetex is installed and pandoc uses `--pdf-engine=xelatex`
+
+## Next Steps
+
+With dependencies installed, you're ready to:
+
+1. [Learn the build scripts](/build/scripts) - Understand how md-to-pdf.sh works
+2. [Generate your first PDF](/build/overview) - Run the build system
+3. Review the [Style Guide](/style-guide) - Create properly formatted source materials

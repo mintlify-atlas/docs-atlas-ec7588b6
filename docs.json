@@ -1,122 +1,197 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "ASIR-ISO",
+  "theme": "linden",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#2563eb",
+    "light": "#3b82f6",
+    "dark": "#1e40af"
   },
-  "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/aberlanas/ASIR-ISO"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/aberlanas/ASIR-ISO"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Getting Started",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Introduction",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "style-guide"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Build System",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "build/overview",
+              "build/dependencies",
+              "build/scripts"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Course Units",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "UD01 - Operating Systems Introduction",
             "pages": [
-              "api-reference/introduction"
+              "units/ud01/overview",
+              "units/ud01/theory",
+              "units/ud01/tasks"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "UD02 - Virtualization",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "units/ud02/overview",
+              "units/ud02/theory",
+              "units/ud02/virtualbox",
+              "units/ud02/docker",
+              "units/ud02/tasks"
+            ]
+          },
+          {
+            "group": "UD03 - Installation & Boot",
+            "pages": [
+              "units/ud03/overview",
+              "units/ud03/theory",
+              "units/ud03/bios-uefi",
+              "units/ud03/boot-managers",
+              "units/ud03/tasks"
+            ]
+          },
+          {
+            "group": "UD04 - Processes & Networking",
+            "pages": [
+              "units/ud04/overview",
+              "units/ud04/theory",
+              "units/ud04/command-line",
+              "units/ud04/processes",
+              "units/ud04/networking",
+              "units/ud04/tasks"
+            ]
+          },
+          {
+            "group": "UD05 - Users, Groups & Permissions",
+            "pages": [
+              "units/ud05/overview",
+              "units/ud05/theory",
+              "units/ud05/tasks"
+            ]
+          },
+          {
+            "group": "UD06 - File Systems",
+            "pages": [
+              "units/ud06/overview",
+              "units/ud06/theory",
+              "units/ud06/tasks"
+            ]
+          },
+          {
+            "group": "UD07 - Software & Updates",
+            "pages": [
+              "units/ud07/overview",
+              "units/ud07/theory",
+              "units/ud07/tasks"
+            ]
+          },
+          {
+            "group": "UD08 - Security",
+            "pages": [
+              "units/ud08/overview",
+              "units/ud08/theory",
+              "units/ud08/tasks"
+            ]
+          },
+          {
+            "group": "UD09 - Domain Administration",
+            "pages": [
+              "units/ud09/overview",
+              "units/ud09/theory",
+              "units/ud09/active-directory",
+              "units/ud09/openldap",
+              "units/ud09/tasks"
+            ]
+          },
+          {
+            "group": "UD10 - Domain Access",
+            "pages": [
+              "units/ud10/overview",
+              "units/ud10/theory",
+              "units/ud10/tasks"
+            ]
+          },
+          {
+            "group": "UD11 - Performance & Auditing",
+            "pages": [
+              "units/ud11/overview",
+              "units/ud11/theory",
+              "units/ud11/tasks"
+            ]
+          },
+          {
+            "group": "UD12 - Incident Management",
+            "pages": [
+              "units/ud12/overview",
+              "units/ud12/theory",
+              "units/ud12/tasks"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Installation Guides",
+        "groups": [
+          {
+            "group": "Linux Distributions",
+            "pages": [
+              "guides/ubuntu-bionic",
+              "guides/xubuntu-bionic",
+              "guides/debian",
+              "guides/openmediavault"
+            ]
+          },
+          {
+            "group": "Windows Systems",
+            "pages": [
+              "guides/windows-10",
+              "guides/windows-2016",
+              "guides/windows-2019"
+            ]
+          },
+          {
+            "group": "Virtualization Setup",
+            "pages": [
+              "guides/qemu",
+              "guides/virtualbox-setup"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Resources",
+        "groups": [
+          {
+            "group": "Additional Resources",
+            "pages": [
+              "resources/scripts",
+              "resources/trivial-game",
+              "resources/acknowledgments"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

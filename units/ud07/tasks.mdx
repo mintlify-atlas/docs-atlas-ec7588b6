@@ -1,0 +1,383 @@
+---
+title: Tareas - Software y Actualizaciones
+description: Ejercicios prácticos sobre gestión de software
+---
+
+# Tareas Prácticas - UD07
+
+## Tarea 1: Conceptos de Software
+
+### Ejercicio 1: Cambios en NGiNX
+
+<Steps>
+  <Step title="Visitar la página oficial">
+    Accede a la [página de descargas de NGiNX](http://nginx.org/en/download.html)
+  </Step>
+  
+  <Step title="Investigar cambios">
+    Busca cuáles han sido los cambios introducidos entre las dos últimas versiones
+  </Step>
+  
+  <Step title="Documentar">
+    Redacta un resumen de los cambios más importantes
+  </Step>
+</Steps>
+
+**Objetivo**: Comprender cómo evolucionan las aplicaciones y la importancia del versionado.
+
+### Ejercicio 2: Actualizaciones de Seguridad en Windows
+
+<Steps>
+  <Step title="Investigar en Microsoft">
+    Busca en la página web de Microsoft cuál ha sido la última actualización de seguridad publicada para Windows 10
+  </Step>
+  
+  <Step title="Analizar detalles">
+    Documenta:
+    - Fecha de publicación
+    - Vulnerabilidades corregidas
+    - Nivel de criticidad
+  </Step>
+</Steps>
+
+### Ejercicio 3: Seguridad del Software
+
+<Warning>
+  Este ejercicio es solo informativo. Nunca uses software crackeado en entornos de producción.
+</Warning>
+
+<Steps>
+  <Step title="Investigar conceptos">
+    Busca información sobre:
+    - ¿Qué es un **cracker** en el mundo del software?
+    - ¿Qué es un **keygen**?
+  </Step>
+  
+  <Step title="Redactar documento">
+    Crea un documento que explique al usuario por qué NO deben usarse en entornos de producción, incluyendo:
+    - Riesgos de seguridad
+    - Implicaciones legales
+    - Problemas de estabilidad
+    - Falta de soporte y actualizaciones
+  </Step>
+</Steps>
+
+## Tarea 2: Gestión de Paquetes en Linux
+
+### Ejercicio 1: Comandos dpkg
+
+Practica los siguientes comandos dpkg (usa paquetes del sistema):
+
+<CodeGroup>
+```bash Consultas
+# Ver información de un paquete instalado
+dpkg -s firefox
+
+# Listar archivos de un paquete
+dpkg -L firefox
+
+# Buscar el propietario de un archivo
+dpkg -S /usr/bin/firefox
+```
+
+```bash Información de .deb
+# Ver información antes de instalar
+dpkg -I paquete.deb
+
+# Ver contenido antes de instalar
+dpkg -c paquete.deb
+```
+</CodeGroup>
+
+**Documentar**: Captura de pantalla de cada comando ejecutado.
+
+### Ejercicio 2: Trabajar con apt
+
+<Steps>
+  <Step title="Actualizar repositorios">
+    ```bash
+    sudo apt update
+    ```
+  </Step>
+  
+  <Step title="Buscar un paquete">
+    ```bash
+    apt-cache search editor
+    ```
+  </Step>
+  
+  <Step title="Ver información">
+    ```bash
+    apt-cache show nombre_paquete
+    ```
+  </Step>
+  
+  <Step title="Instalar paquete">
+    ```bash
+    sudo apt install nombre_paquete
+    ```
+  </Step>
+  
+  <Step title="Verificar instalación">
+    ```bash
+    dpkg -s nombre_paquete
+    ```
+  </Step>
+</Steps>
+
+### Ejercicio 3: Gestión de Repositorios
+
+<Steps>
+  <Step title="Ver repositorios actuales">
+    ```bash
+    cat /etc/apt/sources.list
+    ```
+  </Step>
+  
+  <Step title="Añadir un PPA">
+    ```bash
+    sudo add-apt-repository ppa:ticsenia/ppa
+    sudo apt update
+    ```
+  </Step>
+  
+  <Step title="Verificar PPA añadido">
+    Comprobar en `/etc/apt/sources.list.d/`
+  </Step>
+  
+  <Step title="Quitar el PPA">
+    ```bash
+    sudo add-apt-repository --remove ppa:ticsenia/ppa
+    sudo apt update
+    ```
+  </Step>
+</Steps>
+
+**Entregar**: Documento con capturas de cada paso.
+
+## Tarea 3: Compilación desde Código Fuente
+
+### Ejercicio: Compilar una Aplicación Simple
+
+<Warning>
+  Este ejercicio requiere privilegios de administrador y puede tardar varios minutos.
+</Warning>
+
+<Steps>
+  <Step title="Instalar herramientas de compilación">
+    ```bash
+    sudo apt update
+    sudo apt install build-essential checkinstall
+    ```
+  </Step>
+  
+  <Step title="Descargar código fuente">
+    Descarga un proyecto pequeño en formato .tar.gz (por ejemplo, una utilidad simple)
+  </Step>
+  
+  <Step title="Descomprimir">
+    ```bash
+    tar -xzf archivo.tar.gz
+    cd directorio_descomprimido
+    ```
+  </Step>
+  
+  <Step title="Compilar e instalar">
+    ```bash
+    ./configure
+    make
+    sudo checkinstall
+    ```
+  </Step>
+  
+  <Step title="Verificar instalación">
+    ```bash
+    dpkg -l | grep nombre_programa
+    ```
+  </Step>
+</Steps>
+
+**Documentar**:
+- Nombre del programa compilado
+- Versión instalada
+- Errores encontrados y cómo se resolvieron
+- Capturas del proceso
+
+## Tarea 4: Microsoft Store
+
+### Ejercicio 1: Instalar desde la Store
+
+<Steps>
+  <Step title="Abrir Microsoft Store">
+    En Windows, abre la aplicación Microsoft Store
+  </Step>
+  
+  <Step title="Buscar aplicación">
+    Busca una aplicación gratuita (ejemplo: Windows Terminal)
+  </Step>
+  
+  <Step title="Instalar">
+    Instala la aplicación seleccionada
+  </Step>
+  
+  <Step title="Verificar instalación">
+    Ejecuta la aplicación y verifica su funcionamiento
+  </Step>
+</Steps>
+
+### Ejercicio 2: Actualizar Aplicaciones
+
+<Steps>
+  <Step title="Acceder a Descargas">
+    En Microsoft Store, accede a la sección de "Descargas y actualizaciones"
+  </Step>
+  
+  <Step title="Buscar actualizaciones">
+    Comprueba si hay actualizaciones disponibles
+  </Step>
+  
+  <Step title="Actualizar">
+    Actualiza las aplicaciones que lo requieran
+  </Step>
+</Steps>
+
+**Documentar**: Capturas del proceso de instalación y actualización.
+
+## Tarea 5: Registro de Windows
+
+### Ejercicio 1: Explorar el Registro
+
+<Warning>
+  **Precaución**: Modificar incorrectamente el Registro puede causar problemas graves. No modifiques valores sin supervisión.
+</Warning>
+
+<Steps>
+  <Step title="Abrir el Editor del Registro">
+    Ejecuta `regedit` desde el menú Inicio
+  </Step>
+  
+  <Step title="Navegar a HKLM\SOFTWARE">
+    Explora la estructura de claves en:
+    ```
+    HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+    ```
+  </Step>
+  
+  <Step title="Documentar información">
+    Anota los siguientes valores:
+    - ProductName
+    - CurrentVersion
+    - RegisteredOwner
+  </Step>
+</Steps>
+
+### Ejercicio 2: Explorar Rutas de Usuario
+
+<Steps>
+  <Step title="Navegar a ProfileList">
+    ```
+    HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList
+    ```
+  </Step>
+  
+  <Step title="Identificar usuarios">
+    Explora las subclaves (SID de usuarios) y sus valores ProfileImagePath
+  </Step>
+  
+  <Step title="Documentar">
+    Captura de pantalla de la estructura
+  </Step>
+</Steps>
+
+<Note>
+  **Solo observación**: No modifiques ningún valor en este ejercicio.
+</Note>
+
+## Tarea 6: Actualizaciones en Linux
+
+### Ejercicio: Actualizar el Sistema Completo
+
+<Steps>
+  <Step title="Ver paquetes desactualizados">
+    ```bash
+    apt list --upgradable
+    ```
+  </Step>
+  
+  <Step title="Actualizar catálogo">
+    ```bash
+    sudo apt update
+    ```
+  </Step>
+  
+  <Step title="Actualizar sistema">
+    ```bash
+    sudo apt upgrade
+    ```
+  </Step>
+  
+  <Step title="Limpiar">
+    ```bash
+    sudo apt autoremove
+    sudo apt clean
+    ```
+  </Step>
+</Steps>
+
+**Documentar**:
+- Número de paquetes actualizados
+- Espacio liberado con la limpieza
+- Cualquier error encontrado
+
+## Criterios de Evaluación
+
+Para cada tarea, se evaluará:
+
+<Accordion title="Documentación">
+  - Claridad en la redacción
+  - Capturas de pantalla apropiadas
+  - Explicación de errores y soluciones
+</Accordion>
+
+<Accordion title="Ejecución">
+  - Correcta ejecución de comandos
+  - Verificación de resultados
+  - Resolución de problemas
+</Accordion>
+
+<Accordion title="Comprensión">
+  - Entendimiento de los conceptos
+  - Aplicación práctica
+  - Análisis de resultados
+</Accordion>
+
+## Entrega
+
+<Steps>
+  <Step title="Formato">
+    Documento PDF o documentación en formato Markdown
+  </Step>
+  
+  <Step title="Contenido">
+    - Todas las tareas completadas
+    - Capturas de pantalla
+    - Explicaciones de cada paso
+    - Conclusiones
+  </Step>
+  
+  <Step title="Nomenclatura">
+    `UD07_Apellidos_Nombre.pdf`
+  </Step>
+</Steps>
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Volver a Teoría" icon="book" href="/units/ud07/theory">
+    Repasa los conceptos teóricos
+  </Card>
+  
+  <Card title="Siguiente Unidad" icon="arrow-right" href="/units/ud08/overview">
+    Continúa con UD08 - Seguridad
+  </Card>
+</CardGroup>

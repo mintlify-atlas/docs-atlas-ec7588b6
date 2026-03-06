@@ -1,0 +1,362 @@
+---
+title: Educational Trivia Game
+description: Python-based trivia card generator for ISO course assessment
+icon: gamepad
+---
+
+## Overview
+
+The Trivial game generator creates educational trivia cards for the Operating Systems Implementation (ISO) course. It reads questions from an Excel spreadsheet and generates printable card sets for three evaluation periods.
+
+<Note>
+The trivia game is designed as an engaging assessment tool for reviewing course material across different operating systems topics.
+</Note>
+
+## Project Structure
+
+```
+Trivial/
+├── trivalize.py              # PNG-based card generator
+├── trivialize_svg.py         # SVG-based card generator
+├── TrivialISO.xlsx          # Questions database
+├── crea-pdfs.sh             # PDF compilation script
+├── limpiar.sh               # Cleanup script
+├── dibujo_preguntas.svg     # Question card template
+├── dibujo_respuesta_1.svg   # Answer template (Eval 1)
+├── dibujo_respuesta_2.svg   # Answer template (Eval 2)
+├── dibujo_respuesta_3.svg   # Answer template (Eval 3)
+└── rsrc/
+    ├── garamond.ttf         # Font for text rendering
+    ├── Tux.svg              # Linux mascot
+    └── Logos/               # OS logos (Windows, Linux, Debian)
+```
+
+## Dependencies
+
+Install required packages on Debian/Ubuntu systems:
+
+```bash
+sudo apt install librsvg2-bin pdftk python3-openpyxl python3-pil python3-reportlab
+```
+
+<CardGroup cols={2}>
+
+<Card title="System Tools" icon="terminal">
+- librsvg2-bin (SVG rendering)
+- pdftk (PDF manipulation)
+</Card>
+
+<Card title="Python Packages" icon="python">
+- openpyxl (Excel reading)
+- PIL/Pillow (Image processing)
+- reportlab (PDF generation)
+</Card>
+
+</CardGroup>
+
+## Generator Scripts
+
+### trivalize.py (PNG Generator)
+
+Generates trivia cards as PNG images.
+
+#### Features
+
+- Reads questions from `TrivialISO.xlsx`
+- Creates 30 cards per evaluation period (3 evaluations = 90 cards total)
+- Uses Garamond font at 11pt
+- Processes 6 categories per card
+- Validates question/answer length constraints
+
+#### Key Configuration
+
+```python
+numTarjetas = 30
+trivial_path = "TrivialISO.xlsx"
+
+# Card positions (width, height)
+qbpos = [(64,27),(64,60),(64,93),(64,128),(64,163),(64,195)]
+rbpos = [(190,27),(190,60),(190,93),(190,128),(190,163),(190,195)]
+```
+
+#### Validation Rules
+
+<Accordion title="Content Length Limits">
+
+**Questions**: Maximum 57 characters
+- Ensures text fits on card without wrapping
+- Triggers warning if exceeded
+
+**Answers**: Maximum 29 characters  
+- Maintains readability on answer side
+- Warnings printed for violations
+
+</Accordion>
+
+#### Usage
+
+```bash
+./trivalize.py
+```
+
+#### Output Structure
+
+```
+Eva1Carta_1/
+├── Eva1Carta_1_CARA_A.png  # Questions side
+└── Eva1Carta_1_CARA_B.png  # Answers side
+
+Eva1Carta_2/
+├── Eva1Carta_2_CARA_A.png
+└── Eva1Carta_2_CARA_B.png
+...
+```
+
+### trivialize_svg.py (SVG Generator)
+
+Generates trivia cards as SVG files for higher quality and editability.
+
+#### Advantages Over PNG Version
+
+<CardGroup cols={2}>
+
+<Card title="Scalability" icon="expand">
+Vector format allows infinite scaling without quality loss
+</Card>
+
+<Card title="Editability" icon="pen-to-square">
+SVG files can be edited in Inkscape or other vector graphics tools
+</Card>
+
+<Card title="Color Detection" icon="palette">
+Automatically detects category colors from sheet names
+</Card>
+
+<Card title="File Size" icon="file">
+Smaller file sizes for storage and distribution
+</Card>
+
+</CardGroup>
+
+#### Usage
+
+```bash
+./trivialize_svg.py
+```
+
+#### Output Structure
+
+```
+Eva1Carta_1/
+├── Eva1Carta_1_CARA_A.svg  # Questions side (editable)
+└── Eva1Carta_1_CARA_B.svg  # Answers side (editable)
+```
+
+## Excel Workbook Format
+
+The `TrivialISO.xlsx` file organizes questions by category and evaluation period.
+
+### Sheet Naming Convention
+
+```
+<Color>_<Evaluation>
+```
+
+**Example sheets**:
+- `Rojo_1` - Red category, Evaluation 1
+- `Azul_1` - Blue category, Evaluation 1  
+- `Verde_2` - Green category, Evaluation 2
+- `Amarillo_3` - Yellow category, Evaluation 3
+
+### Column Structure
+
+| Column A | Column B |
+|----------|----------|
+| Question | Answer   |
+
+<Note>
+Each sheet should contain at least 30 rows of questions and answers.
+</Note>
+
+## Card Categories
+
+The trivia game typically covers 6 categories aligned with course topics:
+
+<CardGroup cols={3}>
+
+<Card title="Installation" icon="download">
+OS installation procedures and boot processes
+</Card>
+
+<Card title="Users & Permissions" icon="user-shield">
+User management, groups, and file permissions
+</Card>
+
+<Card title="File Systems" icon="hard-drive">
+Storage, partitioning, and file system types
+</Card>
+
+<Card title="Networking" icon="network-wired">
+IP configuration, services, and protocols
+</Card>
+
+<Card title="Software" icon="box">
+Package management and updates
+</Card>
+
+<Card title="Security" icon="lock">
+Firewalls, encryption, and security policies
+</Card>
+
+</CardGroup>
+
+## Production Workflow
+
+### Step 1: Prepare Questions
+
+Edit `TrivialISO.xlsx` with your course content:
+
+1. Create sheets for each category/evaluation combination
+2. Add questions (Column A) and answers (Column B)
+3. Keep questions under 57 characters
+4. Keep answers under 29 characters
+
+### Step 2: Generate Cards
+
+Choose your preferred generator:
+
+<CodeGroup>
+
+```bash PNG cards (legacy)
+./trivalize.py
+```
+
+```bash SVG cards (recommended)
+./trivialize_svg.py
+```
+
+</CodeGroup>
+
+### Step 3: Review Output
+
+Check the terminal for any length warnings:
+
+```
+Hoja :Rojo_1 Fila: 15 -- Pregunta * : This question is too long and will be truncated
+Hoja :Azul_1 Fila: 8 -- Respuesta * : This answer exceeds the limit
+```
+
+### Step 4: Create PDFs
+
+Use the included script to compile cards into PDFs:
+
+```bash
+./crea-pdfs.sh
+```
+
+### Step 5: Print and Cut
+
+1. Print cards double-sided (front: questions, back: answers)
+2. Cut along card boundaries
+3. Optional: laminate for durability
+
+## Customization
+
+### Change Number of Cards
+
+Edit the `numTarjetas` variable:
+
+```python
+numTarjetas = 50  # Generate 50 cards per evaluation
+```
+
+### Modify Text Positions
+
+Adjust coordinate arrays for different card layouts:
+
+```python
+# Questions positions (x, y)
+qbpos = [(64,27), (64,60), (64,93), (64,128), (64,163), (64,195)]
+
+# Answers positions (x, y)  
+rbpos = [(190,27), (190,60), (190,93), (190,128), (190,163), (190,195)]
+```
+
+### Change Font
+
+Replace the font file and update the reference:
+
+```python
+font = ImageFont.truetype("your-font.ttf", 11)
+```
+
+## Cleanup
+
+Remove generated card directories:
+
+```bash
+./limpiar.sh
+```
+
+## Educational Value
+
+The trivia game format offers several pedagogical benefits:
+
+<CardGroup cols={2}>
+
+<Card title="Active Recall" icon="brain">
+Students retrieve information from memory rather than passive review
+</Card>
+
+<Card title="Spaced Repetition" icon="clock">
+Three evaluation periods support distributed practice
+</Card>
+
+<Card title="Gamification" icon="trophy">
+Game format increases engagement and motivation
+</Card>
+
+<Card title="Peer Learning" icon="users">
+Cards can be used in group study sessions
+</Card>
+
+</CardGroup>
+
+## Troubleshooting
+
+### Font Not Found
+
+```
+OSError: cannot open resource
+```
+
+**Solution**: Ensure `garamond.ttf` is in the `Trivial/` directory or use a system font:
+
+```python
+font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 11)
+```
+
+### Template Not Found
+
+```
+FileNotFoundError: dibujo_preguntas.svg
+```
+
+**Solution**: Run the script from the `Trivial/` directory:
+
+```bash
+cd Trivial/
+./trivialize_svg.py
+```
+
+### Openpyxl Missing
+
+```
+ModuleNotFoundError: No module named 'openpyxl'
+```
+
+**Solution**: Install Python dependencies:
+
+```bash
+pip3 install openpyxl pillow reportlab
+```

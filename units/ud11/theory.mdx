@@ -1,0 +1,565 @@
+---
+title: Teoría - Rendimiento y Auditorías
+description: Conceptos teóricos sobre monitorización y auditoría de sistemas
+---
+
+## Introducción
+
+A lo largo de las unidades hemos ido configurando servicios y aplicaciones para dar respuesta a las diferentes necesidades que podemos tener en un sistema informático. Tan importante como instalarlas y configurarlas, es asegurarnos de que todos los componentes de nuestro sistema están funcionando de manera adecuada.
+
+Para ello veremos diferentes herramientas de monitorización de los procesos y rendimiento del sistema, así como los registros que los diferentes servicios y acciones pueden realizar para detectar fallos o problemas en nuestro sistema.
+
+La realización de diferentes auditorías de seguridad, así como el uso de herramientas forenses en caso de intentar recuperar datos ante un desastre, también se verán en esta unidad.
+
+## Conceptos Fundamentales
+
+### ¿Qué es la Monitorización?
+
+La monitorización es el proceso continuo de recolección, análisis y visualización de datos sobre el estado y rendimiento de sistemas informáticos.
+
+<CardGroup cols={2}>
+  <Card title="Monitorización Proactiva" icon="shield-check">
+    Detectar problemas antes de que afecten a los usuarios
+  </Card>
+  <Card title="Monitorización Reactiva" icon="bell">
+    Recibir alertas cuando ocurren incidentes
+  </Card>
+  <Card title="Análisis de Tendencias" icon="chart-line">
+    Identificar patrones a lo largo del tiempo
+  </Card>
+  <Card title="Planificación de Capacidad" icon="server">
+    Determinar cuándo ampliar recursos
+  </Card>
+</CardGroup>
+
+### Tipos de Monitorización
+
+#### Monitorización de Disponibilidad
+
+Verifica si un servicio o sistema está operativo:
+
+- **Checks de ping**: Verificar conectividad de red
+- **Checks de puerto**: Verificar que un servicio escucha en un puerto
+- **Checks de aplicación**: Verificar que una aplicación responde correctamente
+
+#### Monitorización de Rendimiento
+
+Mide cómo de bien funciona un sistema:
+
+- **Tiempo de respuesta**: Cuánto tarda un servicio en responder
+- **Throughput**: Número de operaciones por unidad de tiempo
+- **Uso de recursos**: CPU, memoria, disco, red
+
+#### Monitorización de Seguridad
+
+Detecta actividades sospechosas o anómalas:
+
+- **Intentos de login fallidos**
+- **Cambios no autorizados en archivos**
+- **Tráfico de red inusual**
+- **Escalada de privilegios**
+
+## Monitor de Rendimiento en Windows
+
+### Qué es el Monitor de Rendimiento
+
+El Monitor de Rendimiento (Performance Monitor o perfmon) es una herramienta integrada en Windows Server que permite:
+
+- Visualizar contadores de rendimiento en tiempo real
+- Crear gráficos personalizados
+- Configurar alertas basadas en umbrales
+- Registrar datos para análisis posterior
+- Generar informes
+
+### Contadores de Rendimiento
+
+Un contador es una métrica específica que se puede medir. Ejemplos:
+
+<Accordion title="Procesador">
+  - **% Processor Time**: Porcentaje de tiempo que el procesador está ocupado
+  - **% User Time**: Tiempo en modo usuario
+  - **% Privileged Time**: Tiempo en modo kernel
+  - **Processor Queue Length**: Procesos esperando CPU
+</Accordion>
+
+<Accordion title="Memoria">
+  - **Available MBytes**: Memoria física disponible
+  - **Pages/sec**: Tasa de paginación (debe ser baja)
+  - **Pool Nonpaged Bytes**: Memoria kernel no paginable
+  - **% Committed Bytes In Use**: Porcentaje de memoria virtual en uso
+</Accordion>
+
+<Accordion title="Disco Físico">
+  - **% Disk Time**: Porcentaje de tiempo que el disco está ocupado
+  - **Avg. Disk Queue Length**: Número medio de peticiones en cola
+  - **Disk Bytes/sec**: Tasa de transferencia de datos
+  - **% Idle Time**: Porcentaje de tiempo inactivo
+</Accordion>
+
+<Accordion title="Red">
+  - **Bytes Total/sec**: Tasa total de bytes enviados y recibidos
+  - **Packets/sec**: Paquetes procesados por segundo
+  - **Output Queue Length**: Paquetes en cola de envío
+  - **Packets Received Errors**: Paquetes con errores
+</Accordion>
+
+### RRDtool y Gráficos Temporales
+
+**RRDtool** (Round-Robin Database tool) es un sistema de almacenamiento y visualización de datos temporales ampliamente utilizado:
+
+- **Tamaño fijo**: La base de datos no crece con el tiempo
+- **Agregación automática**: Datos antiguos se promedian automáticamente
+- **Gráficos eficientes**: Generación rápida de gráficos
+- **Estándar de la industria**: Usado por MRTG, Cacti, Nagios, etc.
+
+<Note>
+MRTG (Multi Router Traffic Grapher) utiliza RRDtool para generar gráficos de tráfico de red. Has visto ejemplos en el servidor del aula.
+</Note>
+
+## Monitorización de Red
+
+### Conceptos de Red
+
+#### Ancho de Banda
+
+Cantidad de datos que se pueden transmitir en un periodo de tiempo:
+
+- Se mide en bits por segundo (bps, Kbps, Mbps, Gbps)
+- No confundir con velocidad (latencia)
+- Puede estar limitado por hardware o configuración
+
+#### Latencia
+
+Tiempo que tarda un paquete en viajar desde el origen al destino:
+
+- Se mide en milisegundos (ms)
+- Afecta a aplicaciones interactivas (VoIP, juegos, escritorio remoto)
+- Puede estar causada por distancia, congestione routing
+
+#### Pérdida de Paquetes
+
+Porcentaje de paquetes que no llegan a su destino:
+
+- Causada por congestión, errores de hardware o interferencias
+- Afecta gravemente a servicios en tiempo real
+- TCP puede recuperarse, UDP no
+
+### Herramienta: bmon
+
+**bmon** (Bandwidth Monitor) es un monitor de red para Linux que muestra:
+
+- Tráfico en tiempo real por interfaz
+- Gráficos de barras de uso de ancho de banda
+- Estadísticas de paquetes y bytes
+- Errores de transmisión
+
+```bash
+# Instalación
+sudo apt install bmon
+
+# Ejecución
+sudo bmon
+
+# Teclas útiles:
+# d - Información detallada
+# i - Información de interfaz
+# q - Salir
+```
+
+**Casos de uso:**
+- Verificar el uso de ancho de banda en tiempo real
+- Detectar picos de tráfico
+- Identificar la interfaz más activa
+- Diagnosticar problemas de red
+
+### Herramienta: Wireshark
+
+**Wireshark** es el analizador de protocolos de red más utilizado del mundo.
+
+#### Características
+
+<Steps>
+  <Step title="Captura de paquetes">
+    Intercepta todo el tráfico que pasa por una interfaz de red
+  </Step>
+  <Step title="Análisis de protocolos">
+    Decodifica cientos de protocolos (HTTP, DNS, SMB, etc.)
+  </Step>
+  <Step title="Filtrado avanzado">
+    Permite filtrar paquetes por múltiples criterios
+  </Step>
+  <Step title="Estadísticas">
+    Genera informes y gráficos de tráfico
+  </Step>
+  <Step title="Seguimiento de flujos">
+    Reconstruye sesiones TCP completas
+  </Step>
+</Steps>
+
+#### Filtros de Captura Comunes
+
+```bash
+# Capturar solo tráfico HTTP
+http
+
+# Capturar tráfico desde/hacia una IP específica
+ip.addr == 192.168.1.100
+
+# Capturar tráfico en un puerto específico
+tcp.port == 80
+
+# Capturar tráfico DNS
+udp.port == 53
+
+# Excluir tráfico de broadcast
+!(eth.dst == ff:ff:ff:ff:ff:ff)
+```
+
+#### Estadísticas Útiles
+
+- **Statistics → Protocol Hierarchy**: Distribución de protocolos
+- **Statistics → Conversations**: Conversaciones entre hosts
+- **Statistics → Endpoints**: Estadísticas por host
+- **Statistics → IPv4 Statistics → Destinations and Ports**: Destinos y puertos
+
+<Warning>
+**Consideraciones de Seguridad:**
+- Wireshark puede capturar contraseñas en claro (HTTP, FTP, Telnet)
+- Requiere permisos de administrador
+- Puede generar archivos de captura muy grandes
+- Solo debe usarse con autorización adecuada
+</Warning>
+
+## Monitorización Centralizada: Nagios
+
+### ¿Qué es Nagios?
+
+Nagios es un sistema de monitorización de infraestructuras IT de código abierto que permite:
+
+- Monitorizar servicios de red (SMTP, POP3, HTTP, NNTP, ICMP, SNMP, etc.)
+- Monitorizar recursos de host (CPU, disco, memoria, procesos)
+- Diseño de plugins simple que permite desarrollar checks personalizados
+- Notificaciones cuando hay problemas y cuando se resuelven
+- Generación automática de alertas
+- Visualización del estado de la infraestructura mediante interfaz web
+
+### Arquitectura de Nagios
+
+<CardGroup cols={2}>
+  <Card title="Nagios Core" icon="server">
+    Motor principal que ejecuta checks y procesa resultados
+  </Card>
+  <Card title="Plugins" icon="puzzle-piece">
+    Scripts que realizan las comprobaciones (check_http, check_ping, etc.)
+  </Card>
+  <Card title="NRPE" icon="network-wired">
+    Nagios Remote Plugin Executor - ejecuta plugins en hosts remotos
+  </Card>
+  <Card title="Web Interface" icon="globe">
+    Interfaz web para visualizar estado y alertas
+  </Card>
+</CardGroup>
+
+### Estados en Nagios
+
+#### Estados de Servicios
+
+- **OK** (Verde): El servicio funciona correctamente
+- **WARNING** (Amarillo): El servicio funciona pero hay algo que requiere atención
+- **CRITICAL** (Rojo): El servicio tiene un problema crítico
+- **UNKNOWN** (Naranja): No se puede determinar el estado del servicio
+
+#### Estados de Hosts
+
+- **UP** (Verde): El host está accesible
+- **DOWN** (Rojo): El host no es accesible
+- **UNREACHABLE** (Naranja): El host puede estar caído o no ser alcanzable por problemas de red
+
+### Plugins Comunes
+
+<Accordion title="check_ping">
+  Verifica la conectividad de red mediante ICMP echo requests.
+  
+  **Parámetros:**
+  - `-H`: Host a verificar
+  - `-w`: Umbral de WARNING (latencia,pérdida%)
+  - `-c`: Umbral de CRITICAL
+</Accordion>
+
+<Accordion title="check_http">
+  Verifica que un servidor web responde correctamente.
+  
+  **Puede verificar:**
+  - Código de respuesta HTTP
+  - Tiempo de respuesta
+  - Contenido de la página
+  - Certificados SSL
+</Accordion>
+
+<Accordion title="check_ssh">
+  Verifica que el servicio SSH está disponible.
+  
+  **Comprueba:**
+  - Que el puerto 22 acepta conexiones
+  - Versión del servidor SSH
+</Accordion>
+
+<Accordion title="check_disk">
+  Monitoriza el espacio en disco.
+  
+  **Parámetros:**
+  - `-w`: % libre para WARNING
+  - `-c`: % libre para CRITICAL
+  - `-p`: Punto de montaje a verificar
+</Accordion>
+
+<Accordion title="check_load">
+  Monitoriza la carga del sistema (load average).
+  
+  **Valores:**
+  - 1 minuto
+  - 5 minutos
+  - 15 minutos
+</Accordion>
+
+<Accordion title="check_procs">
+  Monitoriza procesos en ejecución.
+  
+  **Puede verificar:**
+  - Número de procesos
+  - Procesos específicos por nombre
+  - Uso de CPU o memoria por proceso
+</Accordion>
+
+### Notificaciones y Alertas
+
+Nagios puede enviar notificaciones mediante:
+
+- **Email**: El método más común
+- **SMS**: Para alertas críticas
+- **Mensajería instantánea**: Slack, Telegram, etc.
+- **Scripts personalizados**: Integración con sistemas de tickets
+
+<Note>
+Las notificaciones se pueden configurar por:
+- Tipo de alerta (WARNING, CRITICAL)
+- Horario (solo en horas laborables, 24/7)
+- Usuario o grupo
+- Escalado (notificar a superiores si no hay respuesta)
+</Note>
+
+## Registros y Auditoría
+
+### Importancia de los Logs
+
+Los registros (logs) son fundamentales para:
+
+- **Diagnóstico**: Identificar la causa de problemas
+- **Seguridad**: Detectar intentos de intrusión
+- **Cumplimiento**: Requisitos legales y normativos
+- **Auditoría**: Revisar acciones de usuarios y administradores
+- **Análisis forense**: Investigar incidentes de seguridad
+
+### Logs en Windows
+
+#### Event Viewer (Visor de Eventos)
+
+Windows registra eventos en diferentes logs:
+
+<Accordion title="Application Log">
+  Eventos de aplicaciones y programas:
+  - Inicios y cierres de aplicaciones
+  - Errores de aplicaciones
+  - Warnings de configuración
+</Accordion>
+
+<Accordion title="System Log">
+  Eventos del sistema operativo:
+  - Inicios y apagados del sistema
+  - Cambios de configuración
+  - Errores de hardware
+  - Eventos de servicios
+</Accordion>
+
+<Accordion title="Security Log">
+  Eventos de seguridad y auditoría:
+  - Inicios de sesión exitosos y fallidos
+  - Cambios en permisos
+  - Acceso a objetos auditados
+  - Cambios en políticas de seguridad
+</Accordion>
+
+<Accordion title="Setup Log">
+  Eventos relacionados con la instalación:
+  - Actualizaciones de Windows
+  - Instalación de roles y características
+</Accordion>
+
+#### Niveles de Eventos
+
+- **Information** (Azul): Evento informativo normal
+- **Warning** (Amarillo): Posible problema futuro
+- **Error** (Rojo): Problema significativo
+- **Critical** (Rojo oscuro): Fallo crítico del sistema
+- **Audit Success** (Verde): Auditoría exitosa
+- **Audit Failure** (Amarillo): Auditoría fallida
+
+### Logs en Linux
+
+#### Ubicaciones Tradicionales
+
+En sistemas Linux tradicionales, los logs se encuentran en `/var/log/`:
+
+```bash
+/var/log/syslog          # Log general del sistema (Debian/Ubuntu)
+/var/log/messages        # Log general del sistema (RedHat/CentOS)
+/var/log/auth.log        # Autenticaciones y autorizaciones
+/var/log/kern.log        # Mensajes del kernel
+/var/log/dmesg           # Mensajes de arranque del kernel
+/var/log/apache2/        # Logs de Apache
+/var/log/nginx/          # Logs de Nginx
+/var/log/mysql/          # Logs de MySQL
+```
+
+#### systemd Journal
+
+En sistemas con systemd, los logs se gestionan mediante `journalctl`:
+
+```bash
+# Ver todos los logs
+journalctl
+
+# Logs del arranque actual
+journalctl -b
+
+# Logs de un servicio específico
+journalctl -u ssh.service
+
+# Logs desde hace 1 hora
+journalctl --since "1 hour ago"
+
+# Seguir logs en tiempo real
+journalctl -f
+
+# Logs con prioridad error o superior
+journalctl -p err
+```
+
+<Note>
+**Prioridades en syslog:**
+0. Emergency (emerg)
+1. Alert (alert)
+2. Critical (crit)
+3. Error (err)
+4. Warning (warning)
+5. Notice (notice)
+6. Informational (info)
+7. Debug (debug)
+</Note>
+
+## Análisis Forense Básico
+
+### Principios de la Informática Forense
+
+<Steps>
+  <Step title="Preservación">
+    Proteger las evidencias de modificación o destrucción
+  </Step>
+  <Step title="Recolección">
+    Obtener copias exactas de las evidencias
+  </Step>
+  <Step title="Análisis">
+    Examinar las evidencias sin modificar los originales
+  </Step>
+  <Step title="Documentación">
+    Registrar todos los pasos y hallazgos
+  </Step>
+  <Step title="Presentación">
+    Comunicar los resultados de manera comprensible
+  </Step>
+</Steps>
+
+### Cadena de Custodia
+
+Documentación que registra:
+
+- **Quién** manipuló la evidencia
+- **Cuándo** se manipuló
+- **Dónde** se almacenó
+- **Por qué** se manipuló
+- **Cómo** se manipuló
+
+<Warning>
+La ruptura de la cadena de custodia puede invalidar las evidencias en un proceso legal.
+</Warning>
+
+### Herramientas Forenses
+
+#### dd - Copias Bit a Bit
+
+```bash
+# Crear imagen forense de un disco
+sudo dd if=/dev/sda of=disco.img bs=4M status=progress
+
+# Crear hash MD5 para verificar integridad
+md5sum disco.img > disco.img.md5
+```
+
+#### strings - Extraer Texto
+
+```bash
+# Buscar cadenas de texto en un archivo binario
+strings disco.img | grep "password"
+```
+
+#### file - Identificar Tipos de Archivo
+
+```bash
+# Identificar el tipo real de un archivo
+file archivo_sospechoso.jpg
+```
+
+#### Autopsy / Sleuth Kit
+
+Suite forense completa que permite:
+- Análisis de sistemas de archivos
+- Recuperación de archivos borrados
+- Análisis de línea temporal
+- Búsqueda de palabras clave
+
+## Mejores Prácticas
+
+### Monitorización
+
+<CardGroup cols={2}>
+  <Card title="Establecer Líneas Base" icon="ruler">
+    Conocer el comportamiento normal antes de detectar anomalías
+  </Card>
+  <Card title="Automatizar Alertas" icon="bell">
+    Configurar notificaciones para eventos críticos
+  </Card>
+  <Card title="Revisar Regularmente" icon="calendar">
+    Analizar métricas periódicamente, no solo cuando hay problemas
+  </Card>
+  <Card title="Documentar Cambios" icon="book">
+    Registrar cambios en la infraestructura que puedan afectar a las métricas
+  </Card>
+</CardGroup>
+
+### Registros
+
+- **Sincronización de tiempo**: Usar NTP para que los timestamps sean precisos
+- **Centralización**: Enviar logs a un servidor central (syslog, ELK stack)
+- **Retención**: Establecer políticas de cuánto tiempo conservar logs
+- **Protección**: Los logs no deben ser modificables por usuarios normales
+- **Respaldo**: Hacer copias de seguridad de logs importantes
+
+### Seguridad
+
+<Warning>
+- No almacenar contraseñas en logs
+- Limitar el acceso a herramientas de monitorización
+- Encriptar logs sensibles
+- Auditar quién accede a los logs
+- Cumplir normativas (GDPR, LOPD, etc.)
+</Warning>

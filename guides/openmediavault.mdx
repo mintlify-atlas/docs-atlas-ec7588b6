@@ -1,0 +1,202 @@
+---
+title: OpenMediaVault Installation Guide
+description: Complete guide for installing OpenMediaVault NAS solution on VirtualBox
+---
+
+# OpenMediaVault Installation Guide
+
+OpenMediaVault is a free NAS (Network-Attached Storage) solution based on Debian Linux. It provides a web-based management interface for configuring storage, file sharing, and network services.
+
+## About OpenMediaVault
+
+<Info>
+OpenMediaVault is designed for home and small office environments, offering features like:
+- Web-based administration
+- Support for multiple file sharing protocols (SMB/CIFS, FTP, NFS)
+- RAID management
+- Plugin system for extended functionality
+- Based on Debian for stability and security
+</Info>
+
+Learn more at [openmediavault.org](https://www.openmediavault.org/)
+
+## Prerequisites
+
+**System Requirements**
+- VirtualBox 5.0 or later
+- 64-bit processor recommended
+- Minimum 1 GB RAM (2 GB recommended)
+- At least 8 GB for system disk
+- Additional virtual disks for storage (optional)
+- OpenMediaVault ISO image
+
+## Creating the Virtual Machine
+
+<Steps>
+  <Step title="Create New VM">
+    1. Open VirtualBox and click **New**
+    2. Configure:
+       - **Name**: OpenMediaVault
+       - **Type**: Linux
+       - **Version**: Debian (64-bit)
+    3. Allocate **1024-2048 MB** RAM
+  </Step>
+
+  <Step title="Create Storage">
+    Create a virtual hard disk:
+    - Format: **VDI**
+    - Type: **Dynamically allocated**
+    - Size: At least **8 GB** for the system
+    
+    <Note>
+    You can add additional virtual disks later for data storage.
+    </Note>
+  </Step>
+
+  <Step title="Configure Network">
+    1. Go to **Settings** → **Network**
+    2. Set Adapter 1 to **Bridged Adapter** for network access
+    
+    <Info>
+    Bridged mode allows the VM to appear as a separate device on your network, which is ideal for a NAS.
+    </Info>
+  </Step>
+
+  <Step title="Attach ISO">
+    1. Go to **Settings** → **Storage**
+    2. Select the optical drive
+    3. Attach the OpenMediaVault ISO image
+  </Step>
+</Steps>
+
+## Installing OpenMediaVault
+
+<Steps>
+  <Step title="Boot Installation Media">
+    Start the VM. The OpenMediaVault installer will boot automatically.
+  </Step>
+
+  <Step title="Select Language">
+    Choose your preferred installation language.
+  </Step>
+
+  <Step title="Set Hostname">
+    Enter a hostname for your NAS (e.g., `nas-server`, `openmediavault`).
+    
+    <Note>
+    This name will be used to access the server on your network.
+    </Note>
+  </Step>
+
+  <Step title="Configure Domain">
+    Enter a domain name or leave as default. For local networks, you can use:
+    - `local`
+    - `lan`
+    - Your custom domain for future use
+  </Step>
+
+  <Step title="Create Administrator Account">
+    Set up the root password for system administration.
+    
+    <Warning>
+    Store this password securely. It's needed for system-level access and troubleshooting.
+    </Warning>
+  </Step>
+
+  <Step title="Configure Time Zone">
+    Select your geographic location for proper time synchronization.
+  </Step>
+
+  <Step title="Partition Disk">
+    The installer will automatically partition the disk. Accept the defaults for a standard installation.
+  </Step>
+
+  <Step title="Configure Package Repository">
+    Select a Debian mirror close to your location for faster package downloads.
+  </Step>
+
+  <Step title="Install GRUB Bootloader">
+    Install GRUB to the master boot record when prompted.
+  </Step>
+
+  <Step title="Complete Installation">
+    Wait for installation to complete, then reboot when prompted.
+  </Step>
+</Steps>
+
+## First Boot Configuration
+
+<Steps>
+  <Step title="Boot System">
+    After reboot, you'll see the OpenMediaVault console with network information displayed.
+  </Step>
+
+  <Step title="Note IP Address">
+    The console shows the IP address assigned to your NAS. Note this down — you'll use it to access the web interface.
+  </Step>
+
+  <Step title="Access Web Interface">
+    From another computer on the network, open a web browser and navigate to:
+    
+    ```
+    http://[IP-ADDRESS]
+    ```
+    
+    Default credentials:
+    - **Username**: `admin`
+    - **Password**: `openmediavault`
+    
+    <Warning>
+    Change the default password immediately after first login!
+    </Warning>
+  </Step>
+
+  <Step title="Initial Configuration">
+    From the web interface:
+    1. Change the admin password
+    2. Update the system
+    3. Configure network settings if needed
+    4. Set up storage devices
+  </Step>
+</Steps>
+
+## Adding Storage
+
+<Accordion title="How to add additional storage to the VM">
+1. Shutdown the OpenMediaVault VM
+2. In VirtualBox, go to **Settings** → **Storage**
+3. Add a new hard disk to the SATA controller
+4. Start the VM
+5. In the web interface:
+   - Go to **Storage** → **Disks**
+   - The new disk should appear
+   - Create a file system on it
+   - Mount the file system
+   - Create shared folders
+</Accordion>
+
+## Next Steps
+
+After installation, you can:
+
+- Configure file sharing (SMB/CIFS for Windows, NFS for Linux)
+- Set up user accounts and permissions
+- Enable additional services (FTP, SSH, DLNA)
+- Install plugins for extended functionality
+- Configure RAID arrays for data redundancy
+- Set up automated backups
+
+<Info>
+OpenMediaVault provides a complete NAS solution with minimal resource requirements, making it perfect for home labs and small office deployments.
+</Info>
+
+## Troubleshooting
+
+**Can't access web interface?**
+- Verify network mode is set to Bridged Adapter
+- Check firewall settings on host machine
+- Confirm IP address from the VM console
+
+**Disks not appearing?**
+- Ensure disks are attached to SATA controller in VirtualBox
+- Check that disks are properly initialized in the web interface

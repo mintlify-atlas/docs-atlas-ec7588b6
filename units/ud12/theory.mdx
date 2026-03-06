@@ -1,0 +1,499 @@
+---
+title: Teoría - Gestión de Incidencias
+description: Conceptos teóricos sobre gestión de incidencias, acceso remoto y despliegue automatizado
+---
+
+## Introducción
+
+Tan importante como la instalación y la configuración de los sistemas y servicios, es el soporte de los mismos dentro de un sistema informático.
+
+A lo largo de la vida de un sistema informático aparecerán múltiples problemas y propuestas de cambios, que deben ser abordados de manera sistemática y organizada, asignando prioridades y utilizando mecanismos de resolución documentados y coherentes.
+
+Aprenderemos en la unidad conceptos como incidencia y propuestas de cambio. A través de un gestor de servicios de IT (GLPI), veremos cómo se crean las incidencias, se asignan, se resuelven y se documentan.
+
+Para la correcta resolución de las incidencias veremos también diferentes modos de conexión remota, que nos permitirán una resolución más rápida y eficiente de las incidencias.
+
+Veremos también mecanismos de instalación de sistemas de manera desatendida ya sea mediante clonado o mediante ficheros de respuestas, de tal manera que podremos instalar no solo los sistemas operativos, sino también las aplicaciones y las configuraciones de manera más rápida y sencilla.
+
+## Instalación por Clonación
+
+### ¿Qué es la Clonación?
+
+Hasta ahora hemos visto cómo instalar el sistema operativo, configurarlo, crear usuarios, grupos, instalar aplicaciones, controlar los permisos...
+
+Pero, ¿y si tenemos que hacer esto de manera repetida, es decir, instalar por ejemplo 10 ordenadores iguales para un equipo de personas de nuestra empresa?
+
+Si el proceso es sencillo, seguramente seremos capaces de realizar las instalaciones de manera estandarizada y correcta, obteniendo 10 equipos iguales, de tal manera que si alguno de ellos tiene un problema podamos replicarlo y arreglarlo en los otros.
+
+Pero puede ocurrir que el proceso de instalación sea muy complejo y la cantidad de pasos y configuraciones sea muy grande, por lo que las posibilidades de equivocarnos al repetirlas sean muy altas.
+
+La clonación nos permite ahorrar mucho tiempo y posibles fallos, así como la _reproducibilidad_ de las instalaciones para posibles pruebas, etc.
+
+<Note>
+**Definición:** La clonación es la creación de una réplica exacta de todo el contenido de un disco duro o partición de tal manera que pueda ser copiada a otro disco duro, fichero o unidad en red y puesta en marcha en un equipo diferente (o en el mismo en el caso de un respaldo).
+</Note>
+
+Los datos y aplicaciones permanecen totalmente inalteradas, tal y como ocurre en la clonación de seres vivos: copiamos "bit" a "bit" el ADN del ordenador.
+
+### Ventajas e Inconvenientes
+
+#### Ventajas
+
+<CardGroup cols={2}>
+  <Card title="Ahorro de Tiempo" icon="clock">
+    Una vez creada la imagen, las instalaciones se realizan en minutos
+  </Card>
+  <Card title="Estandarización" icon="equals">
+    Todos los equipos tienen exactamente la misma configuración
+  </Card>
+  <Card title="Pruebas Rápidas" icon="flask">
+    Permite probar nuevas configuraciones rápidamente
+  </Card>
+  <Card title="Recuperación" icon="rotate-left">
+    Facilita la restauración ante desastres
+  </Card>
+</CardGroup>
+
+#### Inconvenientes
+
+- **Hardware adicional**: Discos para almacenar imágenes, servidor de imágenes
+- **Administración**: Requiere gestión de versiones de imágenes
+- **Espacio**: Las imágenes pueden ocupar mucho espacio
+- **Limitaciones de hardware**: Funciona mejor con hardware similar
+
+<Note>
+Si nuestro sistema dispone de un número _limitado_ de modelos de hardware, podemos tener una imagen preparada para cada uno de ellos.
+</Note>
+
+### Sistemas de Clonado: Clonezilla
+
+Uno de los sistemas de clonado más famosos es **DRBL/Clonezilla**.
+
+#### Características
+
+- **Código abierto**: Software libre y gratuito
+- **Multiplataforma**: Funciona con Windows, Linux, macOS
+- **Versatilidad**: Soporta múltiples sistemas de archivos
+- **Compresión**: Reduce el tamaño de las imágenes
+- **Encriptación**: Protege las imágenes con contraseña
+- **Restauración selectiva**: Puede restaurar solo particiones específicas
+- **Soporte UEFI**: Compatible con sistemas modernos
+
+#### Modos de Funcionamiento
+
+<Accordion title="Clonezilla Live">
+  **Uso:** Equipos individuales
+  
+  **Funcionamiento:**
+  - Se arranca desde un USB o CD de Clonezilla
+  - Se conecta un disco externo para guardar la imagen
+  - Se crea o restaura la imagen del equipo
+  
+  **Ideal para:**
+  - Copias de seguridad personales
+  - Migración de discos
+  - Pocos equipos a clonar
+</Accordion>
+
+<Accordion title="Clonezilla SE (Server Edition)">
+  **Uso:** Despliegue masivo en red
+  
+  **Funcionamiento:**
+  - Servidor de imágenes en la red
+  - Los clientes arrancan por PXE (arranque de red)
+  - Se puede clonar simultáneamente muchos equipos
+  
+  **Ideal para:**
+  - Aulas informáticas
+  - Despliegues empresariales
+  - Muchos equipos con hardware similar
+</Accordion>
+
+### Tareas Post-Clonación
+
+<Warning>
+**CRÍTICO:** Realizar una copia bit a bit significa que ciertos elementos únicos del sistema se duplican. Esto debe corregirse.
+</Warning>
+
+Cada ordenador debe tener de manera única:
+
+#### Nombre del Equipo (Hostname)
+
+- **Windows**: Configurable desde Propiedades del sistema
+- **Linux**: `/etc/hostname` y `/etc/hosts`
+- **Problema si no se cambia**: Conflictos de nombre en Active Directory, Samba, WINS
+
+#### Dirección MAC (Media Access Control)
+
+- **Qué es**: Identificador único de hardware de la tarjeta de red
+- **Problema**: En hardware virtualizado puede duplicarse
+- **Solución**: Regenerar MAC en la configuración de la VM
+
+#### Dirección IP
+
+- **Si usa DHCP**: No hay problema, se asigna automáticamente
+- **Si es estática**: Debe cambiarse manualmente
+- **Problema si no se cambia**: Conflicto de IPs en la red
+
+#### SID de Windows (Security Identifier)
+
+- **Qué es**: Identificador único de seguridad en Windows
+- **Problema**: Dos equipos con el mismo SID causan problemas de seguridad y de dominio
+- **Solución**: Usar **Sysprep** o **drbl-winroll**
+
+#### drbl-winroll
+
+Herramienta que automatiza los cambios post-clonación en Windows:
+
+<Steps>
+  <Step title="Configuración de identidad">
+    Cambia hostname, workgroup y SID automáticamente
+  </Step>
+  <Step title="Configuración de red">
+    Puede configurar IP, DNS, gateway
+  </Step>
+  <Step title="Unión al dominio">
+    Puede unir automáticamente el equipo al dominio
+  </Step>
+  <Step title="Monitorización">
+    Permite monitorizar el cliente Windows
+  </Step>
+  <Step title="Instalación de SSH">
+    Instala servidor SSH en el host destino (muy útil para gestión remota)
+  </Step>
+</Steps>
+
+<Note>
+Todas estas operaciones deben llevarse a cabo para evitar problemas de máquinas duplicadas en la red, lo que dará lugar a múltiples problemas difíciles de detectar.
+</Note>
+
+## Instalaciones Automáticas
+
+### Ficheros de Respuestas
+
+Hemos visto instalaciones _normales_ y mediante clonación. Ahora veremos instalaciones mediante **ficheros de respuestas**.
+
+En estos ficheros introduciremos todas las respuestas a las preguntas que sabemos que el sistema nos hará durante el proceso de instalación. De tal manera que el proceso de instalación no es tan interactivo y se transforma en algo mucho más automático.
+
+#### Ventajas vs Clonación
+
+<CardGroup cols={2}>
+  <Card title="Flexibilidad" icon="wand-magic-sparkles">
+    Cada instalación puede personalizarse fácilmente
+  </Card>
+  <Card title="Hardware Heterogéneo" icon="server">
+    Funciona en equipos con hardware diferente
+  </Card>
+  <Card title="Sin Post-Configuración" icon="circle-check">
+    No requiere cambiar SID, hostname, etc.
+  </Card>
+  <Card title="Actualizaciones" icon="arrow-up">
+    Siempre instala la versión más reciente del SO
+  </Card>
+</CardGroup>
+
+### Generación de Ficheros de Respuestas
+
+Los ficheros de respuestas pueden generarse:
+
+1. **A partir de un sistema instalado**: Exportando la configuración actual
+2. **Usando ejemplos**: Modificando plantillas proporcionadas por la distribución
+3. **Herramientas gráficas**: Como Windows System Image Manager
+
+#### Windows: Sysprep
+
+En sistemas Windows, estos ficheros se generan a posteriori de las instalaciones utilizando **Sysprep** (System Preparation Tool).
+
+**Funciones de Sysprep:**
+- Generaliza la instalación (elimina info específica del equipo)
+- Regenera el SID
+- Prepara para clonación
+- Genera fichero de respuestas (unattend.xml)
+
+#### Debian/Ubuntu: debconf
+
+En sistemas basados en Debian, la base de datos de configuración es **debconf**.
+
+Podemos obtener las respuestas de nuestra instalación:
+
+```bash
+debconf-get-selections
+```
+
+Esto muestra todas las respuestas dadas durante la instalación de paquetes.
+
+### Preseed (Debian/Ubuntu)
+
+Preseed es el sistema de instalación desatendida para Debian y derivados.
+
+#### Estructura de un Preseed
+
+```shell
+# Localización
+d-i debian-installer/locale string es_ES
+
+# Teclado
+d-i keyboard-configuration/xkb-keymap select es
+
+# Red
+d-i netcfg/choose_interface select auto
+d-i netcfg/get_hostname string adminiso-linux
+d-i netcfg/get_domain string adminiso
+
+# Mirror
+d-i mirror/country string manual
+d-i mirror/http/hostname string archive.ubuntu.com
+d-i mirror/http/directory string /ubuntu
+
+# Usuario
+d-i passwd/user-fullname string Admin de ISO
+d-i passwd/username string adminiso
+d-i passwd/user-password password admin1s0
+d-i passwd/user-password-again password admin1s0
+d-i user-setup/allow-password-weak boolean true
+
+# Zona horaria
+d-i time/zone string Europe/Madrid
+d-i clock-setup/utc boolean true
+d-i clock-setup/ntp boolean true
+
+# Particionado
+d-i partman-auto/method string lvm
+d-i partman-auto/choose_recipe select atomic
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+# Paquetes
+tasksel tasksel/first multiselect xubuntu-desktop
+d-i pkgsel/include string openssh-server build-essential
+
+# Grub
+d-i grub-installer/only_debian boolean true
+
+# Finalizar
+d-i finish-install/reboot_in_progress note
+```
+
+#### Componentes del Preseed
+
+<Accordion title="Localización y Teclado">
+  - Idioma del sistema
+  - Distribución de teclado
+  - Locale
+</Accordion>
+
+<Accordion title="Configuración de Red">
+  - Interfaz a usar (auto/manual)
+  - Hostname y dominio
+  - Configuración de proxy
+</Accordion>
+
+<Accordion title="Mirror y Repositorios">
+  - País del mirror
+  - URL del repositorio
+  - Secciones a activar (main, universe, etc.)
+</Accordion>
+
+<Accordion title="Usuarios y Contraseñas">
+  - Usuario principal
+  - Contraseña
+  - Grupos del usuario
+  - Encriptación del home (opcional)
+</Accordion>
+
+<Accordion title="Particionado">
+  - Método (regular, LVM, encriptado)
+  - Esquema (atomic, home, multi)
+  - Confirmaciones automáticas
+</Accordion>
+
+<Accordion title="Selección de Paquetes">
+  - Tareas (desktop, server, lamp, etc.)
+  - Paquetes adicionales individuales
+  - Política de actualizaciones
+</Accordion>
+
+<Accordion title="Bootloader">
+  - Instalación de GRUB
+  - Dispositivo de instalación
+  - Sistemas múltiples
+</Accordion>
+
+#### Usar el Preseed
+
+Para indicarle a la imagen de instalación que use el fichero de respuestas:
+
+<Steps>
+  <Step title="Arrancar desde el medio de instalación">
+    USB, CD, o PXE
+  </Step>
+  <Step title="Editar opciones de arranque">
+    Pulsar TAB en el menú de arranque
+  </Step>
+  <Step title="Añadir parámetros">
+    ANTES del argumento `initrd`, añadir:
+    ```
+    auto=true priority=critical url=http://servidor/preseed.cfg
+    ```
+  </Step>
+  <Step title="Iniciar instalación">
+    Pulsar ENTER para iniciar la instalación automática
+  </Step>
+</Steps>
+
+<Note>
+El instalador descargará el preseed del servidor HTTP y usará las respuestas configuradas.
+</Note>
+
+#### Ubicación del Preseed
+
+El fichero preseed puede estar:
+
+- **En un servidor HTTP**: Más flexible, fácil de actualizar
+- **En el propio medio de instalación**: Requiere remaster del ISO
+- **En una unidad USB**: Junto al instalador
+- **En un servidor PXE**: Para instalaciones por red
+
+### Kickstart (Red Hat/CentOS)
+
+Equivalente a Preseed para sistemas Red Hat:
+
+```bash
+# Instalación en modo texto
+text
+
+# Idioma y teclado
+lang es_ES.UTF-8
+keyboard es
+
+# Red
+network --bootproto=dhcp --device=eth0 --onboot=yes
+
+# Usuario root
+rootpw --plaintext password123
+
+# Zona horaria
+timezone Europe/Madrid --utc
+
+# Particionado
+autopart --type=lvm
+clearpart --all --initlabel
+
+# Paquetes
+%packages
+@base
+@core
+openssh-server
+%end
+
+# Post-instalación
+%post
+systemctl enable sshd
+%end
+```
+
+### Unattend.xml (Windows)
+
+Windows utiliza ficheros XML para instalaciones desatendidas:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+  <settings pass="windowsPE">
+    <component name="Microsoft-Windows-International-Core-WinPE">
+      <SetupUILanguage>
+        <UILanguage>es-ES</UILanguage>
+      </SetupUILanguage>
+    </component>
+    <component name="Microsoft-Windows-Setup">
+      <DiskConfiguration>
+        <Disk>
+          <CreatePartitions>
+            <CreatePartition>
+              <Order>1</Order>
+              <Type>Primary</Type>
+              <Extend>true</Extend>
+            </CreatePartition>
+          </CreatePartitions>
+        </Disk>
+      </DiskConfiguration>
+      <UserData>
+        <ProductKey>
+          <Key>XXXXX-XXXXX-XXXXX-XXXXX-XXXXX</Key>
+        </ProductKey>
+        <AcceptEula>true</AcceptEula>
+      </UserData>
+    </component>
+  </settings>
+  <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-Shell-Setup">
+      <UserAccounts>
+        <AdministratorPassword>
+          <Value>UABhAHMAcwB3AG8AcgBkAA==</Value>
+          <PlainText>false</PlainText>
+        </AdministratorPassword>
+        <LocalAccounts>
+          <LocalAccount>
+            <Name>usuario</Name>
+            <Group>Administrators</Group>
+            <Password>
+              <Value>password123</Value>
+              <PlainText>true</PlainText>
+            </Password>
+          </LocalAccount>
+        </LocalAccounts>
+      </UserAccounts>
+    </component>
+  </settings>
+</unattend>
+```
+
+**Herramienta recomendada:** Windows System Image Manager (parte de Windows ADK)
+
+## Comparación: Clonación vs Ficheros de Respuesta
+
+| Aspecto | Clonación | Ficheros de Respuesta |
+|---------|-----------|----------------------|
+| **Velocidad** | Rápida (10-30 min) | Más lenta (30-60 min) |
+| **Hardware** | Requiere similitud | Hardware heterogéneo OK |
+| **Flexibilidad** | Baja (misma config) | Alta (personalizable) |
+| **Post-config** | Necesaria (SID, hostname) | Mínima o nula |
+| **Espacio** | Requiere almacenar imágenes | Solo fichero pequeño |
+| **Actualizaciones** | Imagen puede quedar obsoleta | Siempre versión actual |
+| **Complejidad** | Media | Alta (conocer sintaxis) |
+| **Uso ideal** | Muchos equipos idénticos | Equipos con variaciones |
+
+<Note>
+En entornos profesionales, a menudo se combinan ambas técnicas: instalación automatizada inicial + imagen personalizada para despliegue masivo.
+</Note>
+
+## Mejores Prácticas
+
+### Clonación
+
+<CardGroup cols={2}>
+  <Card title="Imagen Maestra Limpia" icon="broom">
+    Preparar el sistema antes de clonar: actualizar, limpiar temporales, optimizar
+  </Card>
+  <Card title="Documentar Configuración" icon="file-lines">
+    Mantener registro de qué incluye cada imagen
+  </Card>
+  <Card title="Versionado" icon="code-branch">
+    Numerar las versiones de las imágenes (v1.0, v1.1, etc.)
+  </Card>
+  <Card title="Verificar Integridad" icon="check-double">
+    Usar hashes (MD5, SHA256) para verificar imágenes
+  </Card>
+</CardGroup>
+
+### Ficheros de Respuesta
+
+- **Control de versiones**: Usar Git para gestionar los ficheros
+- **Comentarios**: Documentar cada sección del fichero
+- **Modularidad**: Crear ficheros base y especializados
+- **Probar exhaustivamente**: Validar en entorno de prueba primero
+- **Seguridad**: No incluir contraseñas en claro si es posible
+
+<Warning>
+**Seguridad:** Los ficheros de respuesta a menudo contienen contraseñas. Protégelos adecuadamente y considera usar contraseñas temporales que deban cambiarse en el primer inicio.
+</Warning>

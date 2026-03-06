@@ -1,0 +1,242 @@
+---
+title: Windows 10 Installation Guide
+description: Complete guide for installing Windows 10 on VirtualBox
+---
+
+# Windows 10 Installation Guide
+
+This guide covers the complete installation and initial configuration of Windows 10 in VirtualBox.
+
+## Prerequisites
+
+<Info>
+**System Requirements**
+- VirtualBox 5.2 or later
+- 64-bit processor with virtualization extensions enabled
+- Minimum 2 GB RAM for the VM (4 GB recommended)
+- At least 20 GB free disk space (32 GB recommended)
+- Windows 10 ISO image
+</Info>
+
+Check the official [Microsoft Windows 10 specifications page](https://www.microsoft.com/es-es/windows/windows-10-specifications) for detailed requirements.
+
+## Creating the Virtual Machine
+
+<Steps>
+  <Step title="Create New VM">
+    1. Open VirtualBox and click **New**
+    2. Enter the name **Windows10**
+    3. VirtualBox will automatically set:
+       - **Type**: Microsoft Windows
+       - **Version**: Windows 10 (64-bit)
+  </Step>
+
+  <Step title="Allocate Memory">
+    Assign **2048 MB** (2 GB) minimum, or **4096 MB** (4 GB) for better performance.
+  </Step>
+
+  <Step title="Create Virtual Hard Disk">
+    1. Select **Create a virtual hard disk now**
+    2. Choose **VDI (VirtualBox Disk Image)**
+    3. Select **Dynamically allocated**
+    4. Set size to at least **32 GB**
+  </Step>
+
+  <Step title="Configure Network">
+    1. Open VM **Settings** → **Network**
+    2. Set Adapter 1 to **NAT**
+  </Step>
+
+  <Step title="Attach Windows ISO">
+    1. Go to **Settings** → **Storage**
+    2. Select the optical drive under **Controller: IDE**
+    3. Click the disc icon and select your Windows 10 ISO
+  </Step>
+</Steps>
+
+## Installing Windows 10
+
+<Steps>
+  <Step title="Start the VM">
+    Boot the VM. VirtualBox will automatically start from the ISO since the hard disk is empty.
+    
+    <Note>
+    On physical machines or VMs with existing operating systems, you may need to press a key to boot from the DVD/ISO.
+    </Note>
+  </Step>
+
+  <Step title="Select Language and Region">
+    Choose your language, time format, and keyboard layout.
+  </Step>
+
+  <Step title="Install Now">
+    Click **Install now**.
+    
+    <Accordion title="What about 'Repair your computer'?">
+    The **Repair your computer** option is used for troubleshooting existing Windows installations, recovering from system failures, or accessing advanced startup options.
+    </Accordion>
+  </Step>
+
+  <Step title="Product Key Activation">
+    - If you have a product key, enter it now
+    - Otherwise, click **I don't have a product key**
+    
+    <Note>
+    You can activate Windows later from Settings. Invalid or already-registered keys can be changed post-installation.
+    </Note>
+  </Step>
+
+  <Step title="Accept License Terms">
+    Read and accept the End User License Agreement (EULA).
+  </Step>
+
+  <Step title="Installation Type">
+    Select **Custom: Install Windows only (advanced)**.
+  </Step>
+
+  <Step title="Partition Selection">
+    The installer shows available disks and partitions. Since this is a new virtual disk:
+    1. Select the unallocated space
+    2. Click **Next**
+    
+    <Warning>
+    For dual-boot scenarios, carefully review partition sizes and usage before proceeding.
+    </Warning>
+  </Step>
+
+  <Step title="Installation Progress">
+    Windows will copy files and install. This is an unattended process that may take 15-30 minutes.
+    
+    The system will restart automatically when ready.
+  </Step>
+</Steps>
+
+## First Boot Configuration
+
+<Steps>
+  <Step title="Region and Keyboard">
+    Confirm your region and keyboard layout.
+  </Step>
+
+  <Step title="Privacy Settings">
+    Choose between:
+    - **Use Express Settings**: Enables all Microsoft services and data collection
+    - **Customize**: Gives you control over privacy options
+    
+    <Info>
+    Select **Customize** for more control over:
+    - Location services
+    - Diagnostic data
+    - Tailored experiences
+    - Advertising ID
+    </Info>
+    
+    Review each screen and disable options you don't want to share.
+  </Step>
+
+  <Step title="Account Type">
+    Select **Join a local Active Directory domain** to create a local account.
+    
+    <Note>
+    We'll configure domain joining in later modules. For now, use a local administrator account.
+    </Note>
+  </Step>
+
+  <Step title="Create User Account">
+    - **Username**: `adminiso` (or your preferred name)
+    - **Password**: `admin1s0`
+    - Set password hint
+    
+    <Info>
+    This account will be the local administrator with full system privileges.
+    </Info>
+  </Step>
+
+  <Step title="Finalize Setup">
+    Windows will prepare your desktop environment. This takes a few minutes.
+  </Step>
+</Steps>
+
+## Post-Installation Configuration
+
+<Steps>
+  <Step title="Open Settings">
+    Press **Win** key or click the Start button, then click the gear icon to open Settings.
+  </Step>
+
+  <Step title="Update & Security">
+    Navigate to **Update & Security** to access:
+    - Windows Update
+    - Windows Defender (antivirus)
+    - Backup
+    - Recovery
+    - Activation
+    - For developers
+  </Step>
+
+  <Step title="Activate Windows">
+    If you didn't enter a product key during installation:
+    
+    1. Go to **Activation**
+    2. Click **Change product key**
+    3. Enter a valid key
+    4. Click **Activate**
+    
+    <Warning>
+    Windows won't apply updates until it's activated with a valid key.
+    </Warning>
+  </Step>
+
+  <Step title="Check for Updates">
+    1. Go to **Windows Update**
+    2. Click **Check for updates**
+    3. Install all available updates
+    4. Restart when prompted
+    
+    <Info>
+    Fresh installations typically have many updates to download. This may take considerable time.
+    </Info>
+  </Step>
+
+  <Step title="Enable Developer Mode (Optional)">
+    For PowerShell script execution:
+    
+    1. Go to **For developers**
+    2. Select **Developer mode**
+    3. Accept the warning
+    
+    This allows running local PowerShell scripts without confirmation.
+  </Step>
+</Steps>
+
+## PowerShell Configuration
+
+<Note>
+For advanced users working with PowerShell scripts in the course:
+</Note>
+
+```powershell
+# Check current execution policy
+Get-ExecutionPolicy
+
+# Allow local scripts (if not using Developer mode)
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+## Next Steps
+
+Your Windows 10 installation is complete! You can now:
+
+- Install additional software
+- Configure user accounts and permissions
+- Set up network sharing
+- Install VirtualBox Guest Additions for better integration
+- Join a domain (covered in later modules)
+
+<Warning>
+**Security Reminders**
+- Keep Windows updated
+- Use strong passwords
+- Enable Windows Defender
+- Don't disable security features unless necessary
+</Warning>

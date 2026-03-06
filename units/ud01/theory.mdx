@@ -1,0 +1,360 @@
+---
+title: 'Teoría: Sistemas Operativos'
+description: 'Comprehensive theory on computer systems architecture, operating systems, and software licensing'
+---
+
+# Arquitectura de un Sistema Informático
+
+## ¿Qué es un Sistema Informático?
+
+Un **sistema informático (SI)** es un sistema que permite almacenar y procesar información. Es el conjunto de partes interrelacionadas:
+
+- **Hardware**: Computadoras y dispositivos electrónicos (procesadores, memoria, almacenamiento)
+- **Software**: Sistema operativo, firmware y aplicaciones
+- **Personal**: Técnicos, analistas, programadores y usuarios
+
+### Componentes de un Sistema Informático
+
+<Accordion title="Componente Físico">
+  Hardware del sistema informático: cables, ordenadores, periféricos. Proporcionan la capacidad y potencia de cálculo del sistema.
+</Accordion>
+
+<Accordion title="Componente Lógico">
+  Software del sistema: programas, procedimientos y documentación que controlan el hardware.
+</Accordion>
+
+<Accordion title="Componente Humano">
+  Personas involucradas en todas las fases: diseño, desarrollo, explotación y mantenimiento.
+</Accordion>
+
+---
+
+# Software y sus Tipos
+
+## ¿Qué es el Software?
+
+<Note>
+  **Definición formal**: Es el conjunto de los programas de cómputo, procedimientos, reglas, documentación y datos asociados que forman parte de las operaciones de un sistema de computación.
+</Note>
+
+El software forma la parte lógica de nuestro sistema informático.
+
+## Clasificación del Software
+
+### Software de Sistema
+
+Su objetivo es desvincular al usuario del hardware mediante **capas de abstracción**. Incluye:
+
+- Sistemas operativos
+- Controladores de dispositivos (Drivers)
+- Herramientas de diagnóstico
+- Herramientas de corrección y optimización
+- Servidores
+- Utilidades
+
+<Warning>
+  Los drivers son el software que gestiona o maneja los dispositivos físicos del sistema (hardware).
+</Warning>
+
+### Software de Programación
+
+Herramientas para desarrollar programas informáticos:
+
+- Editores de texto
+- Compiladores
+- Intérpretes
+- Enlazadores
+- Depuradores
+- **IDE** (Entornos de Desarrollo Integrados)
+
+### Software de Aplicación
+
+Permite a los usuarios realizar tareas específicas:
+
+- Aplicaciones ofimáticas
+- Software educativo
+- Software empresarial
+- Bases de datos
+- Telecomunicaciones
+- Videojuegos
+- Software médico
+- Software de diseño (CAD/CAM)
+
+---
+
+# Sistemas Operativos
+
+## Objetivos del Sistema Operativo
+
+### Seguridad
+
+El sistema operativo debe actuar contra manipulaciones extrañas que puedan:
+- Dañar la información
+- Perjudicar a otros usuarios
+- Provocar funcionamiento indeseado
+
+<Accordion title="Estados de Protección">
+  - **Estado protegido (Kernel)**: Donde se ejecuta el sistema operativo
+  - **Estado no protegido (Usuario)**: Destinado a programas de usuario y aplicaciones
+  
+  Esto impide que los programas tengan contacto directo con el hardware.
+</Accordion>
+
+### Abstracción
+
+La tendencia actual es ocultar los detalles de bajo nivel, ofreciendo:
+- Visión más sencilla y abstracta
+- Operaciones para manipular estructuras
+- Recursos virtuales que mejoran los físicos
+
+El sistema operativo transforma la máquina física en una **máquina extendida**.
+
+## Funciones de los Sistemas Operativos
+
+<Steps>
+  <Step title="Gestión de Procesos">
+    Diferencia entre programa (ente pasivo) y proceso (programa en ejecución)
+  </Step>
+  
+  <Step title="Gestión de Memoria">
+    Asignación y liberación de direcciones de memoria para procesos
+  </Step>
+  
+  <Step title="Gestión de Ficheros">
+    Abstracción para manejar información no volátil en dispositivos de almacenamiento
+  </Step>
+  
+  <Step title="Gestión de E/S">
+    Interfaz de alto nivel para dispositivos de entrada/salida
+  </Step>
+  
+  <Step title="Gestión de Red">
+    Control de niveles de red, drivers, protocolos y aplicaciones de red
+  </Step>
+  
+  <Step title="Protección y Seguridad">
+    Mecanismos para permitir o denegar acceso a recursos
+  </Step>
+</Steps>
+
+## Tipos de Sistemas Operativos
+
+### Según el Número de Usuarios
+
+<CodeGroup>
+```text Monousuarios
+- MS-DOS
+- Windows 95
+- Windows 98
+```
+
+```text Multiusuario
+- UNIX/GNU/Linux
+- Windows NT (y posteriores)
+```
+</CodeGroup>
+
+### Según el Número de Tareas
+
+- **Monotarea**: Solo permite una tarea a la vez por usuario
+- **Multitarea**: Permite realizar varias labores simultáneamente
+
+### Sistemas Operativos Distribuidos
+
+<Note>
+  Un sistema distribuido es una colección de equipos separados físicamente y conectados por red, donde el usuario percibe un solo sistema.
+</Note>
+
+**Ventajas:**
+- Tolerancia a fallos
+- Escalabilidad
+- Mayor potencia de cálculo
+- Flexibilidad
+
+**Tecnologías:**
+- **Grid Computing**: Para grandes cálculos (SETI@Home, simulaciones científicas)
+- **Clustering**: Grupos de computadoras conectadas con red de alta velocidad
+
+---
+
+# Versiones de Windows
+
+## Windows Server
+
+Familia de sistemas operativos para servidores con diferentes ediciones según características y capacidades.
+
+<Warning>
+  Es fundamental elegir la versión correcta según las necesidades de la organización.
+</Warning>
+
+## Windows 10 y Actualizaciones
+
+Windows 10 cambió el modelo de actualizaciones:
+- Actualizaciones continuas
+- Versiones numeradas (ej: 1809)
+- Fin de soporte programado para versiones antiguas
+
+---
+
+# Distribuciones de GNU/Linux
+
+## Historia
+
+### Richard Stallman y el Proyecto GNU
+
+En los años 80, Stallman reaccionó contra el futuro del software privativo:
+- Lanzó el movimiento del software libre
+- Diseñó el sistema GNU compatible con UNIX
+- Aprovechó el diseño modular y portable
+
+### Linus Torvalds y Linux
+
+En 1991, Torvalds comenzó a escribir el núcleo Linux:
+- Inspirado en Minix
+- En 1992 cambió a licencia GPL
+- Se combinó con herramientas GNU creando **GNU/Linux**
+
+## Familias de Distribuciones
+
+Cuando una distribución se basa en otra, adopta su sistema de empaquetado:
+
+- **Basadas en Debian**: Usan paquetes `.deb`
+- **Basadas en Red Hat**: Usan paquetes `.rpm`
+- **Basadas en Arch**: Usan `pacman`
+
+### Distribuciones Principales
+
+<CardGroup cols={3}>
+  <Card title="Debian" icon="linux">
+    Base de muchas distribuciones, conocida por su estabilidad
+  </Card>
+  <Card title="Ubuntu" icon="ubuntu">
+    Basada en Debian, orientada a facilidad de uso
+  </Card>
+  <Card title="Fedora" icon="fedora">
+    Patrocinada por Red Hat, tecnología de vanguardia
+  </Card>
+  <Card title="Red Hat" icon="redhat">
+    Distribución empresarial con soporte comercial
+  </Card>
+  <Card title="OpenSUSE" icon="suse">
+    Enfocada en herramientas de administración
+  </Card>
+  <Card title="Arch Linux" icon="linux">
+    Rolling release, para usuarios avanzados
+  </Card>
+</CardGroup>
+
+---
+
+# Licencias de Software
+
+## Conceptos Fundamentales
+
+<Accordion title="Licencia">
+  Contrato entre desarrollador y usuario que define derechos y deberes de ambas partes.
+</Accordion>
+
+<Accordion title="Patente">
+  Derechos exclusivos garantizados al inventor para explotar industrialmente un producto.
+</Accordion>
+
+<Accordion title="Copyright">
+  Protección para autores de obras originales (literarias, musicales, artísticas, intelectuales).
+</Accordion>
+
+## Software Libre
+
+Proporciona cuatro libertades esenciales:
+
+<Steps>
+  <Step title="Libertad 0">
+    Ejecutar el programa para cualquier propósito
+  </Step>
+  <Step title="Libertad 1">
+    Estudiar el funcionamiento y adaptarlo a necesidades
+  </Step>
+  <Step title="Libertad 2">
+    Redistribuir copias
+  </Step>
+  <Step title="Libertad 3">
+    Mejorar el programa y publicar las mejoras
+  </Step>
+</Steps>
+
+## Tipos de Licencias Libres
+
+### Licencias GPL
+
+<Warning>
+  **Efecto viral**: Si mezclas código GPL con otro código, el resultado debe ser GPL.
+</Warning>
+
+- Permite modificación y redistribución
+- Debe mantenerse bajo GPL
+- Aproximadamente el 60% del software libre usa GPL
+
+### Licencias AGPL
+
+Variante de GPL diseñada para software que funciona en servidores:
+- Obliga a distribuir el código si se usa en red
+- Recomendada por FSF para software de red
+
+### Licencias BSD
+
+- Muy permisivas
+- Mantienen copyright solo para renuncia de garantía
+- Permiten redistribución como software propietario
+- Compatible con GPL
+
+### Licencias MPL (Mozilla Public License)
+
+- Copyleft débil
+- Evita el efecto viral de GPL
+- Usada por Mozilla y muchos proyectos
+
+## Otros Tipos de Software
+
+```text Clasificación
+Software de Dominio Público: Sin protección de copyright
+Software con Copyleft: Libre pero mantiene libertades en derivados
+Software Semi-libre: No libre, pero gratuito para particulares
+Freeware: Redistribuible pero no modificable
+Shareware: Se debe pagar por uso continuado
+Software Privativo: Uso, redistribución o modificación prohibidos
+Software Comercial: Desarrollado para ganar dinero
+```
+
+## Licencias de Sistemas Operativos Propietarios
+
+### OEM (Original Equipment Manufacturer)
+
+- Otorgada al fabricante de hardware
+- Preparada para hardware específico
+- Más económica, sin manuales
+- No transferible a otro hardware
+
+### RETAIL
+
+- Comprada directamente del desarrollador
+- Instalable en cualquier hardware compatible
+- Transferible y revendible
+- Incluye caja y manuales
+- Versiones completas o de actualización
+
+### VLM (Licencias por Volumen)
+
+- Para empresas con muchos ordenadores
+- Una clave para múltiples instalaciones
+- Licencias de 25, 50, 100+ usos concurrentes
+- Más caras pero más económicas que individuales
+
+### MSDN (Licencias de Educación)
+
+- Exclusivas para actividades educativas
+- Uso fuera del ámbito educativo es ilegal
+- También existen para desarrollo y academias
+
+<Note>
+  Es fundamental conocer y respetar los términos de las licencias para un uso adecuado del software.
+</Note>

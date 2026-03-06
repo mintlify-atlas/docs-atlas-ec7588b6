@@ -1,0 +1,197 @@
+---
+title: Style Guide
+description: Formatting standards for creating tasks and materials in ASIR-ISO
+---
+
+This guide establishes the formatting standards for creating educational materials in the ASIR-ISO course. Following these conventions ensures consistency across all didactic units and facilitates uploading materials to the Moodle platform.
+
+## Task Formatting
+
+All tasks (Tareas) must follow a standardized format to maintain consistency and enable proper processing for PDF generation and Moodle integration.
+
+### Required Structure
+
+Every task file must adhere to this template:
+
+<CodeGroup>
+
+```markdown Task Template
+# Tarea: Nombre de la Tarea
+
+## Ejercicio 1
+## Ejercicio 2
+## Ejercicio ...
+## Ejercicio N
+```
+
+```markdown Example Task
+# Tarea: Tipos de Aplicaciones
+
+## Ejercicio 1
+
+Con lo aprendido en clase, busca en internet aplicaciones para las siguientes funciones...
+
+## Ejercicio 2
+
+Rellena la misma tabla del ejercicio anterior, pero utilizando alternativas...
+```
+
+</CodeGroup>
+
+<Steps>
+
+### Start with the Task Title
+
+Begin every task file with a level-1 heading that includes the word "Tarea" followed by the task name:
+
+```markdown
+# Tarea: [Task Name]
+```
+
+### Add Individual Exercises
+
+Each exercise within the task should be a level-2 heading with sequential numbering:
+
+```markdown
+## Ejercicio 1
+## Ejercicio 2
+## Ejercicio 3
+```
+
+### Include Exercise Content
+
+Below each exercise heading, add the instructions, questions, or activities for students to complete.
+
+</Steps>
+
+## File Naming Conventions
+
+<Note>
+Consistent file naming is critical for the automated build system to process materials correctly.
+</Note>
+
+### Task Files
+
+Task files must follow this naming pattern:
+
+```
+Tarea_[NUMBER]_[NAME].md
+```
+
+**Examples:**
+- `Tarea_02_TiposDeAplicaciones.md`
+- `Tarea_05_SistemasOperativos.md`
+- `Tarea_20_Licencias.md`
+
+<Warning>
+The build script parses task filenames to extract the number and name. Deviating from this pattern will cause the PDF generation to fail.
+</Warning>
+
+### Theory Files
+
+Theory materials should be named:
+
+```
+Teoria_[NUMBER]_[NAME].md
+```
+
+**Examples:**
+- `Teoria_00_Introduccion.md`
+- `Teoria_01_ArquitecturaSistemaInformatico.md`
+- `Teoria_02_SoftwareAplicaciones.md`
+
+### Annex Files
+
+Supplementary materials use the annex prefix:
+
+```
+Anexo_[NUMBER]_[NAME].md
+```
+
+## Front Matter
+
+All task files should include YAML front matter with metadata:
+
+```yaml
+---
+title: UD01 - Introducción a los Sistemas Operativos
+author: Angel Berlanas Vicente
+header-includes: |
+lang: es-ES
+keywords: [ASIR, ISO, Arquitectura de un Sistema Informático, licencias]
+---
+```
+
+<Accordion title="Front Matter Fields">
+
+- **title**: The didactic unit and topic name
+- **author**: Creator of the material
+- **lang**: Language code (es-ES for Spanish)
+- **keywords**: Array of relevant keywords for indexing
+- **header-includes**: Additional LaTeX commands (optional)
+
+</Accordion>
+
+## Content Guidelines
+
+### Markdown Formatting
+
+Use standard Markdown syntax for content:
+
+- **Tables** for structured data
+- **Lists** for sequential or grouped items
+- **Links** for external resources
+- **Code blocks** for command examples
+- **Bold/Italic** for emphasis
+
+### Language
+
+All materials are written in Spanish (`es-ES`) as the course is taught at Spanish educational institutions.
+
+## Moodle Integration
+
+<Note>
+The task format is specifically designed to align with Moodle's assignment structure, making it easy to upload generated PDFs directly to the learning platform.
+</Note>
+
+The standardized format ensures:
+
+- Clear task identification
+- Organized exercise structure
+- Consistent student experience
+- Easy grading and feedback
+
+## Directory Organization
+
+Within each didactic unit folder (e.g., `UD01_IntroduccionSistemasOperativos`), organize files by type:
+
+```
+UD[NUMBER]_[NAME]/
+├── Teoria_*.md
+├── Tarea_*.md
+└── Anexo_*.md
+```
+
+This organization allows the build script to process each category of materials with the appropriate template and styling.
+
+## Best Practices
+
+<CardGroup cols={2}>
+
+<Card title="Be Consistent" icon="check">
+Always follow the naming and formatting conventions exactly as specified.
+</Card>
+
+<Card title="Number Sequentially" icon="list-ol">
+Use sequential numbering for exercises within tasks and for file names.
+</Card>
+
+<Card title="Test Locally" icon="flask">
+Run the build script to verify PDFs generate correctly before committing.
+</Card>
+
+<Card title="Use Descriptive Names" icon="tag">
+Choose clear, descriptive names that reflect the content of each task or theory file.
+</Card>
+
+</CardGroup>

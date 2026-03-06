@@ -1,0 +1,496 @@
+---
+title: 'Theory - Process and Network Administration'
+description: 'Core concepts of command line interfaces, process management, and network configuration'
+---
+
+# Command Line Interface
+
+> In the beginning... was the command line.
+> - Neal Stephenson (1999)
+
+## What is a Command Interpreter?
+
+A command interpreter, also known as a **Terminal**, is the most basic interface between the user and the operating system and programs.
+
+It's a program that translates commands entered by the user (typically via keyboard) using a set of commands that must be known by both the system and the user.
+
+<Note>
+The user must enter commands with different parameters, and when pressing Enter, the operating system interprets the character sequence and **if there are no errors**, executes it.
+</Note>
+
+This enables interactive communication:
+
+```
+User → Command → Operating System → User → Command ...
+```
+
+## What is a Script?
+
+A script is a file that includes a series of commands that will be executed by a command interpreter.
+
+The word **script** means "screenplay," and each script can be interpreted by different actors (interpreters).
+
+In this module, we'll work extensively with:
+
+- **PowerShell** (Windows)
+- **BASH** (GNU/Linux)
+
+### Creating Scripts
+
+A script is created using a plain text editor:
+
+- Windows: **Notepad.exe** or **PowerShell ISE**
+- GNU/Linux: **nano**, **vim**, or other text editors
+
+### Script Structure
+
+<Steps>
+  <Step title="First Line (Shebang)">
+    On UNIX systems, the first line contains the path to the interpreter:
+    
+    ```bash
+    #!/bin/bash
+    echo "Hello ASIR!"
+    exit 0
+    ```
+    
+    For PowerShell:
+    
+    ```powershell
+    #!/usr/bin/env pwsh
+    Write-Host "Hello ASIR from PowerShell"
+    ```
+  </Step>
+  
+  <Step title="Script Body">
+    Commands are executed from top to bottom:
+    
+    ```bash
+    #!/bin/bash
+    
+    echo "1"
+    echo "2"
+    echo "3"
+    
+    exit 0
+    ```
+  </Step>
+  
+  <Step title="Script Termination">
+    It's good practice to end with `exit 0` to return a success code:
+    
+    ```bash
+    exit 0
+    ```
+  </Step>
+</Steps>
+
+---
+
+# PowerShell
+
+![PowerShell](/icons/powershell.svg)
+
+PowerShell is Microsoft's modern command interpreter designed for system administrators.
+
+## Key Features
+
+- **Object-oriented**: Everything is an object, not just text strings
+- **Uses .NET Framework**: Rich programming capabilities
+- **Open Source**: MIT license since version 6
+- **Cross-platform**: Available on Linux and macOS
+
+### cmdlets
+
+Basic commands in PowerShell follow the `<Verb>-<Noun>` pattern:
+
+| Verb | Action |
+|------|--------|
+| Enable | Enable the object |
+| Disable | Disable the object |
+| Install | Install the object |
+| Uninstall | Uninstall the object |
+| Move | Move the object |
+| New | Create information |
+| Get | Obtain information |
+| Set | Modify information |
+| Test | Test information |
+| Remove | Delete information |
+
+### Parameters
+
+```powershell
+Get-ChildItem -Name w*
+```
+
+Returns directories and files starting with 'w'.
+
+### Pipelines
+
+One of the most powerful concepts - pass output from one command as input to another:
+
+```powershell
+Get-Process | sort -Descending id
+```
+
+### Help System
+
+```powershell
+get-help command              # Standard help
+get-help command -detailed    # Detailed help with examples
+get-help command -full        # Complete help with technical notes
+```
+
+### Execution Policy
+
+To enable script execution:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted
+```
+
+<Warning>
+Run PowerShell as administrator to change execution policy.
+</Warning>
+
+---
+
+# BASH Shell in GNU/Linux
+
+When opening a terminal in Linux, you see a shell prompt:
+
+```bash
+violin@xubuntu:~$
+```
+
+This tells us:
+- **User**: violin
+- **Hostname**: xubuntu
+- **Current directory**: ~ (home)
+- **User type**: $ (regular user, # for root)
+
+## BASH Features
+
+<Accordion title="Auto-completion">
+Press TAB to auto-complete commands, filenames, or variables. Press TAB twice to see all possibilities.
+</Accordion>
+
+<Accordion title="Command History">
+Use arrow keys to navigate through previously executed commands (up to 1000 by default).
+</Accordion>
+
+<Accordion title="Control Structures">
+Use if, for, while, select, case statements for powerful scripting.
+</Accordion>
+
+<Accordion title="Functions and Aliases">
+Define custom functions and create command aliases for frequently used operations.
+</Accordion>
+
+---
+
+# Process Management
+
+## What is a Process?
+
+According to UPV's Operating Systems department: "A process is a program in execution."
+
+From the OS perspective, a process is an object that must be managed and serviced.
+
+### Process Lifecycle
+
+When a program executes:
+
+1. OS checks permissions
+2. Allocates RAM space
+3. Assigns CPU time (priority)
+4. Process accesses instructions and performs tasks
+
+<Note>
+As administrators, we need to know how to obtain process information for monitoring, security audits, network usage analysis, etc.
+</Note>
+
+## Processes in Windows
+
+### Task Manager
+
+Access via:
+- `Ctrl+Alt+Del`
+- Right-click Start button → Task Manager
+
+<Warning>
+In VirtualBox: Use `Right Ctrl+Del` or the VirtualBox menu.
+</Warning>
+
+#### Key Tabs
+
+**Processes**
+- Shows applications and background processes
+- Resource usage: CPU, Memory, Disk, Network
+
+**Performance**
+- System performance graphs
+- Uptime
+- Active processes count
+- CPU and memory statistics
+
+**Startup**
+- Programs that launch at startup
+- Impact on boot time
+- Good place to check for malware
+
+**Details**
+
+| Column | Meaning |
+|--------|----------|
+| Name | Executable name |
+| PID | Process identifier |
+| Status | Process status |
+| User name | User who launched the process |
+| CPU | CPU usage percentage |
+| Memory | RAM usage |
+| Description | Executable description |
+
+**Services**
+- Running system services
+- Background processes (Windows Defender, Print Spooler, etc.)
+
+### Other Tools
+
+- **Process Explorer**: Advanced process monitoring
+- **PowerShell**: Command-line process management
+
+## Processes in GNU/Linux
+
+### Command: ps
+
+Shows active processes:
+
+```bash
+ps -e
+```
+
+Output:
+```bash
+  PID TTY          TIME CMD
+    1 ?        00:00:02 systemd
+    2 ?        00:00:00 kthreadd
+ 1716 ?        00:00:01 xfce4-terminal
+ 1721 pts/0    00:00:00 bash
+```
+
+Filter with grep:
+```bash
+ps -e | grep firefox
+ps -e | grep mousepad
+```
+
+### Command: pstree
+
+Shows process tree:
+
+```bash
+ps -e | grep xfce4-panel
+pstree 1907
+```
+
+### Command: top
+
+Real-time process monitoring:
+
+```bash
+top
+```
+
+Shows:
+- CPU usage
+- Memory available/consumed
+- Uptime
+- Process details
+
+### Command: kill
+
+Send signals to processes:
+
+```bash
+kill -L  # List all signals
+```
+
+Terminate a process:
+```bash
+ps -e | grep mousepad
+kill -9 23895  # SIGKILL
+```
+
+### Command: killall
+
+Stop all instances by name:
+
+```bash
+killall firefox
+```
+
+### Command: nice
+
+Set process priority (-20 to 19):
+
+```bash
+nice          # Show current niceness
+nice 10 bash  # Run bash with niceness 10
+```
+
+<Note>
+- **-20**: Highest priority
+- **0**: Default priority
+- **19**: Lowest priority
+</Note>
+
+---
+
+# Network Configuration
+
+## MAC Address
+
+Physical address identifying network adapter (48 bits):
+
+```
+74:e6:e2:35:6a:a1
+```
+
+<Warning>
+MAC addresses can be spoofed, which can be a security vulnerability.
+</Warning>
+
+## IP Address (IPv4)
+
+Logical and hierarchical identifier for network interfaces.
+
+### Static IP
+
+Manual configuration requires:
+- **Address**: IP address
+- **Subnet Mask**: Network mask
+- **Gateway**: Default gateway
+- **DNS Servers**: Name resolution
+
+### Dynamic IP (DHCP)
+
+Automatic configuration via DHCP server.
+
+## Network Configuration in Windows
+
+Access via:
+- Control Panel → Network and Sharing Center
+- Network adapter properties
+
+### Connection Details
+
+- **IPv4 Connectivity**: IPv4 network connection status
+- **IPv6 Connectivity**: IPv6 network connection status
+- **Media State**: Device enabled status
+- **Duration**: Time device has been enabled
+- **Speed**: Transfer rate
+
+### Activity Monitoring
+
+- Bytes sent/received
+- Useful indicator of connection health
+
+### Workgroups and Domains
+
+**Domain**
+- Group of computers sharing database and security policy
+- Centrally managed
+- Requires password/credentials for access
+
+**Workgroup**
+- Peer-to-peer network
+- No central control
+- Each computer has own user accounts
+- Typically ≤20 computers
+
+## Network Configuration in GNU/Linux
+
+### netplan (Ubuntu 18.04+)
+
+Configuration files in `/etc/netplan/*.yaml`
+
+<CodeGroup>
+```yaml DHCP Configuration
+# /etc/netplan/01-netcfg.yaml
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        enp0s3:
+            dhcp4: yes
+```
+
+```yaml Static IP Configuration
+# /etc/netplan/01-netcfg.yaml
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        enp0s3:
+            dhcp4: no
+            addresses:
+                [192.168.100.10/24]
+            gateway4: 192.168.100.1
+            nameservers:
+                addresses: [8.8.8.8, 8.8.4.4]
+```
+</CodeGroup>
+
+<Warning>
+Respect indentation in YAML files - incorrect spacing causes configuration errors.
+</Warning>
+
+### netplan Commands
+
+```bash
+netplan generate  # Generate configuration
+netplan apply     # Apply configuration
+```
+
+### Network Commands
+
+**tracepath**
+```bash
+tracepath lliurex.net
+```
+
+**ping**
+```bash
+ping www.google.es
+ping -c 5 www.google.es  # Send 5 packets
+ping -i 2 www.google.es  # Wait 2 seconds between packets
+```
+
+**ifconfig** (legacy)
+```bash
+ifconfig                    # Show all interfaces
+ifconfig eth0               # Show specific interface
+ifconfig eth0 up            # Enable interface
+ifconfig eth0 192.168.1.10  # Set IP address
+```
+
+**ip** (modern)
+```bash
+ip addr                          # Show all addresses
+ip -4 addr                       # Show IPv4 only
+ip address add 192.168.4.177 dev enp0s3
+ip link set enp0s3 up           # Enable interface
+ip route                         # Show routing table
+ip route add 192.168.3.0/24 dev enp0s3
+```
+
+**hostname**
+```bash
+hostname                    # Show hostname
+hostname -F /etc/hostname   # Set hostname from file
+```
+
+<Note>
+Be careful when changing hostname - programs like sudo may rely on it.
+</Note>

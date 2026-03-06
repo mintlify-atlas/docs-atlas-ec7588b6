@@ -1,0 +1,96 @@
+---
+title: UD07 - Software y Actualizaciones
+description: Gestión de software y actualizaciones en sistemas operativos
+---
+
+# UD07 - Software y Actualizaciones
+
+## Descripción General
+
+Esta unidad cubre la gestión de software adicional y su mantenimiento en sistemas operativos. Los administradores de sistemas deben dominar la instalación, configuración y actualización de software para resolver las necesidades de los usuarios.
+
+## Objetivos de Aprendizaje
+
+Al completar esta unidad, serás capaz de:
+
+<CardGroup cols={2}>
+  <Card title="Gestionar Software en Linux" icon="linux">
+    Instalar y administrar paquetes usando dpkg, apt y repositorios en sistemas basados en Debian
+  </Card>
+  
+  <Card title="Gestionar Software en Windows" icon="windows">
+    Instalar aplicaciones mediante instaladores, MSI y Microsoft Store
+  </Card>
+  
+  <Card title="Entender Actualizaciones" icon="shield-check">
+    Comprender la importancia de las actualizaciones de seguridad y parches
+  </Card>
+  
+  <Card title="Administrar el Registro" icon="database">
+    Trabajar con el Registro de Windows para configuración avanzada
+  </Card>
+</CardGroup>
+
+## Contenidos
+
+### Conceptos Fundamentales
+
+- **Dependencias**: Librerías y programas necesarios para el funcionamiento del software
+- **Versionado**: Sistema de numeración (mayor.menor.micro) que indica el nivel de desarrollo
+- **Parches**: Modificaciones de código que solucionan vulnerabilidades o errores
+
+### Instalación en GNU/Linux
+
+<Steps>
+  <Step title="Archivos binarios">
+    Instalación desde archivos .bin, .sh y .run
+  </Step>
+  
+  <Step title="Compilación">
+    Instalación desde código fuente usando configure, make y make install
+  </Step>
+  
+  <Step title="Gestión de paquetes">
+    Uso de dpkg para paquetes .deb
+  </Step>
+  
+  <Step title="Repositorios">
+    Gestión avanzada con apt y repositorios
+  </Step>
+</Steps>
+
+### Instalación en Windows
+
+- Archivos ejecutables (.exe)
+- Microsoft Installer (.msi)
+- Microsoft Store
+- Registro de Windows
+
+## Importancia de las Actualizaciones
+
+<Warning>
+  **Seguridad Crítica**: El software desactualizado es vulnerable a ataques conocidos. Los atacantes se aprovechan de fallos conocidos para comprometer sistemas.
+</Warning>
+
+### Ciclo de Vida de una Vulnerabilidad
+
+1. **Día 0**: Se descubre la vulnerabilidad
+2. **Parche**: Los desarrolladores crean una solución
+3. **Actualización**: Se distribuye a los usuarios
+4. **Aplicación**: Los administradores deben aplicarla
+
+<Note>
+  Mantener los sistemas actualizados es responsabilidad crítica del administrador. No seguir el viejo eslogan: "Si funciona, no se toca."
+</Note>
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Contenido Teórico" icon="book" href="/units/ud07/theory">
+    Profundiza en los conceptos y herramientas
+  </Card>
+  
+  <Card title="Tareas Prácticas" icon="code" href="/units/ud07/tasks">
+    Aplica los conocimientos con ejercicios
+  </Card>
+</CardGroup>

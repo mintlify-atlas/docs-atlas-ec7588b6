@@ -1,0 +1,275 @@
+---
+title: 'Tareas Prácticas UD02'
+description: 'Practical exercises on virtualization, VirtualBox, and Docker'
+---
+
+# Ejercicios de la Unidad 02
+
+Esta sección contiene las tareas prácticas sobre sistemas de virtualización, VirtualBox y Docker.
+
+---
+
+## Tarea: Entornos de Virtualización
+
+### Ejercicio 1: Redimensionar Discos Duros Virtuales
+
+Investiga sobre el cambio de tamaño de los discos duros en VirtualBox (*resize*).
+
+<Steps>
+  <Step title="Investigación">
+    Busca información sobre el comando `VBoxManage modifymedium`
+  </Step>
+  
+  <Step title="Documentación">
+    Prepara un documento con los comandos encontrados
+  </Step>
+  
+  <Step title="Descripción">
+    Adjunta una descripción de cada comando explicando qué realiza
+  </Step>
+</Steps>
+
+<Note>
+  El comando `VBoxManage` es una herramienta muy potente para gestionar VirtualBox desde línea de comandos.
+</Note>
+
+<Accordion title="Pista">
+  Busca información sobre:
+  - `VBoxManage modifymedium`
+  - `--resize`
+  - Diferencia entre VDI, VMDK y VHD
+</Accordion>
+
+### Ejercicio 2: Tipos de Disco Duro Virtual
+
+En la creación del disco duro para las máquinas virtuales, hemos elegido **Reservado dinámicamente** en vez de **tamaño fijo**.
+
+**Pregunta**: ¿Qué diferencias hay entre estas dos opciones?
+
+<Accordion title="Aspectos a Considerar">
+  Analiza las diferencias en términos de:
+  - Espacio ocupado en el disco físico
+  - Rendimiento
+  - Tiempo de creación
+  - Fragmentación
+  - Casos de uso recomendados
+</Accordion>
+
+### Ejercicio 3: Hipervisor vs Anfitrión
+
+¿Hipervisor y anfitrión son palabras que hacen referencia a los mismos conceptos cuando estamos hablando de virtualización?
+
+**Razona la respuesta** con ejemplos concretos.
+
+<Warning>
+  Ten cuidado con la terminología. Aunque a veces se usan indistintamente, hay diferencias importantes.
+</Warning>
+
+### Ejercicio 4: ¿Qué es una OVA?
+
+¿Qué es una **OVA** en el ámbito de la virtualización?
+
+<Accordion title="Preguntas Guiadas">
+  - ¿Qué significa OVA?
+  - ¿Qué contiene un archivo OVA?
+  - ¿Cuáles son sus ventajas?
+  - ¿Cómo se importa/exporta en VirtualBox?
+  - ¿Es compatible con otros sistemas de virtualización?
+</Accordion>
+
+---
+
+## Tarea: Docker y Virtualización en la Nube
+
+### Ejercicio 1: Empresas que Utilizan Docker
+
+Busca en Internet información acerca de **3 empresas de tecnología** que utilicen Docker.
+
+Realiza un documento que incluya:
+
+<Steps>
+  <Step title="Nombre de la Empresa">
+    Identifica la empresa y su sector
+  </Step>
+  
+  <Step title="Problema que Resuelve Docker">
+    Explica cómo Docker soluciona problemas específicos de esa empresa
+  </Step>
+  
+  <Step title="Beneficios Obtenidos">
+    Describe los beneficios concretos (escalabilidad, costos, desarrollo, etc.)
+  </Step>
+</Steps>
+
+<Note>
+  Busca casos de estudio reales. Muchas empresas publican blogs técnicos explicando su adopción de Docker.
+</Note>
+
+**Sugerencias de empresas:**
+- Netflix
+- Spotify
+- PayPal
+- Uber
+- AirBnB
+
+### Ejercicio 2: Alternativas a Amazon EC2
+
+Hemos visto Amazon EC2 en teoría. Busca **otras soluciones de virtualización en la nube**.
+
+<Accordion title="Aspectos a Investigar">
+  Para cada solución encontrada, documenta:
+  - Nombre del servicio y proveedor
+  - Características principales
+  - Modelo de precios
+  - Diferencias con Amazon EC2
+  - Casos de uso recomendados
+</Accordion>
+
+**Proveedores a considerar:**
+- Microsoft Azure
+- Google Cloud Platform
+- DigitalOcean
+- Linode
+- Vultr
+
+### Ejercicio 3: Concepto de IaaS
+
+¿Qué es el concepto de **IaaS** (Infraestructura como Servicio)?
+
+<Steps>
+  <Step title="Definición">
+    Explica con tus propias palabras qué es IaaS
+  </Step>
+  
+  <Step title="Componentes">
+    Lista los componentes principales de IaaS
+  </Step>
+  
+  <Step title="Ventajas">
+    Enumera las ventajas frente a infraestructura tradicional
+  </Step>
+  
+  <Step title="Ejemplos">
+    Proporciona ejemplos de servicios IaaS
+  </Step>
+</Steps>
+
+<Warning>
+  No copies definiciones de internet. Usa tus propias palabras después de comprender el concepto.
+</Warning>
+
+<Accordion title="Modelos de Servicio Cloud">
+  Además de IaaS, investiga brevemente:
+  - **PaaS** (Platform as a Service)
+  - **SaaS** (Software as a Service)
+  
+  ¿En qué se diferencian?
+</Accordion>
+
+---
+
+## Tareas Avanzadas (Opcionales)
+
+### Tarea Extra 1: Configurar Red Interna en VirtualBox
+
+Configura una red interna entre dos máquinas virtuales en VirtualBox.
+
+<Steps>
+  <Step title="Crear VMs">
+    Crea dos máquinas virtuales con sistemas operativos instalados
+  </Step>
+  
+  <Step title="Configurar Red">
+    Configura la red interna en VirtualBox
+  </Step>
+  
+  <Step title="Asignar IPs">
+    Asigna direcciones IP estáticas a ambas máquinas
+  </Step>
+  
+  <Step title="Verificar Conectividad">
+    Verifica que ambas máquinas pueden comunicarse (ping)
+  </Step>
+</Steps>
+
+### Tarea Extra 2: Primer Contenedor Docker
+
+Si tienes Docker instalado, crea tu primer contenedor:
+
+<CodeGroup>
+```bash Paso 1: Ejecutar Ubuntu
+docker run -it ubuntu bash
+```
+
+```bash Paso 2: Dentro del Contenedor
+# Actualizar paquetes
+apt update
+
+# Instalar una aplicación
+apt install cowsay
+
+# Ejecutar
+/usr/games/cowsay "Hello Docker!"
+```
+
+```bash Paso 3: Salir y Limpiar
+# Salir del contenedor
+exit
+
+# Listar contenedores
+docker ps -a
+
+# Eliminar contenedor
+docker rm <container_id>
+```
+</CodeGroup>
+
+### Tarea Extra 3: Exportar e Importar OVA
+
+Practica la exportación e importación de máquinas virtuales:
+
+<Steps>
+  <Step title="Crear VM Simple">
+    Crea una máquina virtual con instalación básica
+  </Step>
+  
+  <Step title="Exportar como OVA">
+    Exporta la VM usando "Exportar servicio virtualizado"
+  </Step>
+  
+  <Step title="Eliminar VM Original">
+    Elimina la VM original de VirtualBox
+  </Step>
+  
+  <Step title="Importar OVA">
+    Importa la OVA y verifica que funciona correctamente
+  </Step>
+</Steps>
+
+---
+
+## Recursos Adicionales
+
+<CardGroup cols={3}>
+  <Card title="Teoría" icon="book" href="/units/ud02/theory">
+    Conceptos de virtualización
+  </Card>
+  <Card title="VirtualBox" icon="box" href="/units/ud02/virtualbox">
+    Guía de VirtualBox
+  </Card>
+  <Card title="Docker" icon="docker" href="/units/ud02/docker">
+    Contenedores y cloud
+  </Card>
+</CardGroup>
+
+## Criterios de Evaluación
+- Comprensión de conceptos de virtualización
+- Capacidad de instalar y configurar VirtualBox
+- Conocimiento de Docker y contenedores
+- Comprensión de IaaS y servicios cloud
+- Investigación y documentación adecuadas
+- Claridad en las explicaciones
+
+<Note>
+  Recuerda documentar todos los pasos con capturas de pantalla cuando sea apropiado.
+</Note>

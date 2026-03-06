@@ -1,0 +1,356 @@
+---
+title: 'Docker y Contenedores'
+description: 'Introduction to container-based virtualization with Docker'
+---
+
+# Virtualización en la Nube
+
+Uno de los ejemplos más famosos de virtualización en la nube es **Amazon EC2** (Elastic Compute Cloud).
+
+## Amazon EC2
+
+<Note>
+  Amazon EC2 permite a los usuarios alquilar computadores virtuales en los cuales pueden ejecutar sus propias aplicaciones.
+</Note>
+
+### Características del Modelo Cloud
+
+Este tipo de servicio supone un cambio en el modelo informático:
+
+<CardGroup cols={2}>
+  <Card title="Capacidad Modificable" icon="sliders">
+    Recursos escalables según demanda
+  </Card>
+  <Card title="Pago por Uso" icon="dollar-sign">
+    Solo pagas por la capacidad utilizada
+  </Card>
+  <Card title="Elasticidad" icon="arrows-left-right">
+    Ajuste automático de recursos
+  </Card>
+  <Card title="Disponibilidad" icon="clock">
+    Alquiler por horas en lugar de meses/años
+  </Card>
+</CardGroup>
+
+**Ventaja clave**: En lugar de comprar o alquilar un procesador durante meses o años, en EC2 se alquila la capacidad por horas.
+
+<Accordion title="Enlace a Amazon EC2">
+  [Amazon Web Services - EC2](https://aws.amazon.com/es/ec2/)
+</Accordion>
+
+---
+
+# Docker
+
+## ¿Qué son los Contenedores?
+
+Los **contenedores** proporcionan un entorno de ejecución aislado y coherente para las aplicaciones.
+
+<Note>
+  **Docker** es el proyecto de código abierto más importante para la administración de contenedores.
+</Note>
+
+### Características de los Contenedores Docker
+
+<Steps>
+  <Step title="Enfoque Eficaz y Ligero">
+    Menor overhead que las máquinas virtuales tradicionales
+  </Step>
+  
+  <Step title="Implementación Independiente">
+    Diferentes componentes de la aplicación se implementan en contenedores distintos
+  </Step>
+  
+  <Step title="Múltiples Contenedores">
+    Varios contenedores pueden coexistir en una única máquina
+  </Step>
+  
+  <Step title="Portabilidad">
+    Los contenedores se pueden mover fácilmente entre equipos
+  </Step>
+</Steps>
+
+### Ventaja Principal: Portabilidad
+
+<Warning>
+  La portabilidad de los contenedores facilita la implementación de aplicaciones en múltiples entornos (locales o en la nube), a menudo sin modificar la aplicación.
+</Warning>
+
+---
+
+## Contenedores vs Máquinas Virtuales
+
+### Diferencias Clave
+
+| Aspecto | Máquinas Virtuales | Contenedores Docker |
+|---------|---------------------|---------------------|
+| **Sistema Operativo** | SO completo por VM | Comparten kernel del host |
+| **Tamaño** | GBs | MBs |
+| **Inicio** | Minutos | Segundos |
+| **Recursos** | Mayor overhead | Menor overhead |
+| **Aislamiento** | Completo | A nivel de proceso |
+| **Portabilidad** | Menos portable | Muy portable |
+
+<Accordion title="¿Cuándo usar cada uno?">
+  **Máquinas Virtuales:**
+  - Necesitas aislamiento completo
+  - Diferentes sistemas operativos
+  - Aplicaciones legacy
+  
+  **Contenedores:**
+  - Microservicios
+  - Aplicaciones cloud-native
+  - CI/CD pipelines
+  - Rápido despliegue y escalado
+</Accordion>
+
+---
+
+# Escalabilidad
+
+<Note>
+  **Escalabilidad** es la capacidad de aumentar o disminuir recursos y servicios según la demanda o carga de trabajo.
+</Note>
+
+La informática en la nube admite dos tipos de escalado:
+
+## Escalado Vertical
+
+Proceso de **agregar recursos** para aumentar la potencia de un servidor existente.
+
+### Ejemplos de Escalado Vertical
+
+- Añadir una CPU más rápida
+- Agregar CPUs adicionales
+- Aumentar la memoria RAM
+- Mejorar el almacenamiento
+
+<CodeGroup>
+```text Antes
+Servidor: 4 cores, 8GB RAM
+```
+
+```text Después (Escalado Vertical)
+Servidor: 8 cores, 16GB RAM
+```
+</CodeGroup>
+
+## Escalado Horizontal
+
+Proceso de **agregar más servidores** que funcionen juntos como una unidad.
+
+### Ejemplos de Escalado Horizontal
+
+En lugar de tener un servidor procesando solicitudes, tienes dos o más trabajando en paralelo.
+
+<CodeGroup>
+```text Antes
+1 Servidor procesando 1000 req/s
+```
+
+```text Después (Escalado Horizontal)
+4 Servidores procesando 4000 req/s
+```
+</CodeGroup>
+
+### Escalado Manual vs Automático
+
+<Accordion title="Escalado Manual">
+  El administrador decide cuándo agregar o quitar recursos manualmente.
+</Accordion>
+
+<Accordion title="Escalado Automático">
+  Se basa en desencadenadores específicos:
+  - Uso de CPU > 80%
+  - Número de solicitudes
+  - Latencia de respuesta
+  - Horarios predefinidos
+</Accordion>
+
+<Note>
+  Los recursos se pueden asignar o desasignar en cuestión de minutos con herramientas como **Kubernetes**.
+</Note>
+
+---
+
+# Elasticidad
+
+<Note>
+  **Elasticidad** es la capacidad del sistema de compensar automáticamente los cambios en la carga de trabajo mediante incorporación o retirada de recursos.
+</Note>
+
+## Ejemplo Práctico: Sitio Web de Noticias
+
+<Steps>
+  <Step title="Situación Inicial">
+    Sitio web con tráfico normal y recursos asignados estándar
+  </Step>
+  
+  <Step title="Pico de Tráfico">
+    El sitio aparece en un artículo viral, aumentando el tráfico de la noche a la mañana
+  </Step>
+  
+  <Step title="Respuesta Elástica">
+    La nube asigna automáticamente más recursos informáticos para controlar el incremento
+  </Step>
+  
+  <Step title="Normalización">
+    Cuando el tráfico se asienta, la nube retira automáticamente los recursos extras
+  </Step>
+</Steps>
+
+## Ejemplo Empresarial: Aplicación de Empleados
+
+Configuración típica para una aplicación corporativa:
+
+```text Horario Laboral
+08:00 - 18:00: Alta demanda
+➜ La nube agrega recursos automáticamente
+
+18:00 - 08:00: Baja demanda
+➜ La nube reduce recursos automáticamente
+```
+
+<Warning>
+  La elasticidad optimiza costos al evitar pagar por recursos que no se están utilizando.
+</Warning>
+
+---
+
+# Kubernetes y Orquestación
+
+**Kubernetes** es una plataforma de código abierto para automatizar el despliegue, escalado y gestión de aplicaciones en contenedores.
+
+## Funcionalidades de Kubernetes
+
+<CardGroup cols={2}>
+  <Card title="Auto-escalado" icon="chart-line">
+    Escala aplicaciones automáticamente según demanda
+  </Card>
+  <Card title="Auto-recuperación" icon="heart-pulse">
+    Reinicia contenedores que fallan
+  </Card>
+  <Card title="Balanceo de Carga" icon="scale-balanced">
+    Distribuye tráfico entre contenedores
+  </Card>
+  <Card title="Actualizaciones" icon="arrows-rotate">
+    Despliegues y rollbacks automáticos
+  </Card>
+</CardGroup>
+
+<Note>
+  Kubernetes facilita el escalado horizontal de contenedores de manera mucho más sencilla que con máquinas virtuales tradicionales.
+</Note>
+
+---
+
+## Conceptos Clave de Docker
+
+### Imagen
+
+Plantilla de solo lectura con instrucciones para crear un contenedor.
+
+### Contenedor
+
+Instancia ejecutable de una imagen.
+
+### Dockerfile
+
+Archivo de texto con instrucciones para construir una imagen.
+
+### Registro (Registry)
+
+Servicio que almacena imágenes Docker (ej: Docker Hub).
+
+---
+
+## Comandos Básicos de Docker
+
+<CodeGroup>
+```bash Gestionar Imágenes
+# Descargar imagen
+docker pull ubuntu:latest
+
+# Listar imágenes
+docker images
+
+# Eliminar imagen
+docker rmi ubuntu:latest
+```
+
+```bash Gestionar Contenedores
+# Ejecutar contenedor
+docker run -it ubuntu bash
+
+# Listar contenedores activos
+docker ps
+
+# Listar todos los contenedores
+docker ps -a
+
+# Detener contenedor
+docker stop <container_id>
+
+# Eliminar contenedor
+docker rm <container_id>
+```
+
+```bash Construir Imágenes
+# Construir desde Dockerfile
+docker build -t mi-app:1.0 .
+
+# Etiquetar imagen
+docker tag mi-app:1.0 usuario/mi-app:1.0
+
+# Publicar imagen
+docker push usuario/mi-app:1.0
+```
+</CodeGroup>
+
+---
+
+## IaaS (Infraestructura como Servicio)
+
+<Note>
+  **IaaS** proporciona infraestructura de computación virtualizada a través de Internet.
+</Note>
+
+### Componentes de IaaS
+
+- Servidores virtuales
+- Almacenamiento
+- Redes
+- Sistemas operativos
+
+### Proveedores Principales
+
+<CardGroup cols={3}>
+  <Card title="Amazon AWS" icon="amazon">
+    Líder del mercado
+  </Card>
+  <Card title="Microsoft Azure" icon="microsoft">
+    Integración con servicios Microsoft
+  </Card>
+  <Card title="Google Cloud" icon="google">
+    Fortaleza en IA y Big Data
+  </Card>
+</CardGroup>
+
+---
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Teoría" icon="book" href="/units/ud02/theory">
+    Repasa los conceptos fundamentales
+  </Card>
+  <Card title="VirtualBox" icon="box" href="/units/ud02/virtualbox">
+    Aprende sobre VirtualBox
+  </Card>
+  <Card title="Tareas" icon="list-check" href="/units/ud02/tasks">
+    Practica con ejercicios
+  </Card>
+  <Card title="Overview" icon="map" href="/units/ud02/overview">
+    Vuelve a la visión general
+  </Card>
+</CardGroup>

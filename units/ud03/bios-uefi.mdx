@@ -1,0 +1,520 @@
+---
+title: 'BIOS y UEFI'
+description: 'Complete guide to BIOS and UEFI firmware systems'
+---
+
+# BIOS y UEFI
+
+## ¿Qué es BIOS?
+
+El **BIOS** (*Basic Input Output System*) es el sistema básico del ordenador que provee procedimientos vitales para el arranque y funcionamiento del equipo.
+
+<Note>
+  La BIOS es la configuración de hardware que se utiliza nada más encender, antes incluso de que el sistema operativo arranque.
+</Note>
+
+### Funciones de BIOS
+
+- Establecer el orden de arranque
+- Configurar capacidades del microprocesador
+- Gestionar prestaciones de la RAM
+- Establecer hora y fecha del sistema
+- Controlar velocidades de ventiladores
+- Configuración de dispositivos integrados
+
+<Warning>
+  La BIOS ha sido el sistema básico durante muchos años, pero desde 2005 está siendo sustituida por **UEFI**.
+</Warning>
+
+---
+
+# UEFI
+
+## Historia de UEFI
+
+### EFI (Extensible Firmware Interface)
+
+<Steps>
+  <Step title="Años 90">
+    Intel comienza el desarrollo de EFI para procesadores Itanium
+  </Step>
+  
+  <Step title="2005">
+    Se crea el consorcio UEFI (Unified Extensible Firmware Interface)
+  </Step>
+  
+  <Step title="Objetivo">
+    Reemplazar BIOS y convertirse en el estándar de la industria
+  </Step>
+  
+  <Step title="Actualidad">
+    UEFI está implementado en la mayoría de motherboards modernas
+  </Step>
+</Steps>
+
+### Controversia Inicial
+
+<Accordion title="Preocupaciones del Software Libre">
+  Inicialmente, la comunidad GNU/Linux vio UEFI con recelo:
+  - Se percibió como algo privativo
+  - Temores sobre restricciones de instalación de sistemas alternativos
+  - Preocupaciones sobre Secure Boot
+  
+  **Actualidad:** Muchas distribuciones soportan completamente UEFI y GPT.
+</Accordion>
+
+## Ventajas de UEFI sobre BIOS
+
+<CardGroup cols={2}>
+  <Card title="Interfaz Mejorada" icon="desktop">
+    Interfaz gráfica con soporte para ratón
+  </Card>
+  <Card title="Arranque Más Rápido" icon="rocket">
+    Tiempos de inicio significativamente reducidos
+  </Card>
+  <Card title="Discos Grandes" icon="hard-drive">
+    Soporte para discos >2TB con GPT
+  </Card>
+  <Card title="Secure Boot" icon="shield">
+    Protección contra malware de arranque
+  </Card>
+  <Card title="Cifrado" icon="lock">
+    Capacidades de cifrado integradas
+  </Card>
+  <Card title="Red" icon="network-wired">
+    Autenticación de red pre-OS
+  </Card>
+</CardGroup>
+
+---
+
+## Averiguar BIOS vs UEFI
+
+### En Sistemas Windows
+
+#### Método 1: Archivo setupact.log
+
+<Steps>
+  <Step title="Navegar a Panther">
+    Abre el Explorador de archivos y ve a:
+    ```text
+    C:\Windows\Panther
+    ```
+  </Step>
+  
+  <Step title="Abrir setupact.log">
+    Abre el archivo `setupact.log` con el Bloc de notas
+  </Step>
+  
+  <Step title="Buscar">
+    Presiona `Ctrl + B` y busca:
+    ```text
+    Detected boot Environment
+    ```
+  </Step>
+  
+  <Step title="Resultado">
+    Verás una de estas líneas:
+    
+    **BIOS:**
+    ```text
+    Callback_BootEnvironmentDetect: Detected boot environment: BIOS
+    ```
+    
+    **UEFI:**
+    ```text
+    Callback_BootEnvironmentDetect: Detected boot environment: UEFI
+    ```
+  </Step>
+</Steps>
+
+#### Método 2: Información del Sistema
+
+<Steps>
+  <Step title="Ejecutar MSInfo32">
+    Presiona `Win + R` y escribe:
+    ```text
+    msinfo32
+    ```
+  </Step>
+  
+  <Step title="Buscar Modo de BIOS">
+    En la ventana de Información del Sistema, busca:
+    ```text
+    Modo de BIOS
+    ```
+  </Step>
+  
+  <Step title="Interpretar">
+    - **"Heredado"** = BIOS
+    - **"UEFI"** = UEFI
+  </Step>
+</Steps>
+
+<CodeGroup>
+```powershell PowerShell
+# Método rápido con PowerShell
+$env:firmware_type
+
+# O verificar con
+if (Test-Path "$env:SystemRoot\Panther\setupact.log") {
+    Select-String -Path "$env:SystemRoot\Panther\setupact.log" -Pattern "Detected boot environment"
+}
+```
+
+```batch CMD
+@echo off
+if exist "%SYSTEMROOT%\Panther\setupact.log" (
+    findstr /C:"Detected boot environment" "%SYSTEMROOT%\Panther\setupact.log"
+) else (
+    echo Archivo no encontrado
+)
+```
+</CodeGroup>
+
+### En Sistemas GNU/Linux
+
+#### Método 1: Verificar Directorio EFI
+
+<CodeGroup>
+```bash Verificar /sys/firmware/efi
+# Si existe este directorio, es UEFI
+if [ -d /sys/firmware/efi ]; then
+    echo "Sistema UEFI"
+    ls -la /sys/firmware/efi/
+else
+    echo "Sistema BIOS (Legacy)"
+fi
+```
+
+```bash Contenido de systab
+# Ver información UEFI
+cat /sys/firmware/efi/systab
+```
+</CodeGroup>
+
+#### Método 2: Comando efibootmgr
+
+```bash
+# Instalar si no está disponible
+sudo apt install efibootmgr   # Debian/Ubuntu
+sudo dnf install efibootmgr   # Fedora
+
+# Ver entradas de arranque UEFI
+sudo efibootmgr -v
+```
+
+<Note>
+  Si `efibootmgr` muestra entradas de arranque, tu sistema usa UEFI. Si da error, probablemente uses BIOS.
+</Note>
+
+#### Método 3: Verificar Particiones
+
+```bash
+# Listar particiones
+sudo fdisk -l
+
+# Buscar:
+# - GPT = Generalmente UEFI
+# - MBR/DOS = Generalmente BIOS
+
+# Buscar partición EFI
+lsblk -f | grep -i efi
+```
+
+---
+
+## Comparación Detallada
+
+### Tabla Comparativa
+
+| Característica | BIOS | UEFI |
+|----------------|------|------|
+| **Año de creación** | 1975 | 2005 |
+| **Modo del procesador** | 16-bit | 32/64-bit |
+| **Interfaz** | Solo texto | Gráfica + texto |
+| **Entrada** | Solo teclado | Teclado + ratón |
+| **Esquema de particiones** | MBR | GPT |
+| **Tamaño máximo de disco** | 2TB | 9.4 ZB |
+| **Número de particiones** | 4 primarias | 128 |
+| **Tiempo de arranque** | Más lento | Más rápido |
+| **Secure Boot** | No | Sí |
+| **Arranque de red** | Limitado | Completo |
+| **Drivers** | Básicos | Extensibles |
+| **Configuración** | Almacenada en chip | Archivos en ESP |
+
+---
+
+## Secure Boot
+
+<Note>
+  **Secure Boot** es una característica de UEFI que ayuda a prevenir la ejecución de malware durante el arranque.
+</Note>
+
+### ¿Cómo Funciona?
+
+<Steps>
+  <Step title="Verificación de Firmas">
+    UEFI verifica la firma digital de cada componente del arranque
+  </Step>
+  
+  <Step title="Base de Datos de Claves">
+    Mantiene una base de datos de claves confiables
+  </Step>
+  
+  <Step title="Bloqueo">
+    Si un componente no está firmado correctamente, se bloquea el arranque
+  </Step>
+</Steps>
+
+### Secure Boot y Linux
+
+<Accordion title="Compatibilidad">
+  La mayoría de distribuciones principales soportan Secure Boot:
+  - Ubuntu
+  - Fedora
+  - openSUSE
+  - Debian (desde versión 10)
+  
+  **Shim Bootloader:** Permite arrancar Linux con Secure Boot habilitado.
+</Accordion>
+
+<Accordion title="Deshabilitar Secure Boot">
+  Si necesitas instalar un sistema que no soporta Secure Boot:
+  
+  1. Accede a UEFI/BIOS
+  2. Busca la opción "Secure Boot"
+  3. Cambia a "Disabled"
+  4. Guarda y reinicia
+  
+  <Warning>
+    Deshabilitar Secure Boot reduce la seguridad del sistema.
+  </Warning>
+</Accordion>
+
+---
+
+## GPT vs MBR
+
+### MBR (Master Boot Record)
+
+<Accordion title="Estructura MBR">
+  **Tamaño:** 512 bytes en el primer sector del disco
+  
+  **Contenido:**
+  - **446 bytes**: Código de arranque
+  - **64 bytes**: Tabla de particiones (4 entradas de 16 bytes)
+  - **2 bytes**: Firma de arranque (0x55AA)
+  
+  **Limitaciones:**
+  - Máximo 4 particiones primarias
+  - Discos hasta 2TB
+  - Sin redundancia (un solo punto de fallo)
+</Accordion>
+
+### GPT (GUID Partition Table)
+
+<Accordion title="Estructura GPT">
+  **Características:**
+  - Hasta 128 particiones sin particiones extendidas
+  - Discos de hasta 9.4 ZB
+  - Checksums CRC32 para detección de corrupción
+  - Tabla primaria y de respaldo
+  - Identificadores únicos (GUID) para cada partición
+  
+  **Estructura:**
+  ```text
+  LBA 0: Protective MBR
+  LBA 1: GPT Header (Primary)
+  LBA 2-33: Partition Entry Array
+  LBA 34+: Particiones
+  LBA -34 to -2: Backup Partition Entry Array
+  LBA -1: Backup GPT Header
+  ```
+</Accordion>
+
+---
+
+## ESP (EFI System Partition)
+
+La **partición del sistema EFI** es una partición especial requerida para sistemas UEFI.
+
+### Características
+
+<CardGroup cols={2}>
+  <Card title="Sistema de Archivos" icon="folder">
+    FAT32 (obligatorio)
+  </Card>
+  <Card title="Tamaño" icon="ruler">
+    Mínimo 100MB, recomendado 512MB
+  </Card>
+  <Card title="Tipo de Partición" icon="tag">
+    EF00 (GPT) o EF (MBR)
+  </Card>
+  <Card title="Punto de Montaje" icon="mountain">
+    /boot/efi en Linux
+  </Card>
+</CardGroup>
+
+### Contenido de ESP
+
+```text Estructura típica
+/boot/efi/
+├── EFI/
+│   ├── BOOT/
+│   │   └── BOOTX64.EFI (bootloader genérico)
+│   ├── ubuntu/
+│   │   ├── grubx64.efi
+│   │   └── shimx64.efi
+│   ├── Microsoft/
+│   │   └── Boot/
+│   │       └── bootmgfw.efi
+│   └── tools/
+└── ...
+```
+
+---
+
+## Acceder a BIOS/UEFI
+
+### Teclas Comunes de Acceso
+
+<Note>
+  La tecla para acceder varía según el fabricante. Generalmente se muestra brevemente al iniciar.
+</Note>
+
+| Fabricante | Teclas Comunes |
+|------------|----------------|
+| **ASUS** | F2, Del |
+| **Dell** | F2, F12 |
+| **HP** | F10, Esc |
+| **Lenovo** | F1, F2 |
+| **Acer** | F2, Del |
+| **MSI** | Del |
+| **Gigabyte** | Del |
+| **Samsung** | F2 |
+| **Toshiba** | F2, F12 |
+
+### En Windows (Arranque Avanzado)
+
+<Steps>
+  <Step title="Configuración">
+    Configuración > Actualización y Seguridad > Recuperación
+  </Step>
+  
+  <Step title="Inicio Avanzado">
+    Click en "Reiniciar ahora" bajo "Inicio avanzado"
+  </Step>
+  
+  <Step title="Solución de Problemas">
+    Solución de problemas > Opciones avanzadas > Configuración de firmware UEFI
+  </Step>
+  
+  <Step title="Reiniciar">
+    Click en "Reiniciar" para acceder a UEFI
+  </Step>
+</Steps>
+
+---
+
+## Configuraciones Comunes
+
+### Orden de Arranque
+
+La secuencia en que BIOS/UEFI busca dispositivos con sistema operativo:
+
+```text Ejemplo típico
+1. USB Drive
+2. DVD/CD-ROM
+3. Disco Duro (SSD/HDD)
+4. Red (PXE)
+```
+
+<Warning>
+  Cambia el orden de arranque cuando necesites instalar un sistema operativo desde USB o DVD.
+</Warning>
+
+### Virtualización (VT-x / AMD-V)
+
+Para ejecutar máquinas virtuales, debes habilitar:
+
+- **Intel**: VT-x (Intel Virtualization Technology)
+- **AMD**: AMD-V (AMD Virtualization)
+
+<Note>
+  Generalmente se encuentra en una sección llamada "CPU Configuration" o "Advanced".
+</Note>
+
+### Otras Configuraciones
+
+<Accordion title="Fast Boot">
+  Reduce tiempo de arranque saltando algunos checks. Puede dificultar acceder a BIOS/UEFI.
+</Accordion>
+
+<Accordion title="CSM (Compatibility Support Module)">
+  Permite arrancar sistemas operativos legacy en UEFI. Necesario para arrancar sistemas sin soporte UEFI.
+</Accordion>
+
+<Accordion title="Secure Boot">
+  Verifica firmas digitales de componentes de arranque.
+</Accordion>
+
+---
+
+## Actualización de BIOS/UEFI
+
+<Warning>
+  **PELIGRO:** Una actualización fallida de BIOS/UEFI puede inutilizar la placa base. Solo actualiza si es necesario.
+</Warning>
+
+### Cuándo Actualizar
+
+- Soporte para nuevo hardware (CPUs, RAM)
+- Corregir bugs críticos
+- Mejoras de seguridad
+- Características nuevas
+
+### Cómo Actualizar
+
+<Steps>
+  <Step title="Identificar Versión Actual">
+    Ver versión actual en BIOS/UEFI o con herramientas del sistema
+  </Step>
+  
+  <Step title="Descargar Actualización">
+    Del sitio web oficial del fabricante de la placa base
+  </Step>
+  
+  <Step title="Backup">
+    Muchas UEFI permiten guardar configuración actual
+  </Step>
+  
+  <Step title="Actualizar">
+    Métodos comunes:
+    - Desde UEFI (USB)
+    - Desde Windows (utilidad del fabricante)
+    - Q-Flash, EZ Flash, etc. (según fabricante)
+  </Step>
+  
+  <Step title="No Interrumpir">
+    NO apagues el equipo durante la actualización
+  </Step>
+</Steps>
+
+---
+
+## Enlaces de Interés
+
+- [How to Check if Your Computer Uses UEFI or BIOS](https://itsfoss.com/check-uefi-or-bios/)
+- [UEFI Specification](https://uefi.org/specifications)
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Gestores de Arranque" icon="power-off" href="/units/ud03/boot-managers">
+    Aprende sobre GRUB y BOOTMGR
+  </Card>
+  <Card title="Tareas" icon="list-check" href="/units/ud03/tasks">
+    Practica con ejercicios
+  </Card>
+</CardGroup>

@@ -1,0 +1,96 @@
+---
+title: UD10 - Acceso al Dominio
+description: Overview of domain access configuration and management for Windows and Linux systems
+---
+
+## Objetivos de la Unidad
+
+En la unidad anterior hemos visto cuales son los motivos por los que implementar un dominio, así como los pasos necesarios para ponerlo en marcha en nuestro servidor.
+
+En esta unidad aprenderás a:
+
+<CardGroup cols={2}>
+  <Card title="Unir equipos al dominio" icon="network-wired">
+    Configurar y conectar máquinas Windows y GNU/Linux al Active Directory
+  </Card>
+  <Card title="Gestionar políticas de grupo" icon="shield-halved">
+    Crear y aplicar GPOs para administración centralizada
+  </Card>
+  <Card title="Configurar recursos" icon="folder-tree">
+    Administrar usuarios, carpetas compartidas y recursos de red
+  </Card>
+  <Card title="Integrar con LDAP" icon="server">
+    Conectar sistemas Linux con OpenLDAP para autenticación
+  </Card>
+</CardGroup>
+
+## Contenidos
+
+La unidad cubre los siguientes temas principales:
+
+### Equipos del Dominio
+
+Configuración de equipos cliente para su integración en la infraestructura de dominio.
+
+### Conexión de Estaciones de Trabajo
+
+- **Windows**: Unión al dominio mediante Active Directory
+- **GNU/Linux**: Integración usando realmd, sssd y herramientas de autenticación
+
+### Recursos del Dominio
+
+Administración de recursos compartidos y servicios centralizados:
+
+- Carpetas compartidas
+- Impresoras de red
+- Aplicaciones distribuidas
+
+### Permisos y Control de Acceso
+
+<Steps>
+  <Step title="Permisos de red y locales">
+    Configuración de permisos en recursos compartidos y locales
+  </Step>
+  <Step title="Herencia de permisos">
+    Comprensión y gestión de la herencia de permisos en la estructura de carpetas
+  </Step>
+  <Step title="Permisos efectivos">
+    Análisis de los permisos resultantes de la combinación de diferentes reglas
+  </Step>
+  <Step title="Listas de control de acceso (ACL)">
+    Configuración avanzada de permisos mediante ACLs
+  </Step>
+</Steps>
+
+### Inicios de Sesión y Scripts
+
+Automatización de tareas mediante scripts de inicio de sesión y configuración de perfiles de usuario.
+
+## Requisitos Previos
+
+<Note>
+Antes de comenzar esta unidad, debes tener:
+- Un servidor Windows Server 2019 con Active Directory configurado
+- Conocimientos básicos de redes y DNS
+- Máquinas virtuales cliente (Windows 10 y Ubuntu/Xubuntu)
+</Note>
+
+## Prácticas
+
+La unidad incluye tareas prácticas que te permitirán:
+
+1. **Unir Windows 10 al dominio**: Configuración completa paso a paso
+2. **Crear políticas de grupo (GPO)**: Implementación de políticas de seguridad e instalación de software
+3. **Unir Ubuntu al dominio**: Integración de Linux con Active Directory
+4. **Configurar cliente OpenLDAP**: Autenticación alternativa para sistemas Linux
+5. **Integración avanzada**: Configuración de PGina para entornos LliureX
+
+<Warning>
+Es fundamental comprender la importancia de la sincronización de tiempo (NTP) entre cliente y servidor, especialmente en entornos con Kerberos.
+</Warning>
+
+## Recursos Adicionales
+
+- [Perfiles de Usuarios](http://www.ite.educacion.es/formacion/materiales/85/cd/windows/10Usuarios/perfiles_de_usuarios.html)
+- Documentación de Active Directory
+- Guías de integración Linux-Windows

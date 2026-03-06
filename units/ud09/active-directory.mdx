@@ -1,0 +1,458 @@
+---
+title: Active Directory en Windows Server
+description: Configuración y administración de Active Directory
+---
+
+# Active Directory en Windows Server
+
+## Introducción
+
+Active Directory (AD) es la implementación de Microsoft de servicio de directorio en redes Windows. Utiliza varios protocolos (LDAP, DNS, DHCP, Kerberos) y su estructura jerárquica permite mantener objetos relacionados con componentes de red.
+
+<Note>
+  Active Directory se utiliza desde Windows Server NT y ha evolucionado para convertirse en el estándar de gestión de dominios Windows.
+</Note>
+
+## Requisitos Previos
+
+### Hardware
+- Mínimo 2GB RAM (recomendado 4GB)
+- 40GB espacio en disco
+- Procesador compatible x64
+
+### Configuración de Red
+
+<Warning>
+  **Crítico**: El controlador de dominio DEBE tener IP estática. Todos los recursos del dominio dependen de que el servidor siempre tenga la misma IP.
+</Warning>
+
+**Configuración recomendada**:
+
+| Parámetro | Valor |
+|-----------|-------|
+| IP | 10.0.2.42 |
+| Máscara | 255.255.255.0 |
+| Puerta de enlace | 10.0.2.1 |
+| DNS primario | 127.0.0.1 |
+| DNS secundario | 1.1.1.1 |
+
+### Nombre del Equipo
+
+Establecer un nombre descriptivo (ejemplo: `ServerISO`):
+
+- Administrador del Servidor → Servidor Local
+- O: Sistema → Configuración avanzada → Nombre de equipo
+
+## Instalación de Roles
+
+### Roles Necesarios
+
+<Steps>
+  <Step title="Abrir Administrador del Servidor">
+    Herramientas → Agregar roles y características
+  </Step>
+  
+  <Step title="Seleccionar tipo de instalación">
+    Instalación basada en características o roles
+  </Step>
+  
+  <Step title="Seleccionar servidor">
+    Elegir el servidor actual
+  </Step>
+  
+  <Step title="Seleccionar roles">
+    Marcar:
+    - **Servicios de dominio de Active Directory (AD DS)**
+    - **Servidor DNS**
+    - **Servidor DHCP** (opcional pero recomendado)
+  </Step>
+  
+  <Step title="Confirmar e instalar">
+    Seguir el asistente hasta completar la instalación
+  </Step>
+  
+  <Step title="Reiniciar">
+    Reiniciar el equipo tras la instalación
+  </Step>
+</Steps>
+
+<Note>
+  La instalación de roles añade las características necesarias pero NO configura el dominio. Ese es el siguiente paso.
+</Note>
+
+## Promoción a Controlador de Dominio
+
+### Concepto
+
+La **promoción** es el proceso de configurar un servidor como controlador de dominio. Este servidor se convierte en el nodo principal del dominio.
+
+### Proceso de Promoción
+
+<Steps>
+  <Step title="Acceder a configuración adicional">
+    En el Administrador del Servidor, aparecerá un aviso en AD DS indicando que se requiere configuración adicional.
+    
+    Click en el icono de notificaciones → "Promover este servidor a controlador de dominio"
+  </Step>
+  
+  <Step title="Configurar el despliegue">
+    Seleccionar: **Agregar un nuevo bosque**
+    
+    Nombre del dominio raíz: `iso.com`
+  </Step>
+  
+  <Step title="Opciones del controlador">
+    - **Nivel funcional del bosque**: Windows Server 2016 o superior
+    - **Nivel funcional del dominio**: Windows Server 2016 o superior
+    - **Capacidades**: 
+      - ☑ Servidor DNS
+      - ☑ Catálogo global (GC)
+    - **Contraseña DSRM**: `#netAdmin1s0#`
+  </Step>
+  
+  <Step title="Opciones de DNS">
+    Si aparecen advertencias de delegación DNS, se pueden ignorar (es normal en nuevos bosques)
+  </Step>
+  
+  <Step title="Nombre NetBIOS">
+    Se generará automáticamente: `ISO`
+    
+    (Modo legado de compatibilidad)
+  </Step>
+  
+  <Step title="Rutas de bases de datos">
+    Dejar rutas por defecto:
+    - Base de datos: `C:\Windows\NTDS`
+    - Archivos de registro: `C:\Windows\NTDS`
+    - SYSVOL: `C:\Windows\SYSVOL`
+  </Step>
+  
+  <Step title="Revisar opciones">
+    - Revisar el resumen de configuración
+    - **Importante**: Guardar el script de PowerShell generado para futuros despliegues
+  </Step>
+  
+  <Step title="Comprobación de requisitos">
+    El sistema verificará que no hay incompatibilidades antes de proceder
+  </Step>
+  
+  <Step title="Instalar">
+    El equipo se reiniciará automáticamente cuando complete el proceso
+  </Step>
+</Steps>
+
+<Note>
+  **DSRM** (Directory Services Restore Mode) es un modo de recuperación. La contraseña es diferente a la del administrador y solo se usa para recuperación del AD.
+</Note>
+
+### Verificación
+
+Tras el reinicio, el inicio de sesión mostrará:
+
+```
+ISO\Administrador
+```
+
+Esto indica que el dominio está activo.
+
+## Administración de Usuarios
+
+### Herramientas de Administración
+**Usuarios y equipos de Active Directory**:
+- Herramientas → Usuarios y equipos de Active Directory
+- O ejecutar: `dsa.msc`
+
+### Estructura Predeterminada
+
+Al crear el dominio, se generan contenedores predeterminados:
+
+```
+iso.com
+  ├── Builtin (Grupos integrados del sistema)
+  ├── Computers (Equipos del dominio)
+  ├── Domain Controllers (Controladores)
+  ├── ForeignSecurityPrincipals
+  ├── Managed Service Accounts
+  ├── Users (Usuarios predeterminados)
+  └── [Unidades Organizativas personalizadas]
+```
+
+### Crear Usuario
+
+<Steps>
+  <Step title="Navegar al contenedor">
+    Usuarios y equipos de Active Directory → iso.com → Users (o una OU personalizada)
+  </Step>
+  
+  <Step title="Nuevo usuario">
+    Click derecho → Nuevo → Usuario
+  </Step>
+  
+  <Step title="Datos del usuario">
+    **Página 1: Identificación**
+    - Nombre: `Juan`
+    - Apellidos: `Pérez`
+    - Nombre completo: `Juan Pérez` (auto-completado)
+    - Nombre de inicio de sesión: `jperez`
+    - UPN: `jperez@iso.com`
+  </Step>
+  
+  <Step title="Contraseña">
+    **Página 2: Contraseña**
+    - Contraseña: Establecer contraseña
+    - Opciones:
+      - ☐ El usuario debe cambiar la contraseña...
+      - ☑ El usuario no puede cambiar la contraseña (opcional)
+      - ☐ La contraseña nunca caduca (no recomendado)
+      - ☐ Cuenta deshabilitada
+  </Step>
+  
+  <Step title="Confirmar">
+    Revisar resumen y finalizar
+  </Step>
+</Steps>
+
+### Propiedades del Usuario
+
+Click derecho en usuario → Propiedades
+
+<Accordion title="Pestaña General">
+  - Nombre, apellidos, descripción
+  - Oficina, teléfono, correo electrónico
+  - Página web
+</Accordion>
+
+<Accordion title="Pestaña Cuenta">
+  - Nombre de inicio de sesión (UPN)
+  - Opciones de cuenta:
+    - Horas de inicio de sesión
+    - Equipos donde puede iniciar sesión
+    - Expiración de cuenta
+    - Opciones de contraseña
+</Accordion>
+
+<Accordion title="Pestaña Perfil">
+  - Ruta del perfil
+  - Script de inicio de sesión
+  - Carpeta principal (Home folder)
+  - Unidad de red para carpeta principal
+</Accordion>
+
+<Accordion title="Pestaña Miembro de">
+  - Grupos a los que pertenece
+  - Grupo principal
+  - Añadir/quitar de grupos
+</Accordion>
+
+### Operaciones con Usuarios
+
+<CodeGroup>
+```powershell Crear Usuario (PowerShell)
+# Crear nuevo usuario
+New-ADUser -Name "Juan Pérez" `
+  -GivenName "Juan" `
+  -Surname "Pérez" `
+  -SamAccountName "jperez" `
+  -UserPrincipalName "jperez@iso.com" `
+  -Path "OU=Usuarios,DC=iso,DC=com" `
+  -AccountPassword (ConvertTo-SecureString "P@ssw0rd" -AsPlainText -Force) `
+  -Enabled $true
+```
+
+```powershell Modificar Usuario
+# Modificar propiedades
+Set-ADUser -Identity "jperez" `
+  -Description "Técnico de sistemas" `
+  -EmailAddress "jperez@iso.com" `
+  -Office "Valencia"
+```
+
+```powershell Deshabilitar/Habilitar
+# Deshabilitar cuenta
+Disable-ADAccount -Identity "jperez"
+
+# Habilitar cuenta
+Enable-ADAccount -Identity "jperez"
+```
+
+```powershell Restablecer Contraseña
+# Restablecer contraseña
+Set-ADAccountPassword -Identity "jperez" `
+  -Reset `
+  -NewPassword (ConvertTo-SecureString "NuevaP@ss" -AsPlainText -Force)
+```
+</CodeGroup>
+
+### Plantillas de Usuario
+
+Crear usuarios plantilla para copiar configuraciones comunes:
+
+<Steps>
+  <Step title="Crear usuario plantilla">
+    Nombre: `_PlantillaTecnico`
+    
+    Configurar:
+    - Grupos
+    - Rutas de perfil
+    - Scripts de inicio
+    - Permisos
+  </Step>
+  
+  <Step title="Copiar usuario">
+    Click derecho en plantilla → Copiar
+    
+    Se copian:
+    - Pertenencia a grupos
+    - Configuración de perfil
+    - Restricciones de inicio de sesión
+    
+    NO se copian:
+    - Nombre y credenciales
+    - Datos personales
+  </Step>
+</Steps>
+
+## Administración de Grupos
+
+### Crear Grupo
+
+<Steps>
+  <Step title="Nuevo grupo">
+    Click derecho en contenedor → Nuevo → Grupo
+  </Step>
+  
+  <Step title="Configurar">
+    - **Nombre del grupo**: `Tecnicos`
+    - **Ámbito del grupo**:
+      - ◉ Local del dominio
+      - ○ Global
+      - ○ Universal
+    - **Tipo de grupo**:
+      - ○ Distribución
+      - ◉ Seguridad
+  </Step>
+</Steps>
+
+### Tipos de Grupos
+
+<Accordion title="Grupos de Seguridad">
+  **Uso**: Asignar permisos a recursos
+  
+  **Pueden**:
+  - Recibir permisos en archivos, carpetas
+  - Aplicar políticas de grupo
+  - Asignar derechos de usuario
+  - Usarse para distribución de correo
+</Accordion>
+
+<Accordion title="Grupos de Distribución">
+  **Uso**: Solo para listas de correo electrónico
+  
+  **NO pueden**:
+  - Recibir permisos
+  - Aplicar políticas
+  
+  **Uso típico**: Exchange Server, sistemas de correo
+</Accordion>
+
+### Ámbitos de Grupo
+
+| Ámbito | Miembros | Permisos | Anidamiento |
+|--------|----------|----------|-------------|
+| **Local del dominio** | Cualquier dominio | Dominio local | Limitado |
+| **Global** | Mismo dominio | Cualquier dominio | Sí |
+| **Universal** | Cualquier dominio | Cualquier dominio | Total |
+
+### Administrar Miembros
+
+<CodeGroup>
+```powershell Añadir Miembro
+# Añadir usuario a grupo
+Add-ADGroupMember -Identity "Tecnicos" -Members "jperez","mgarcia"
+```
+
+```powershell Quitar Miembro
+# Quitar usuario de grupo
+Remove-ADGroupMember -Identity "Tecnicos" -Members "jperez" -Confirm:$false
+```
+
+```powershell Listar Miembros
+# Ver miembros de un grupo
+Get-ADGroupMember -Identity "Tecnicos" | Select Name
+```
+
+```powershell Grupos de Usuario
+# Ver grupos de un usuario
+Get-ADPrincipalGroupMembership -Identity "jperez" | Select Name
+```
+</CodeGroup>
+
+## Unidades Organizativas (OU)
+
+Contenedores que organizan objetos lógicamente y permiten delegar administración.
+
+### Crear OU
+
+<Steps>
+  <Step title="Nueva OU">
+    Click derecho en dominio → Nuevo → Unidad organizativa
+  </Step>
+  
+  <Step title="Nombre">
+    Nombre: `Departamentos`
+    
+    ☑ Proteger contra eliminación accidental
+  </Step>
+</Steps>
+
+### Estructura Recomendada
+
+```
+iso.com
+  ├── Departamentos
+  │   ├── Tecnologia
+  │   │   ├── Usuarios
+  │   │   ├── Grupos
+  │   │   └── Equipos
+  │   ├── Administracion
+  │   └── Ventas
+  └── Recursos
+      ├── Impresoras
+      └── Carpetas_Compartidas
+```
+
+### Delegar Administración
+<Steps>
+  <Step title="Asistente de delegación">
+    Click derecho en OU → Delegar control
+  </Step>
+  
+  <Step title="Seleccionar usuarios/grupos">
+    Añadir usuarios o grupos que recibirán permisos
+  </Step>
+  
+  <Step title="Tareas a delegar">
+    Seleccionar tareas comunes:
+    - Crear, eliminar y administrar cuentas de usuario
+    - Restablecer contraseñas de usuario
+    - Modificar pertenencia a grupos
+  </Step>
+</Steps>
+
+## Recursos Adicionales
+
+<CardGroup cols={2}>
+  <Card title="Teoría de Dominios" icon="book" href="/units/ud09/theory">
+    Conceptos teóricos sobre LDAP y dominios
+  </Card>
+  
+  <Card title="Tareas Prácticas" icon="code" href="/units/ud09/tasks">
+    Ejercicios de configuración de AD
+  </Card>
+</CardGroup>
+
+---
+
+<Warning>
+  **Importante**: La administración avanzada de Active Directory (replicación, sitios, relaciones de confianza) se verá en el módulo de ASO en segundo curso.
+</Warning>

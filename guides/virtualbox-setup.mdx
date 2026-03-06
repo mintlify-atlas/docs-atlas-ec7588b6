@@ -1,0 +1,376 @@
+---
+title: VirtualBox Setup Guide
+description: Getting started with Oracle VirtualBox for virtual machine management
+---
+
+# VirtualBox Setup Guide
+
+VirtualBox is a powerful, free, and open-source virtualization platform that allows you to run multiple operating systems simultaneously on a single physical machine.
+
+## About VirtualBox
+
+<Info>
+**Oracle VM VirtualBox** is a cross-platform virtualization application that:
+- Runs on Windows, Linux, macOS, and Solaris
+- Supports a wide variety of guest operating systems
+- Provides enterprise-grade features for free
+- Offers excellent performance and flexibility
+- Is ideal for education, development, and testing
+</Info>
+
+## Downloading VirtualBox
+
+<Steps>
+  <Step title="Visit Official Website">
+    Download VirtualBox from the official project page:
+    [virtualbox.org](https://www.virtualbox.org/)
+  </Step>
+
+  <Step title="Select Your Platform">
+    Choose the appropriate version for your operating system:
+    - **Windows hosts**
+    - **macOS hosts**
+    - **Linux distributions**
+    - **Solaris hosts**
+  </Step>
+
+  <Step title="Download Extension Pack">
+    Also download the **VirtualBox Extension Pack** for additional features:
+    - USB 2.0 and USB 3.0 support
+    - VirtualBox Remote Desktop Protocol (VRDP)
+    - Disk encryption
+    - NVMe and PXE boot support
+    
+    <Note>
+    The Extension Pack must match your VirtualBox version exactly.
+    </Note>
+  </Step>
+</Steps>
+
+## Installing VirtualBox
+
+### Windows Installation
+
+<Steps>
+  <Step title="Run Installer">
+    Double-click the downloaded `.exe` file.
+  </Step>
+
+  <Step title="Follow Wizard">
+    1. Accept the license agreement
+    2. Choose installation location
+    3. Select features to install (use defaults)
+    4. Allow the network interface warning (required for networking features)
+  </Step>
+
+  <Step title="Complete Installation">
+    Click **Install** and wait for completion.
+  </Step>
+
+  <Step title="Install Extension Pack">
+    Double-click the `.vbox-extpack` file or install from VirtualBox:
+    1. Open VirtualBox
+    2. Go to **File** → **Preferences** → **Extensions**
+    3. Click the **+** icon
+    4. Select the Extension Pack file
+  </Step>
+</Steps>
+
+### Linux Installation
+
+<Steps>
+  <Step title="Add Repository (Debian/Ubuntu)">
+    ```bash
+    wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+    echo "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+    ```
+  </Step>
+
+  <Step title="Install VirtualBox">
+    ```bash
+    sudo apt update
+    sudo apt install virtualbox-7.0
+    ```
+  </Step>
+
+  <Step title="Install Extension Pack">
+    ```bash
+    # Download Extension Pack
+    wget https://download.virtualbox.org/virtualbox/7.0.x/Oracle_VM_VirtualBox_Extension_Pack-7.0.x.vbox-extpack
+    
+    # Install it
+    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-7.0.x.vbox-extpack
+    ```
+  </Step>
+
+  <Step title="Add User to vboxusers Group">
+    ```bash
+    sudo usermod -aG vboxusers $USER
+    ```
+    
+    Log out and back in for this to take effect.
+  </Step>
+</Steps>
+
+### macOS Installation
+
+<Steps>
+  <Step title="Open DMG File">
+    Double-click the downloaded `.dmg` file.
+  </Step>
+
+  <Step title="Run Installer">
+    Double-click the **VirtualBox.pkg** icon.
+  </Step>
+
+  <Step title="Allow System Extension">
+    macOS may prompt you to allow the system extension:
+    1. Open **System Preferences** → **Security & Privacy**
+    2. Click **Allow** next to the Oracle extension
+  </Step>
+
+  <Step title="Install Extension Pack">
+    Double-click the Extension Pack file or install through VirtualBox preferences.
+  </Step>
+</Steps>
+
+## Enabling Virtualization in BIOS
+
+<Warning>
+**Critical Step**: Hardware virtualization must be enabled in your BIOS/UEFI for 64-bit guest operating systems.
+</Warning>
+
+<Steps>
+  <Step title="Enter BIOS/UEFI">
+    Restart your computer and press the BIOS key during boot:
+    - Common keys: **F2**, **F10**, **Del**, **Esc**
+    - Varies by manufacturer
+  </Step>
+
+  <Step title="Find Virtualization Settings">
+    Look for options named:
+    - **Intel VT-x** or **Intel Virtualization Technology** (Intel CPUs)
+    - **AMD-V** or **SVM Mode** (AMD CPUs)
+    
+    Usually found in:
+    - Advanced → CPU Configuration
+    - Security settings
+    - Chipset settings
+  </Step>
+
+  <Step title="Enable and Save">
+    1. Change the setting to **Enabled**
+    2. Save changes (usually **F10**)
+    3. Exit and reboot
+  </Step>
+</Steps>
+
+<Accordion title="Checking if virtualization is enabled">
+**Windows:**
+1. Open Task Manager (**Ctrl+Shift+Esc**)
+2. Go to **Performance** tab
+3. Select **CPU**
+4. Look for "Virtualization: Enabled"
+
+**Linux:**
+```bash
+egrep -c '(vmx|svm)' /proc/cpuinfo
+```
+If the output is greater than 0, virtualization is supported and enabled.
+
+**macOS:**
+```bash
+sysctl -a | grep machdep.cpu.features | grep VMX
+```
+If VMX appears, virtualization is supported.
+</Accordion>
+
+## VirtualBox Interface Overview
+
+### Main Window
+
+When you open VirtualBox, you'll see:
+- **Toolbar**: Quick access to VM operations (New, Settings, Start)
+- **VM List**: All your virtual machines
+- **Details Panel**: Information about the selected VM
+- **Preview**: Live preview of running VMs
+
+### Key Menu Options
+
+**File Menu**
+- **Preferences**: Global VirtualBox settings
+- **Import/Export Appliance**: Share VMs in OVA/OVF format
+- **Virtual Media Manager**: Manage disk images
+
+**Machine Menu**
+- **New**: Create a new VM
+- **Settings**: Configure selected VM
+- **Clone**: Duplicate a VM
+- **Remove**: Delete a VM
+
+## Network Modes Explained
+
+<Info>
+Understanding network modes is crucial for VM connectivity.
+</Info>
+
+<Accordion title="NAT (Network Address Translation)">
+**Use case**: Basic internet access
+
+**Characteristics**:
+- VM can access the internet
+- Host cannot access VM directly
+- Different VMs in NAT cannot see each other
+- Easiest setup, works out of the box
+
+**Best for**: Simple internet access, software downloads
+</Accordion>
+
+<Accordion title="Bridged Adapter">
+**Use case**: VM as a separate network device
+
+**Characteristics**:
+- VM gets its own IP from your router/DHCP
+- Appears as a physical device on your network
+- Can be accessed by other devices
+- Requires working network adapter on host
+
+**Best for**: Servers, network testing, accessing VMs from other machines
+</Accordion>
+
+<Accordion title="Internal Network">
+**Use case**: Isolated VM-to-VM communication
+
+**Characteristics**:
+- VMs can communicate with each other
+- No internet access
+- Host cannot access VMs
+- Completely isolated from external networks
+
+**Best for**: Creating private networks, testing network configurations
+</Accordion>
+
+<Accordion title="Host-Only Adapter">
+**Use case**: VM-to-host communication
+
+**Characteristics**:
+- VMs can communicate with host
+- VMs can communicate with each other
+- No internet access by default
+- Isolated from external network
+
+**Best for**: Development environments, secure testing
+</Accordion>
+
+<Accordion title="NAT Network">
+**Use case**: Multiple VMs with internet access that can see each other
+
+**Characteristics**:
+- VMs can access internet
+- VMs can communicate with each other
+- More complex than simple NAT
+- Requires creating a NAT Network first
+
+**Best for**: Small VM networks that need internet
+</Accordion>
+
+## Creating Your First Virtual Machine
+
+<Steps>
+  <Step title="Click New">
+    In VirtualBox Manager, click the **New** button.
+  </Step>
+
+  <Step title="Name and OS">
+    - Enter a descriptive name
+    - VirtualBox auto-detects OS type from the name
+    - Manually select if needed
+  </Step>
+
+  <Step title="Memory Size">
+    Allocate RAM based on guest OS requirements:
+    - Windows 10/11: 2-4 GB minimum
+    - Linux Desktop: 1-2 GB minimum
+    - Windows Server: 2-4 GB minimum
+    
+    <Warning>
+    Don't allocate more than 50-75% of your total RAM if running multiple VMs.
+    </Warning>
+  </Step>
+
+  <Step title="Hard Disk">
+    - Select **Create a virtual hard disk now**
+    - Choose **VDI (VirtualBox Disk Image)**
+    - Select **Dynamically allocated** for flexibility
+    - Set appropriate size for your OS
+  </Step>
+
+  <Step title="Configure Settings">
+    Before starting:
+    1. Attach installation ISO (**Settings** → **Storage**)
+    2. Configure network (**Settings** → **Network**)
+    3. Adjust other settings as needed
+  </Step>
+
+  <Step title="Start VM">
+    Click **Start** to boot your VM and begin installation.
+  </Step>
+</Steps>
+
+## Best Practices
+
+<Note>
+**Performance Tips**
+- Enable hardware virtualization (VT-x/AMD-V) in BIOS
+- Allocate sufficient RAM (but don't over-allocate)
+- Use dynamically allocated disks for flexibility
+- Install Guest Additions for better integration
+- Give VMs at least 2 CPU cores if available
+
+**Security Tips**
+- Keep VirtualBox updated
+- Use snapshots before major changes
+- Isolate untrusted VMs with appropriate networking
+- Regularly backup important VMs
+- Use encryption for sensitive data
+
+**Storage Tips**
+- Store VMs on fast storage (SSD preferred)
+- Regularly clean up old snapshots
+- Export important VMs as appliances for backup
+- Monitor disk space usage
+</Note>
+
+## Next Steps
+
+Now that VirtualBox is set up, you can:
+
+- [Install Ubuntu 18.04](/guides/ubuntu-bionic)
+- [Install Windows 10](/guides/windows-10)
+- [Install Windows Server 2016](/guides/windows-2016)
+- [Install Debian](/guides/debian)
+- [Set up OpenMediaVault](/guides/openmediavault)
+
+## Troubleshooting
+
+**VirtualBox won't start VMs**
+- Check virtualization is enabled in BIOS
+- Ensure no other hypervisors are running (Hyper-V, VMware)
+- Update VirtualBox to latest version
+- Reinstall VirtualBox
+
+**Only 32-bit options available**
+- Enable VT-x/AMD-V in BIOS
+- Disable Hyper-V on Windows
+- Check that you downloaded the 64-bit version of VirtualBox
+
+**USB devices not working**
+- Install Extension Pack
+- Add your user to vboxusers group (Linux)
+- Enable USB in VM settings
+
+**Poor performance**
+- Allocate more RAM/CPU
+- Enable 3D acceleration (Settings → Display)
+- Install Guest Additions
+- Use VirtIO drivers for better I/O

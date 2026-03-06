@@ -1,0 +1,487 @@
+---
+title: 'UD05 Practical Tasks'
+description: 'Hands-on exercises for user, group, and permission management'
+---
+
+# Practical Tasks - UD05
+
+These tasks provide practical experience with user accounts, groups, and permissions in both Windows and Linux.
+
+## Windows User Management
+
+### Task 1: Creating Local Users
+
+Learn multiple methods for creating and managing local user accounts in Windows.
+
+<Accordion title="Exercise 1: Settings App Method">
+**Objective:** Create a local user via Windows Settings
+
+<Steps>
+  <Step title="Open Settings">
+    Start → Settings → Accounts → Family & other users
+  </Step>
+  
+  <Step title="Add User">
+    Click "Add someone else to this PC"
+  </Step>
+  
+  <Step title="Skip Microsoft Account">
+    - Click "I don't have this person's sign-in information"
+    - Click "Add a user without a Microsoft account"
+  </Step>
+  
+  <Step title="Enter Details">
+    - Username: testuser1
+    - Password: (create secure password)
+    - Security questions
+  </Step>
+  
+  <Step title="Document">
+    Take screenshots of each step
+  </Step>
+</Steps>
+
+**Deliverable:** User created without Microsoft account
+</Accordion>
+
+<Accordion title="Exercise 2: Computer Management Method">
+**Objective:** Create users using Computer Management console
+
+1. Right-click Start → Computer Management
+2. Navigate to Local Users and Groups → Users
+3. Right-click Users → New User
+4. Create user "testuser2"
+5. Explore user properties
+6. Document group memberships
+</Accordion>
+
+<Accordion title="Exercise 3: PowerShell User Creation">
+**Objective:** Automate user creation with PowerShell
+
+Create a script that:
+1. Creates 5 local users (user01-user05)
+2. Sets passwords
+3. Adds them to "Users" group
+4. Generates a report of created users
+
+```powershell
+# Your script here
+```
+
+<Note>
+Use `New-LocalUser` and `Add-LocalGroupMember` cmdlets
+</Note>
+</Accordion>
+
+### Task 2: Group Management
+
+<Accordion title="Exercise 1: Create Department Groups">
+**Objective:** Organize users with groups
+
+1. Create groups for:
+   - IT_Department
+   - HR_Department
+   - Finance_Department
+2. Assign appropriate users to each group
+3. Document group memberships
+4. Take screenshots
+</Accordion>
+
+<Accordion title="Exercise 2: Built-in Groups Analysis">
+**Objective:** Understand Windows built-in groups
+
+Create a table documenting:
+
+| Group Name | Purpose | Default Members | Recommended Use |
+|------------|---------|-----------------|------------------|
+| Administrators | | | |
+| Users | | | |
+| Power Users | | | |
+| Remote Desktop Users | | | |
+| Backup Operators | | | |
+
+Research and fill in each field.
+</Accordion>
+
+### Task 3: NTFS Permissions
+
+<Accordion title="Exercise 1: Folder Permissions">
+**Objective:** Configure NTFS permissions
+
+<Steps>
+  <Step title="Create Folder Structure">
+    Create:
+    - C:\CompanyData
+    - C:\CompanyData\Public
+    - C:\CompanyData\IT
+    - C:\CompanyData\HR
+  </Step>
+  
+  <Step title="Set Permissions">
+    - Public: Everyone can read
+    - IT: Only IT_Department can read/write
+    - HR: Only HR_Department can read/write
+  </Step>
+  
+  <Step title="Test Access">
+    Log in as different users and verify permissions
+  </Step>
+  
+  <Step title="Document">
+    Screenshot permission dialogs for each folder
+  </Step>
+</Steps>
+</Accordion>
+
+<Accordion title="Exercise 2: Permission Inheritance">
+**Objective:** Understand permission inheritance
+
+1. Create C:\TestInheritance
+2. Set custom permissions on parent folder
+3. Create subfolders and files
+4. Observe inherited permissions
+5. Disable inheritance on one subfolder
+6. Document differences
+</Accordion>
+
+<Accordion title="Exercise 3: PowerShell Permissions">
+**Objective:** Manage permissions via PowerShell
+
+Create a script that:
+1. Creates folder C:\Scripts
+2. Sets Administrators: Full Control
+3. Sets Users: Read & Execute
+4. Removes inheritance
+5. Verifies permissions
+
+```powershell
+# Use Get-Acl and Set-Acl
+```
+</Accordion>
+
+---
+
+## Linux User Management
+
+### Task 4: Linux User Administration
+
+<Accordion title="Exercise 1: Create Users">
+**Objective:** Create users using different methods
+
+1. Create user "musician1" with `adduser`
+2. Create user "musician2" with `useradd` (observe differences)
+3. Set passwords for both
+4. Compare home directories
+5. Check /etc/passwd entries
+
+```bash
+# Your commands here
+```
+</Accordion>
+
+<Accordion title="Exercise 2: User Modification">
+**Objective:** Modify existing users
+
+For user "musician1":
+1. Change shell to /bin/zsh
+2. Change home directory
+3. Set account expiry date
+4. Add to sudo group
+5. Lock and unlock account
+
+Document each command used.
+</Accordion>
+
+<Accordion title="Exercise 3: Batch User Creation">
+**Objective:** Automate user creation
+
+Create a script that:
+1. Reads usernames from file (users.txt)
+2. Creates each user
+3. Sets default password
+4. Adds to "students" group
+5. Logs creation to file
+
+```bash
+#!/bin/bash
+# Bulk user creation script
+```
+
+**Test with:**
+```
+student01
+student02
+student03
+student04
+student05
+```
+</Accordion>
+
+### Task 5: Linux Group Management
+
+<Accordion title="Exercise 1: Create Group Structure">
+**Objective:** Organize users with groups
+
+Create group structure:
+```
+projects
+├── developers
+├── designers
+└── managers
+```
+
+1. Create all groups
+2. Assign users appropriately
+3. Verify with `groups` command
+4. Check /etc/group
+</Accordion>
+
+<Accordion title="Exercise 2: Group Collaboration">
+**Objective:** Set up shared group workspace
+
+<Steps>
+  <Step title="Create Group">
+    ```bash
+    sudo groupadd developers
+    ```
+  </Step>
+  
+  <Step title="Create Shared Directory">
+    ```bash
+    sudo mkdir /shared/developers
+    ```
+  </Step>
+  
+  <Step title="Set Permissions">
+    ```bash
+    sudo chown :developers /shared/developers
+    sudo chmod 2770 /shared/developers
+    ```
+  </Step>
+  
+  <Step title="Add Users">
+    Add 3 users to developers group
+  </Step>
+  
+  <Step title="Test Collaboration">
+    Each user creates files, others can edit
+  </Step>
+</Steps>
+
+<Note>
+2770 permissions include SGID bit - all new files inherit group ownership
+</Note>
+</Accordion>
+
+### Task 6: Linux File Permissions
+
+<Accordion title="Exercise 1: Permission Basics">
+**Objective:** Practice chmod and chown
+
+1. Create test files and directories
+2. Set various permissions using symbolic mode:
+   - `chmod u+x,g+w,o-r file1`
+   - `chmod ug+rw,o-rwx file2`
+3. Set permissions using numeric mode:
+   - `chmod 755 script.sh`
+   - `chmod 644 document.txt`
+   - `chmod 700 private_dir`
+4. Change ownership
+5. Verify with `ls -l`
+</Accordion>
+
+<Accordion title="Exercise 2: Permission Scenarios">
+**Objective:** Solve real-world permission challenges
+
+**Scenario 1: Web Directory**
+Set up /var/www/html so:
+- Owner: www-data
+- Group: developers
+- Developers can read/write
+- Web server can read/execute
+- Others: no access
+
+**Scenario 2: Backup Directory**
+Set up /backup so:
+- Only root can write
+- backup_operators group can read
+- Log files created are group-writable
+
+**Scenario 3: Shared Project**
+Set up /projects/alpha so:
+- All project members can read/write/execute
+- Files created inherit project group
+- Non-members cannot access
+</Accordion>
+
+<Accordion title="Exercise 3: Special Permissions">
+**Objective:** Understand SUID, SGID, and Sticky Bit
+
+1. **SUID Exercise:**
+   - Create a script that reads /etc/shadow
+   - Set SUID bit (careful!)
+   - Test as regular user
+   - Remove SUID
+
+2. **SGID Exercise:**
+   - Create shared directory
+   - Set SGID
+   - Create files from different users
+   - Verify group ownership
+
+3. **Sticky Bit Exercise:**
+   - Create /tmp/shared
+   - Set sticky bit
+   - Multiple users create files
+   - Attempt to delete others' files
+
+<Warning>
+Be very careful with SUID - it's a security risk if misused.
+</Warning>
+</Accordion>
+
+<Accordion title="Exercise 4: umask Configuration">
+**Objective:** Configure default permissions
+
+1. Check current umask
+2. Calculate resulting permissions
+3. Change umask to 022
+4. Create files and directories
+5. Change umask to 002
+6. Create files and directories
+7. Compare results
+8. Make umask permanent in ~/.bashrc
+</Accordion>
+
+---
+
+## Cross-Platform Challenges
+
+### Task 7: Documentation Project
+
+<Accordion title="Exercise 1: Permission Comparison">
+**Objective:** Compare Windows and Linux permission models
+
+Create a comprehensive table:
+
+| Feature | Windows NTFS | Linux (ext4) |
+|---------|--------------|---------------|
+| Permission types | | |
+| Granularity | | |
+| Inheritance | | |
+| Special permissions | | |
+| Default permissions | | |
+| Command-line tools | | |
+| GUI tools | | |
+</Accordion>
+
+### Task 8: Una Noche en la Opera
+
+This is a comprehensive practical exercise combining users, groups, and permissions.
+
+<Accordion title="Scenario Description">
+You're setting up a file server for an opera company with:
+
+**Departments:**
+- Musicians (30 users)
+- Technical Staff (10 users)
+- Administration (5 users)
+- Management (3 users)
+
+**Requirements:**
+1. Each department has private directory
+2. Shared "Scores" directory (musicians read/write, others read-only)
+3. "Administration" directory (admin: read/write, management: read)
+4. "Management" directory (management only)
+5. Public announcements (everyone reads, admin writes)
+
+Implement on both Windows and Linux.
+</Accordion>
+
+### Task 9: Security Audit
+
+<Accordion title="Exercise 1: Permission Audit Script">
+**Objective:** Create security audit tool
+
+Write a script that:
+1. Lists all users
+2. Shows group memberships
+3. Identifies users with admin privileges
+4. Finds world-writable files
+5. Lists SUID/SGID files
+6. Checks for users without passwords
+7. Generates security report
+
+Implement for both Windows (PowerShell) and Linux (Bash).
+</Accordion>
+
+---
+
+## Advanced Challenges
+
+### Challenge 1: Dynamic Permission Manager
+
+Create a script that:
+- Reads permission configuration from JSON/YAML
+- Applies permissions to file structure
+- Validates configuration before applying
+- Rolls back on errors
+- Logs all changes
+
+### Challenge 2: User Lifecycle Automation
+
+Create scripts to automate:
+
+**Onboarding:**
+1. Create user account
+2. Add to appropriate groups
+3. Create home directory structure
+4. Set default permissions
+5. Send welcome email
+
+**Offboarding:**
+1. Disable account
+2. Backup user data
+3. Remove from groups
+4. Archive home directory
+5. Generate exit report
+
+### Challenge 3: Compliance Reporter
+
+Create a tool that:
+- Scans file system for permission violations
+- Checks against security policy
+- Generates compliance report
+- Suggests remediation actions
+- Tracks changes over time
+
+---
+
+## Submission Guidelines
+
+<Note>
+**What to Submit:**
+- All scripts in a ZIP file (UD05_Tasks_YourName.zip)
+- Screenshots for GUI exercises
+- Command history for CLI exercises
+- Completed tables and documentation
+- README.md with:
+  - How to run each script
+  - Test results
+  - Challenges encountered
+  - Solutions implemented
+</Note>
+
+## Grading Criteria
+
+| Criteria | Points |
+|----------|--------|
+| User management correctness | 25% |
+| Group organization | 20% |
+| Permission configuration | 25% |
+| Scripts functionality | 20% |
+| Documentation | 10% |
+
+<Warning>
+Test all permission changes carefully. Incorrect permissions can lock you out of your own files!
+</Warning>

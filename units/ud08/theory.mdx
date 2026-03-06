@@ -1,0 +1,585 @@
+---
+title: Teoría - Seguridad y Protección de Datos
+description: Conceptos teóricos sobre copias de seguridad, RAID y cuotas
+---
+
+# Teoría - Seguridad y Protección de Datos
+
+## Copias de Seguridad
+
+### Introducción
+
+Las copias de seguridad son solo una parte de un plan de protección contra desastres. Si el proceso no se diseña y somete a prueba concienzudamente, es posible que no proporcione el nivel de capacidades de recuperación deseado.
+
+<Warning>
+  **Responsabilidad Crítica**: Las copias de seguridad, su almacenamiento y gestión son tareas de mayor responsabilidad para los administradores. Una buena política de copias puede salvar la organización ante un desastre.
+</Warning>
+
+### Decisiones Clave
+
+En cualquier sistema informático, debes decidir:
+
+1. **Qué datos** copiar
+2. **Cuándo** hacer las copias
+3. **Dónde** almacenar las copias
+4. **Cómo** restaurar los datos
+
+<Note>
+  Tan importante es crear las copias como **restaurarlas y comprobar** que todo funciona correctamente tras la restauración.
+</Note>
+
+## Tipos de Copias de Seguridad
+
+### Copias Completas
+
+Contiene todos los datos seleccionados en una o más carpetas.
+
+**Características**:
+- Copia todos los archivos seleccionados
+- Cada copia sucesiva ocupa el mismo espacio
+- Restauración simple y rápida
+- Mayor consumo de espacio de almacenamiento
+- Mayor tiempo de ejecución
+
+**Ejemplo**:
+```
+Lunes: Copia completa (100 GB)
+Martes: Copia completa (100 GB)
+Miércoles: Copia completa (100 GB)
+Total: 300 GB
+```
+
+### Copias Incrementales
+
+Solo copia los datos que han variado desde la última operación de backup **de cualquier tipo**.
+
+**Características**:
+- Usa la fecha y hora de modificación de archivos
+- Menor cantidad de datos copiados
+- Más rápida de ejecutar
+- Menor espacio de almacenamiento
+- Restauración más compleja (requiere completa + todas las incrementales)
+
+**Ejemplo**:
+```
+Lunes: Completa (100 GB)
+Martes: Incremental (5 GB) - cambios desde lunes
+Miércoles: Incremental (3 GB) - cambios desde martes
+Total: 108 GB
+```
+
+<Steps>
+  <Step title="Para restaurar el miércoles">
+    Necesitas: Completa (lunes) + Incremental (martes) + Incremental (miércoles)
+  </Step>
+</Steps>
+
+### Copias Diferenciales
+
+Copia todos los datos que han cambiado desde el último backup **completo**.
+
+**Características**:
+- Primera vez: similar a incremental
+- Siguientes veces: sigue copiando todo desde la última completa
+- Más datos que incremental, menos que completa
+- Restauración más simple que incremental
+- Mayor espacio que incremental, menor que completa
+
+**Ejemplo**:
+```
+Lunes: Completa (100 GB)
+Martes: Diferencial (5 GB) - cambios desde lunes
+Miércoles: Diferencial (8 GB) - todos los cambios desde lunes
+Total: 113 GB
+```
+
+<Steps>
+  <Step title="Para restaurar el miércoles">
+    Necesitas: Completa (lunes) + Diferencial (miércoles)
+  </Step>
+</Steps>
+
+### Comparación de Tipos
+
+| Tipo | Espacio | Tiempo | Restauración |
+|------|---------|--------|----------------|
+| Completa | Alto | Alto | Simple |
+| Diferencial | Medio | Medio | Media |
+| Incremental | Bajo | Bajo | Compleja |
+
+## Compresión de Datos
+
+Se pueden aplicar técnicas de compresión a las copias para ahorrar espacio.
+
+<Note>
+  La compresión debe ser **sin pérdidas** para poder reconstruir los ficheros de manera exacta a los originales.
+</Note>
+
+### Consideraciones
+
+**Ventajas**:
+- Menor espacio de almacenamiento
+- Menor tiempo de transferencia por red
+
+**Desventajas**:
+- Mayor coste temporal (CPU)
+- Mayor coste computacional
+
+### Tipos de Compresión
+
+#### tar (Empaquetado)
+
+No es compresión, sino empaquetado: almacena estructura de ficheros y carpetas en un único fichero.
+
+```bash
+# Crear archivo tar
+tar -cf archivo.tar /ruta/datos
+```
+
+#### tar + compresión
+
+Combinaciones habituales:
+
+<CodeGroup>
+```bash tar.gz (gzip)
+# Crear
+tar -czf archivo.tar.gz /ruta/datos
+
+# Extraer
+tar -xzf archivo.tar.gz
+```
+
+```bash tar.bz2 (bzip2)
+# Crear - mejor compresión que gzip
+tar -cjf archivo.tar.bz2 /ruta/datos
+
+# Extraer
+tar -xjf archivo.tar.bz2
+```
+
+```bash tar.xz (xz/LZMA)
+# Crear - mejor compresión actual
+tar -cJf archivo.tar.xz /ruta/datos
+
+# Extraer
+tar -xJf archivo.tar.xz
+```
+</CodeGroup>
+
+#### Otros Formatos
+
+**zip**: Compresión básica, ampliamente soportada
+- Compatible con todos los sistemas operativos
+- Compresión moderada
+
+**rar**: Permite compresión con contraseña
+- Mayor compresión que zip
+- Protección con contraseña
+- Software propietario
+
+**7z**: Algoritmo LZMA
+- Excelente compresión
+- Software libre
+- Menos universal que zip
+
+## Almacenamiento de Copias
+
+Una vez creadas las copias, deben almacenarse en lugar seguro y protegido.
+
+<Warning>
+  **Error Común**: Dejar las copias en el mismo servidor que las genera. Si ocurre algo al servidor, no se podrá recuperar nada.
+</Warning>
+
+### Opciones de Almacenamiento
+
+<CardGroup cols={2}>
+  <Card title="Red Local" icon="network-wired">
+    - NFS (Network File System)
+    - SMB/CIFS (Samba)
+    - Servidor de copias dedicado
+  </Card>
+  
+  <Card title="Nube" icon="cloud">
+    - AWS S3
+    - Azure Blob Storage
+    - Google Cloud Storage
+    - Integración en Windows Server
+  </Card>
+  
+  <Card title="Medios Extraibles" icon="usb-drive">
+    - Discos externos
+    - Cintas magnéticas
+    - Para archivado a largo plazo
+  </Card>
+  
+  <Card title="Offsite" icon="building">
+    - Ubicación física diferente
+    - Protección contra desastres
+    - Requerimiento para DR
+  </Card>
+</CardGroup>
+
+### Regla 3-2-1
+
+<Note>
+  **Buena Práctica**:
+  - **3** copias de tus datos (original + 2 copias)
+  - En **2** tipos de medios diferentes
+  - **1** copia offsite (fuera del sitio)
+</Note>
+
+## Planificación de Copias
+
+A partir de los tres tipos principales, se pueden definir estrategias:
+
+### Estrategia 1: Completo Diario
+
+```
+Lunes: Completa
+Martes: Completa
+Miércoles: Completa
+Jueves: Completa
+Viernes: Completa
+```
+
+**Ventajas**:
+- Restauración simple
+- Solo se necesita una copia
+
+**Desventajas**:
+- Máximo consumo de espacio
+- Máximo tiempo de ejecución
+
+### Estrategia 2: Completo Semanal + Diferencial Diario
+
+```
+Lunes: Completa
+Martes: Diferencial
+Miércoles: Diferencial
+Jueves: Diferencial
+Viernes: Diferencial
+Sábado: Diferencial
+Domingo: Diferencial
+```
+
+**Ventajas**:
+- Balance entre espacio y tiempo
+- Restauración relativamente simple (completa + última diferencial)
+
+**Desventajas**:
+- Las diferenciales crecen durante la semana
+
+### Estrategia 3: Completo Semanal + Incremental Diario
+
+```
+Lunes: Completa
+Martes: Incremental
+Miércoles: Incremental
+Jueves: Incremental
+Viernes: Incremental
+Sábado: Incremental
+Domingo: Incremental
+```
+
+**Ventajas**:
+- Mínimo consumo de espacio
+- Copias rápidas
+
+**Desventajas**:
+- Restauración compleja (completa + todas las incrementales)
+- Si falla una incremental, se pierden datos
+
+## RAID (Redundant Array of Independent Disks)
+
+### ¿Qué es RAID?
+
+Sistema de almacenamiento que utiliza múltiples discos entre los que se distribuyen o replican los datos.
+
+<Note>
+  RAID combina varios discos en una sola unidad lógica. El sistema operativo ve un solo disco, aunque físicamente hay varios.
+</Note>
+
+### Beneficios Posibles
+
+- **Mayor integridad**: Protección contra fallos
+- **Tolerancia a fallos**: El sistema continúa funcionando si falla un disco
+- **Mayor tasa de transferencia**: Lectura/escritura paralela
+- **Mayor capacidad**: Agregación de espacio
+
+### RAID por Software vs Hardware
+
+<Accordion title="RAID por Software">
+  **Ventajas**:
+  - No depende de controladora específica
+  - Más flexible
+  - Fácil de migrar a otro sistema
+  - Menor coste
+  
+  **Desventajas**:
+  - Usa recursos del CPU
+  - Menor rendimiento en sistemas cargados
+</Accordion>
+
+<Accordion title="RAID por Hardware">
+  **Ventajas**:
+  - Mejor rendimiento
+  - No usa CPU del sistema
+  - Gestión dedicada
+  
+  **Desventajas**:
+  - Dependencia de controladora específica
+  - Punto de fallo adicional
+  - Mayor coste
+  - Dificultad para migrar
+</Accordion>
+
+## Niveles RAID
+
+### Volumen Distribuido (Spanning)
+
+Asociación de varios discos en una partición lógica.
+
+**Características**:
+- Capacidad: Suma de todos los discos
+- Sin control sobre dónde se almacenan datos
+- Sin redundancia
+- Sin mejora de rendimiento
+
+### RAID 0 - Distribución (Striping)
+
+Los datos se guardan en todos los discos a la vez, divididos en bloques.
+
+**Características**:
+- **Capacidad**: Suma de todos los discos (si son iguales)
+- **Rendimiento**: Alto (lectura y escritura paralela)
+- **Redundancia**: Ninguna
+- **Mínimo de discos**: 2
+
+**Ventajas**:
+- Máximo rendimiento
+- Máxima capacidad utilizable
+
+**Desventajas**:
+- Fallo de un disco = pérdida total de datos
+- No apto para datos críticos
+
+**Cálculo de capacidad**:
+```
+2 discos de 1TB = 2TB totales
+1 disco 500GB + 1 disco 1TB = 1TB total (limitado por el menor)
+```
+
+### RAID 1 - Espejo (Mirroring)
+
+Los datos se escriben idénticamente en ambos discos.
+
+**Características**:
+- **Capacidad**: Tamaño del disco menor
+- **Rendimiento**: Lectura mejorada, escritura normal
+- **Redundancia**: Total
+- **Mínimo de discos**: 2
+
+**Ventajas**:
+- Máxima redundancia
+- Mejor lectura (puede leer de ambos discos)
+- Fallo de un disco: sistema continúa funcionando
+
+**Desventajas**:
+- Solo 50% de capacidad utilizable
+- Escritura no mejorada
+
+<Warning>
+  **Importante**: RAID 1 NO es una copia de seguridad. Mejora la disponibilidad, pero no protege contra borrado accidental, virus, etc.
+</Warning>
+
+### RAID 5 - Paridad Distribuida
+
+División de datos con paridad distribuida entre todos los discos.
+
+**Características**:
+- **Capacidad**: (N-1) × tamaño del disco menor
+- **Rendimiento**: Buena lectura, escritura moderada
+- **Redundancia**: Tolerancia a fallo de 1 disco
+- **Mínimo de discos**: 3
+
+**Ventajas**:
+- Buen balance capacidad/redundancia/rendimiento
+- Popular en servidores de archivos
+
+**Desventajas**:
+- Penalización en escritura (cálculo de paridad)
+- Reconstrucción lenta tras fallo
+
+**Cálculo de paridad (XOR)**:
+```
+Datos: 0001, 0111, 1111, 1110, 1011, 0000
+
+Disco 1  | Disco 2  | Disco 3 (Paridad)
+---------|----------|------------------
+0001     | 0111     | 0110 (XOR)
+1111     | 1110     | 0001 (XOR)
+1011     | 0000     | 1011 (XOR)
+```
+
+### RAID 0+1 - Espejo de Divisiones
+
+Primero se crean dos RAID 0, luego se crea RAID 1 sobre ellos.
+
+**Características**:
+- **Capacidad**: 50% del total
+- **Rendimiento**: Alto
+- **Redundancia**: Tolerancia a fallo de un array completo
+- **Mínimo de discos**: 4
+
+### RAID 1+0 (RAID 10) - División de Espejos
+
+Primero se crean múltiples RAID 1, luego RAID 0 sobre ellos.
+
+**Características**:
+- **Capacidad**: 50% del total
+- **Rendimiento**: Muy alto
+- **Redundancia**: Mejor que RAID 0+1
+- **Mínimo de discos**: 4
+
+**Ventajas sobre 0+1**:
+- Mejor tolerancia a fallos múltiples
+- Preferido para bases de datos
+
+<Warning>
+  Si un disco falla en RAID 10, debe cambiarse rápidamente. Si falla su pareja, se pierden todos los datos.
+</Warning>
+
+## Lo Que RAID NO Hace
+
+### RAID NO Protege los Datos
+
+<Warning>
+  RAID **NO** evita:
+  - Virus que destruyen datos
+  - Corrupción de archivos
+  - Borrado accidental por usuario
+  - Fallos en otros componentes (CPU, RAM, placa base)
+  - Desastres físicos (incendio, inundación)
+</Warning>
+
+### RAID NO Simplifica la Recuperación
+
+- Requiere controladores específicos
+- Herramientas de recuperación deben soportar RAID
+- Dependencia de hardware/software
+
+### RAID NO Mejora Todo el Rendimiento
+
+- Aplicaciones de escritorio: beneficio limitado
+- Mejor para:
+  - Servidores de archivos
+  - Bases de datos
+  - Lectura/escritura sostenida de archivos grandes
+
+### RAID NO Facilita el Traslado
+
+- RAID hardware: requiere controladora compatible
+- Metadatos específicos del sistema
+- RAID software: más portable, pero añade complejidad
+
+## Cuotas de Disco
+
+### ¿Qué son las Cuotas?
+
+Mecanismo para limitar el uso de espacio en disco por usuario o grupo.
+
+<Note>
+  Las cuotas permiten **controlar** el número de ficheros o tamaño máximo que un usuario/grupo puede crear en carpetas gestionadas.
+</Note>
+
+### Tipos de Cuotas
+
+#### Cuotas de Bloque (Uso)
+
+Limitan la **cantidad de espacio de disco** que puede usar un usuario o grupo.
+
+```
+Ejemplo: Usuario no puede usar más de 10GB
+```
+
+#### Cuotas de Archivo (Inodo)
+
+Limitan el **número de archivos y directorios** que un usuario puede crear.
+
+```
+Ejemplo: Usuario no puede crear más de 10,000 archivos
+```
+
+### Cuotas Blandas vs Duras
+
+<Accordion title="Cuota Blanda (Soft)">
+  **Características**:
+  - Nivel de advertencia
+  - Permite superarlo temporalmente
+  - Periodo de gracia configurable
+  - Notifica al usuario y administrador
+  
+  **Uso**: Avisar cuando se acerca al límite
+</Accordion>
+
+<Accordion title="Cuota Dura (Hard)">
+  **Características**:
+  - Límite estricto
+  - No se puede superar
+  - Bloquea escrituras al alcanzarlo
+  
+  **Uso**: Límite absoluto de uso
+</Accordion>
+
+### Periodo de Gracia
+
+Tiempo durante el cual se permite superar la cuota blanda.
+
+```
+Ejemplo:
+Cuota blanda: 8GB
+Cuota dura: 10GB
+Periodo gracia: 7 días
+
+Día 1: Usuario usa 8.5GB (supera blanda) - Advertencia
+Día 7: Si sigue sobre 8GB - Debe reducir
+Día 8: Se trata como cuota dura
+```
+
+## Resumen de Conceptos
+
+<CardGroup cols={2}>
+  <Card title="Copias de Seguridad" icon="hard-drive">
+    - Completas, incrementales, diferenciales
+    - Planificación según necesidades
+    - Almacenamiento seguro offsite
+    - **Probar restauraciones regularmente**
+  </Card>
+  
+  <Card title="RAID" icon="server">
+    - Mejora disponibilidad y rendimiento
+    - **NO es copia de seguridad**
+    - Elegir nivel según necesidades
+    - Software vs Hardware
+  </Card>
+  
+  <Card title="Cuotas" icon="chart-line">
+    - Control de uso de disco
+    - Blandas (advertencia) y duras (límite)
+    - Por bloques o archivos
+    - Periodo de gracia
+  </Card>
+  
+  <Card title="Estrategia Integral" icon="shield">
+    - Combinar múltiples mecanismos
+    - RAID + Copias + Cuotas
+    - Documentar procedimientos
+    - Probar recuperación
+  </Card>
+</CardGroup>
+
+---
+
+<Note>
+  **Próximo Paso**: Aplica estos conceptos en las tareas prácticas para configurar copias de seguridad y RAID en Windows y Linux.
+</Note>

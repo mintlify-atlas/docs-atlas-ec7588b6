@@ -1,0 +1,233 @@
+---
+title: Windows Server 2016 Installation Guide
+description: Complete guide for installing Windows Server 2016 on VirtualBox
+---
+
+# Windows Server 2016 Installation Guide
+
+This guide walks through the installation and configuration of Windows Server 2016 in VirtualBox, including initial domain setup.
+
+## Prerequisites
+
+<Info>
+**System Requirements**
+- VirtualBox 5.2 or later
+- 64-bit processor with virtualization support
+- Minimum 2 GB RAM (512 MB absolute minimum)
+- At least 32 GB disk space
+- Windows Server 2016 ISO image
+</Info>
+
+Refer to the [official Windows Server 2016 system requirements](https://docs.microsoft.com/en-us/windows-server/get-started/system-requirements) for complete details.
+
+## Creating the Virtual Machine
+
+<Steps>
+  <Step title="Create New VM">
+    1. Open VirtualBox and click **New**
+    2. Set **Name**: Windows2016Server
+    3. VirtualBox auto-selects:
+       - **Type**: Microsoft Windows
+       - **Version**: Windows 2016 (64-bit)
+  </Step>
+
+  <Step title="Allocate Memory">
+    Assign **2048 MB** (2 GB) RAM as recommended.
+  </Step>
+
+  <Step title="Create Virtual Hard Disk">
+    1. Select **Create a virtual hard disk now**
+    2. Type: **VDI (VirtualBox Disk Image)**
+    3. Storage: **Dynamically allocated**
+    4. Size: At least **40 GB**
+  </Step>
+
+  <Step title="Configure Network">
+    Set to **NAT** for basic connectivity (can be changed later for domain configurations).
+  </Step>
+
+  <Step title="Attach ISO">
+    1. **Settings** → **Storage**
+    2. Select optical drive
+    3. Attach Windows Server 2016 ISO
+  </Step>
+</Steps>
+
+## Installing Windows Server 2016
+
+<Steps>
+  <Step title="Boot Installation Media">
+    Start the VM. VirtualBox will boot from the ISO automatically on a new VM.
+  </Step>
+
+  <Step title="Select Language">
+    Choose installation language, time format, and keyboard.
+  </Step>
+
+  <Step title="Install Now">
+    Click **Install now**.
+    
+    <Note>
+    The **Repair your computer** option is for troubleshooting existing Windows installations.
+    </Note>
+  </Step>
+
+  <Step title="Select Edition">
+    Choose the Windows Server 2016 edition (Standard or Datacenter, with or without Desktop Experience).
+    
+    <Info>
+    **Desktop Experience** provides a full GUI. Without it, you get Server Core (command-line only).
+    </Info>
+  </Step>
+
+  <Step title="Product Key">
+    - Enter your product key if available
+    - Or select **I don't have a product key** to activate later
+  </Step>
+
+  <Step title="Accept License">
+    Read and accept the license terms.
+  </Step>
+
+  <Step title="Installation Type">
+    Select **Custom: Install Windows only (advanced)**.
+  </Step>
+
+  <Step title="Partition Disk">
+    Select the unallocated space and click **Next**. Windows will create necessary partitions automatically.
+  </Step>
+
+  <Step title="Installation Progress">
+    Wait for files to copy and install. The system will restart automatically.
+  </Step>
+</Steps>
+
+## Initial Server Configuration
+
+<Steps>
+  <Step title="Set Administrator Password">
+    Unlike desktop Windows, the administrator account is pre-defined as:
+    - **Username**: `Administrador` (or `Administrator` in English)
+    - **Password**: Set your own (e.g., `#admin1s0#`)
+    
+    <Warning>
+    Server requires complex passwords: uppercase, lowercase, numbers, and special characters.
+    </Warning>
+  </Step>
+
+  <Step title="Login">
+    Press **Ctrl+Alt+Del** (or use VirtualBox's Input menu) and enter the administrator password.
+  </Step>
+
+  <Step title="Server Manager">
+    Server Manager launches automatically, showing the configuration wizard.
+  </Step>
+</Steps>
+
+## Windows Server Essentials Configuration
+
+<Info>
+If you installed Windows Server 2016 Essentials, a configuration wizard will guide you through domain setup.
+</Info>
+
+<Steps>
+  <Step title="Welcome Screen">
+    Click through the initial welcome wizard.
+  </Step>
+
+  <Step title="Set Time and Date">
+    Configure timezone and system time.
+    
+    <Warning>
+    Accurate time is critical for Kerberos authentication in domain environments!
+    </Warning>
+  </Step>
+
+  <Step title="Configure Company Information">
+    - **Company Name**: Your organization name
+    - **Internal Domain Name**: e.g., `empresa.local`
+    - **NetBIOS Name**: Usually auto-filled
+  </Step>
+
+  <Step title="Create Network Administrator">
+    Set up the domain administrator account:
+    - **Username**: `netadminiso`
+    - **Password**: `#netadmin1s0#`
+    
+    <Info>
+    This account has full control over the domain, separate from the local Administrator account.
+    </Info>
+  </Step>
+
+  <Step title="Update Settings">
+    Select **Use recommended settings** for automatic updates.
+  </Step>
+
+  <Step title="Complete Configuration">
+    Wait for the server to complete configuration. This process can take several minutes.
+  </Step>
+
+  <Step title="Restart">
+    Restart the server when prompted. You must provide a reason:
+    - Select **Other (Unplanned)**
+    - Add a comment if desired
+  </Step>
+</Steps>
+
+## Configure DNS Forwarding
+
+<Note>
+After creating a domain, the server becomes its own DNS server. To resolve external names, you need to configure DNS forwarders.
+</Note>
+
+<Steps>
+  <Step title="Open DNS Manager">
+    1. In Server Manager, click **Tools**
+    2. Select **DNS**
+  </Step>
+
+  <Step title="Add Forwarder">
+    1. Right-click your server name
+    2. Select **Properties**
+    3. Go to **Forwarders** tab
+    4. Click **Edit**
+    5. Add a public DNS server: `1.1.1.1` (Cloudflare) or `8.8.8.8` (Google)
+  </Step>
+
+  <Step title="Test Internet Access">
+    Open Internet Explorer and verify you can browse external websites.
+  </Step>
+</Steps>
+
+## Next Steps
+
+Your Windows Server 2016 is now configured with:
+- Active Directory Domain Services
+- DNS Server
+- Basic domain infrastructure
+
+You can now:
+- Join client computers to the domain
+- Create user accounts
+- Configure Group Policy
+- Set up file shares
+- Install additional server roles
+
+<Info>
+**Default Credentials Summary**
+- **Local Admin**: Administrador / #admin1s0#
+- **Domain Admin**: netadminiso / #netadmin1s0#
+</Info>
+
+## Troubleshooting
+
+<Accordion title="Can't browse the internet">
+Ensure DNS forwarders are configured in DNS Manager. Without them, the server can only resolve names within its own domain.
+</Accordion>
+
+<Accordion title="Can't join computers to domain">
+- Verify network mode is Bridged Adapter or Internal Network
+- Check that both server and client can ping each other
+- Ensure client DNS points to the domain controller
+- Verify firewall settings
+</Accordion>

@@ -1,0 +1,177 @@
+---
+title: Xubuntu 18.04 Bionic Installation Guide
+description: Complete guide for installing Xubuntu 18.04 (Bionic Beaver) on VirtualBox
+---
+
+# Xubuntu 18.04 Bionic Installation Guide
+
+This guide covers the installation of Xubuntu 18.04 (Bionic Beaver) in VirtualBox. Xubuntu uses the XFCE desktop environment, offering a lightweight and high-performance alternative to standard Ubuntu.
+
+## Why Xubuntu?
+
+<Info>
+Xubuntu provides a simple, high-performance desktop environment that isn't affected by the resource requirements of more visually intensive systems. It's ideal for virtual machines and lower-spec hardware.
+</Info>
+
+## Prerequisites
+
+**System Requirements**
+- VirtualBox 5.2 or later
+- 64-bit processor with virtualization extensions enabled in BIOS
+- Minimum 2 GB RAM available for the VM
+- At least 20 GB free disk space
+- Xubuntu 18.04 ISO image ([download from xubuntu.org](https://xubuntu.org/))
+
+<Warning>
+If you only see 32-bit options in VirtualBox, your virtualization extensions (Intel VT-x or AMD-V) are disabled in BIOS/EFI.
+</Warning>
+
+## Creating the Virtual Machine
+
+<Steps>
+  <Step title="Download Xubuntu ISO">
+    Download the Xubuntu 18.04 LTS 64-bit ISO from [xubuntu.org](https://xubuntu.org/).
+    
+    <Note>
+    For classroom environments, ISOs are available at `http://172.29.0.254/`
+    </Note>
+  </Step>
+
+  <Step title="Create New VM">
+    1. Open VirtualBox and click **New**
+    2. Configure:
+       - **Name**: Xubuntu-Bionic
+       - **Type**: Linux
+       - **Version**: Ubuntu (64-bit)
+  </Step>
+
+  <Step title="Allocate Memory">
+    Assign at least **2048 MB** (2 GB) of RAM. Balance this with other running VMs to avoid performance degradation.
+  </Step>
+
+  <Step title="Create Virtual Hard Disk">
+    1. Select **Create a virtual hard disk now**
+    2. Choose **VDI (VirtualBox Disk Image)**
+    3. Select **Dynamically allocated**
+    4. Set size to at least **20 GB**
+    
+    <Accordion title="Understanding Disk Allocation">
+    **Dynamically allocated**: File grows as needed, saving host disk space.
+    
+    **Fixed size**: Better performance for intensive operations but uses full space immediately.
+    </Accordion>
+  </Step>
+
+  <Step title="Configure Network">
+    1. Right-click the VM → **Settings** → **Network**
+    2. Enable **Adapter 1** and set to **NAT**
+    
+    <Note>
+    Bridged Adapter mode can be used to connect directly to your physical network via Ethernet.
+    </Note>
+  </Step>
+
+  <Step title="Attach ISO">
+    1. In Settings → **Storage**
+    2. Select **Controller: IDE** → Empty optical drive
+    3. Click disc icon → **Choose a disk file**
+    4. Select your Xubuntu 18.04 ISO
+  </Step>
+</Steps>
+
+## Installing Xubuntu
+
+<Steps>
+  <Step title="Boot Installation Media">
+    Start the VM. You'll see a purple/brown boot screen with a keyboard icon.
+    
+    <Note>
+    Press any key to change language or boot options. Otherwise, it auto-boots in English.
+    </Note>
+  </Step>
+
+  <Step title="Select Language">
+    Choose your installation language.
+  </Step>
+
+  <Step title="Configure Keyboard">
+    Select your keyboard layout (e.g., Spanish - ES-es).
+  </Step>
+
+  <Step title="Third-Party Software">
+    Optionally install third-party software for graphics and Wi-Fi hardware. This can help with certain wireless adapters.
+  </Step>
+
+  <Step title="Disk Partitioning">
+    Select **Erase disk and install Xubuntu** for a new virtual disk.
+    
+    <Warning>
+    For dual-boot scenarios on physical machines, carefully review partition operations. For this new VM disk, it's safe to proceed.
+    </Warning>
+    
+    Confirm when prompted.
+  </Step>
+
+  <Step title="Set Timezone">
+    Select your geographic location for timezone configuration.
+  </Step>
+
+  <Step title="Create User Account">
+    Set up the local administrator:
+    
+    - **Your name**: Full name (e.g., Pedro García García)
+    - **Computer name**: Hostname (e.g., xubuntu-pc, servidor-xfce)
+    - **Username**: Login name (e.g., adminiso, usuario)
+    - **Password**: Recommended: `admin1s0`
+    - Choose **Require my password to log in**
+    
+    <Info>
+    This user will be in the sudo and adm groups, granting administrator privileges.
+    </Info>
+  </Step>
+
+  <Step title="Installation Progress">
+    Wait for installation to complete. Xubuntu will display a slideshow of included applications.
+    
+    When finished: **"Remove the installation medium, then press Enter"**
+    
+    Press Enter to reboot.
+  </Step>
+</Steps>
+
+## First Boot
+
+<Steps>
+  <Step title="Login with LightDM">
+    The LightDM display manager shows available users. Click your username and enter your password.
+  </Step>
+
+  <Step title="Install Updates">
+    Xubuntu will likely have many updates available since the 18.04 release (April 2018).
+    
+    1. Click **Install Now** when prompted
+    2. Enter your administrator password
+    3. Wait for updates to complete
+    
+    <Warning>
+    Always keep your system updated for security patches and bug fixes.
+    </Warning>
+  </Step>
+
+  <Step title="Shutdown">
+    After updates, you can shutdown the system. Pending updates may be applied during shutdown.
+  </Step>
+</Steps>
+
+## Next Steps
+
+Your Xubuntu 18.04 system is ready! Consider:
+
+- Installing VirtualBox Guest Additions for better display and performance
+- Configuring additional user accounts
+- Setting up shared folders with the host
+- Customizing the XFCE desktop environment
+
+<Note>
+The lightweight XFCE desktop makes Xubuntu excellent for running multiple VMs simultaneously.
+</Note>

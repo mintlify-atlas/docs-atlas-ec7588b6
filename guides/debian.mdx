@@ -1,0 +1,143 @@
+---
+title: Debian 8 Installation Guide
+description: Guide for installing Debian 8 (Jessie) on VirtualBox
+---
+
+# Debian 8 Installation Guide
+
+<Note>
+This guide covers the installation of Debian 8 (Jessie). While this version is now oldstable, the installation process is similar for newer Debian releases.
+</Note>
+
+## Prerequisites
+
+**System Requirements**
+- VirtualBox 5.0 or later
+- 64-bit processor (32-bit also supported)
+- Minimum 1 GB RAM (2 GB recommended)
+- At least 10 GB free disk space
+- Debian 8 ISO image from [debian.org](https://www.debian.org/)
+
+## Installation Overview
+
+Debian uses a text-based installer that's straightforward and reliable. The process is similar to other Debian-based distributions but with fewer graphical elements.
+
+<Steps>
+  <Step title="Create Virtual Machine">
+    1. Open VirtualBox and click **New**
+    2. Configure:
+       - **Name**: Debian8-Jessie
+       - **Type**: Linux
+       - **Version**: Debian (64-bit) or Debian (32-bit)
+    3. Allocate at least **1024 MB** RAM (2048 MB recommended)
+    4. Create a virtual hard disk (VDI, dynamically allocated, 10+ GB)
+  </Step>
+
+  <Step title="Configure VM Settings">
+    1. Go to **Settings** → **Network**
+    2. Set Adapter 1 to **NAT** or **Bridged Adapter**
+    3. Go to **Storage**
+    4. Attach the Debian 8 ISO to the optical drive
+  </Step>
+
+  <Step title="Start Installation">
+    Boot the VM and select **Install** or **Graphical Install** from the boot menu.
+  </Step>
+
+  <Step title="Language and Location">
+    1. Select your language
+    2. Choose your location (for timezone)
+    3. Configure keyboard layout
+  </Step>
+
+  <Step title="Network Configuration">
+    The installer will attempt automatic network configuration via DHCP. If using NAT in VirtualBox, this should work automatically.
+  </Step>
+
+  <Step title="Set Hostname and Domain">
+    - **Hostname**: Choose a name for your machine (e.g., debian-server)
+    - **Domain**: Leave blank or enter a local domain
+  </Step>
+
+  <Step title="Set Root Password">
+    Create a strong password for the root (administrator) account.
+    
+    <Warning>
+    Remember this password! It's needed for all administrative tasks.
+    </Warning>
+  </Step>
+
+  <Step title="Create User Account">
+    1. Enter full name
+    2. Enter username
+    3. Set user password
+  </Step>
+
+  <Step title="Partition Disks">
+    For a simple installation:
+    - Select **Guided - use entire disk**
+    - Choose **All files in one partition**
+    - Confirm partition changes
+    
+    <Info>
+    Advanced users can choose manual partitioning for custom layouts.
+    </Info>
+  </Step>
+
+  <Step title="Configure Package Manager">
+    1. Select a Debian mirror close to your location
+    2. Configure HTTP proxy if needed (usually leave blank)
+  </Step>
+
+  <Step title="Software Selection">
+    Choose packages to install:
+    - **Debian desktop environment** (for GUI)
+    - **SSH server** (for remote access)
+    - **Standard system utilities**
+    
+    You can also select specific desktop environments like GNOME, KDE, XFCE, etc.
+  </Step>
+
+  <Step title="Install GRUB Bootloader">
+    Install GRUB to the master boot record when prompted. Select the primary disk (usually /dev/sda).
+  </Step>
+
+  <Step title="Complete Installation">
+    Remove the installation media and reboot into your new Debian system.
+  </Step>
+</Steps>
+
+## Post-Installation
+
+After first boot:
+
+<Steps>
+  <Step title="Login">
+    Login with the user account you created during installation.
+  </Step>
+
+  <Step title="Update System">
+    Open a terminal and run:
+    
+    ```bash
+    su -
+    apt-get update
+    apt-get upgrade
+    ```
+  </Step>
+
+  <Step title="Install Guest Additions">
+    For better VirtualBox integration, install Guest Additions from the VirtualBox menu.
+  </Step>
+</Steps>
+
+## Next Steps
+
+- Configure network settings
+- Install additional software with `apt-get`
+- Set up user permissions
+- Configure system services
+
+<Note>
+Debian prioritizes stability over cutting-edge features, making it excellent for servers and production environments.
+</Note>

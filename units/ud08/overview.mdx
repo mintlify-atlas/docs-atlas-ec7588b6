@@ -1,0 +1,270 @@
+---
+title: UD08 - Seguridad y Protección de Datos
+description: Mecanismos de seguridad, copias de seguridad, RAID y cuotas de disco
+---
+
+# UD08 - Seguridad y Protección de Datos
+
+## Descripción General
+
+Los datos son el activo más valioso de cualquier sistema informático. El software puede reinstalarse, pero la pérdida o robo de datos es una catástrofe que debemos evitar. Esta unidad cubre los mecanismos esenciales para proteger y asegurar los datos.
+
+<Warning>
+  **Responsabilidad Crítica**: Como administrador de sistemas, tu trabajo es asegurar que los datos estén protegidos y que puedas recuperarte ante desastres.
+</Warning>
+
+## Objetivos de Aprendizaje
+
+Al completar esta unidad, serás capaz de:
+
+<CardGroup cols={2}>
+  <Card title="Copias de Seguridad" icon="hard-drive">
+    Planificar, crear y restaurar copias de seguridad en Windows y Linux
+  </Card>
+  
+  <Card title="Sistemas RAID" icon="server">
+    Configurar y administrar diferentes niveles de RAID
+  </Card>
+  
+  <Card title="Cuotas de Disco" icon="chart-line">
+    Implementar y gestionar cuotas de disco para usuarios y grupos
+  </Card>
+  
+  <Card title="Recuperación" icon="rotate">
+    Restaurar datos y recuperarse ante fallos
+  </Card>
+</CardGroup>
+
+## Contenidos de la Unidad
+
+### Copias de Seguridad
+
+Las copias de seguridad son una de las tareas más importantes y de mayor responsabilidad para los administradores.
+
+<Steps>
+  <Step title="Tipos de copias">
+    Completas, incrementales y diferenciales
+  </Step>
+  
+  <Step title="Planificación">
+    Cuándo y qué copiar
+  </Step>
+  
+  <Step title="Almacenamiento">
+    Dónde guardar las copias de forma segura
+  </Step>
+  
+  <Step title="Restauración">
+    Cómo recuperar datos
+  </Step>
+</Steps>
+
+### Sistemas RAID
+
+RAID (Redundant Array of Independent Disks) permite combinar múltiples discos para mejorar:
+
+- **Integridad**: Protección contra fallos
+- **Rendimiento**: Mayor velocidad de lectura/escritura
+- **Capacidad**: Agregación de espacio
+- **Disponibilidad**: Uptime mejorado
+
+<Note>
+  Un RAID **NO** es una copia de seguridad. Es un mecanismo para mejorar la disponibilidad y rendimiento.
+</Note>
+
+### Cuotas de Disco
+
+Mecanismo para limitar el uso de espacio en disco por usuario o grupo:
+
+- **Cuotas de bloque**: Limitan el espacio total
+- **Cuotas de archivo**: Limitan el número de archivos
+- **Cuotas blandas**: Advertencias
+- **Cuotas duras**: Límites estrictos
+
+## Mecanismos de Seguridad
+
+### Copias de Seguridad
+
+<CardGroup cols={3}>
+  <Card title="Completas" icon="database">
+    Copia todos los datos seleccionados
+  </Card>
+  
+  <Card title="Incrementales" icon="plus">
+    Solo cambios desde última copia
+  </Card>
+  
+  <Card title="Diferenciales" icon="code-compare">
+    Cambios desde última completa
+  </Card>
+</CardGroup>
+
+### Niveles RAID Comunes
+
+<Accordion title="RAID 0 - Distribución">
+  **Ventajas**: Máximo rendimiento y capacidad
+  
+  **Desventajas**: Sin redundancia - fallo de un disco = pérdida total
+  
+  **Uso**: Datos temporales, caché, alto rendimiento
+</Accordion>
+
+<Accordion title="RAID 1 - Espejo">
+  **Ventajas**: Máxima redundancia, mejor lectura
+  
+  **Desventajas**: 50% de capacidad utilizable
+  
+  **Uso**: Datos críticos, sistemas operativos
+</Accordion>
+
+<Accordion title="RAID 5 - Paridad Distribuida">
+  **Ventajas**: Balance entre capacidad, rendimiento y redundancia
+  
+  **Desventajas**: Rendimiento de escritura reducido
+  
+  **Uso**: Servidores de archivos, bases de datos
+</Accordion>
+
+<Accordion title="RAID 10 - Espejo de Divisiones">
+  **Ventajas**: Alto rendimiento + redundancia
+  
+  **Desventajas**: Solo 50% de capacidad utilizable
+  
+  **Uso**: Bases de datos de alto rendimiento
+</Accordion>
+
+## Estrategias de Protección
+
+### Planificación de Copias
+
+Tres enfoques principales:
+
+<Steps>
+  <Step title="Completo diario">
+    Máxima seguridad, alto consumo de espacio y tiempo
+  </Step>
+  
+  <Step title="Completo semanal + Diferencial diario">
+    Balance entre seguridad y recursos
+  </Step>
+  
+  <Step title="Completo semanal + Incremental diario">
+    Menor consumo de espacio, restauración más compleja
+  </Step>
+</Steps>
+
+### Regla 3-2-1
+
+<Note>
+  **Buena práctica**: 
+  - **3** copias de tus datos
+  - En **2** tipos de medios diferentes
+  - **1** copia offsite (fuera del sitio)
+</Note>
+
+## Importancia de las Pruebas
+
+<Warning>
+  **Crítico**: Tan importante es crear las copias de seguridad como **restaurarlas y comprobar** que todo funciona correctamente tras la restauración.
+</Warning>
+
+<Steps>
+  <Step title="Crear copias">
+    Configurar y ejecutar copias periódicas
+  </Step>
+  
+  <Step title="Verificar integridad">
+    Comprobar que las copias son válidas
+  </Step>
+  
+  <Step title="Probar restauración">
+    Realizar restauraciones de prueba regularmente
+  </Step>
+  
+  <Step title="Documentar proceso">
+    Mantener documentación actualizada del procedimiento
+  </Step>
+</Steps>
+
+## Herramientas
+
+### Windows Server
+
+- Windows Server Backup
+- Copias de seguridad del sistema
+- Restauración de archivos individuales
+- Integración con AWS
+
+### GNU/Linux
+
+- `tar` - Empaquetado de archivos
+- `rsync` - Sincronización eficiente
+- `dd` - Copia a nivel de bloques
+- `mdadm` - Gestión de RAID por software
+
+## Sistemas de Compresión
+
+<CardGroup cols={3}>
+  <Card title="gzip" icon="file-zipper">
+    Compresión rápida, ampliamente soportada
+  </Card>
+  
+  <Card title="bzip2" icon="file-zipper">
+    Mejor compresión, más lento
+  </Card>
+  
+  <Card title="xz" icon="file-zipper">
+    Mejor compresión actual, LZMA
+  </Card>
+</CardGroup>
+
+<Note>
+  La compresión debe ser **sin pérdidas** para poder reconstruir los ficheros de manera exacta.
+</Note>
+
+## Lo Que RAID NO Hace
+
+<Warning>
+  **Conceptos erróneos comunes sobre RAID**:
+</Warning>
+
+### RAID NO protege los datos
+
+Un RAID no evita:
+- Virus que destruyen datos
+- Corrupción de datos
+- Borrado accidental
+- Fallos en otros componentes
+- Desastres físicos
+
+### RAID NO es una copia de seguridad
+
+RAID mejora:
+- **Disponibilidad** (uptime)
+- **Rendimiento**
+
+Pero NO sustituye las copias de seguridad.
+
+### RAID NO simplifica la recuperación
+
+- Requiere controladores específicos
+- Herramientas de recuperación deben soportar RAID
+- Dependencia de hardware/software específico
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Contenido Teórico" icon="book" href="/units/ud08/theory">
+    Profundiza en conceptos de seguridad y RAID
+  </Card>
+  
+  <Card title="Tareas Prácticas" icon="code" href="/units/ud08/tasks">
+    Implementa copias de seguridad y RAID
+  </Card>
+</CardGroup>
+
+---
+
+<Note>
+  **Recuerda**: La seguridad de los datos es responsabilidad del administrador. Una buena política de copias de seguridad puede salvar la organización ante un desastre.
+</Note>

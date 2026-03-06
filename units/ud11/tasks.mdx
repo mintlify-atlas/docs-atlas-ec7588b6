@@ -1,0 +1,680 @@
+---
+title: Tareas Prácticas - UD11
+description: Ejercicios prácticos de monitorización y auditoría de sistemas
+---
+
+## Tarea 1: Monitor de Rendimiento Windows 2019
+
+Utilizando la máquina de Windows Server 2019, crearás diferentes monitores de rendimiento para detectar posibles problemas y configuraciones erróneas en los servicios.
+
+### Paso 1: Acceder al Monitor de Rendimiento
+
+Como usuarios **Administradores del Dominio**:
+
+<Steps>
+  <Step title="Abrir Administración del Servidor">
+    Inicia la consola de Administración del Servidor
+  </Step>
+  <Step title="Acceder a Herramientas">
+    Menú Herramientas → Monitor de Rendimiento
+  </Step>
+</Steps>
+
+<Note>
+El Monitor de Rendimiento es una herramienta similar a las gráficas MRTG que has visto en el servidor del aula, pero tú configurarás los gráficos e informes.
+</Note>
+
+### Paso 2: Añadir Contadores
+
+Al hacer clic en **Herramientas de Supervisión** → **Monitor de Rendimiento**, verás un gráfico de consumo de CPU.
+
+#### RRDtool
+
+Este tipo de gráficos se conocen como **RRDtool** (Round-Robin Database tool), un estándar de la industria para monitorización.
+
+<CardGroup cols={2}>
+  <Card title="Características" icon="database">
+    - Base de datos de tamaño fijo
+    - Agregación automática de datos antiguos
+    - Generación rápida de gráficos
+  </Card>
+  <Card title="Usado por" icon="chart-line">
+    - MRTG (Multi Router Traffic Grapher)
+    - Cacti
+    - Nagios
+    - Muchas otras herramientas
+  </Card>
+</CardGroup>
+
+#### Añadir Nuevos Elementos
+
+Pulsa el botón **(+)** en la parte superior. Añade estos 3 contadores:
+
+<Steps>
+  <Step title="Datagramas IPv4 sin enrutar">
+    **Categoría:** IPv4
+    
+    **Contador:** Datagramas de Salida sin enrutar
+  </Step>
+  <Step title="Bytes de red">
+    **Categoría:** Interfaz de red
+    
+    **Contador:** Total de bytes por segundo
+    
+    **Instancia:** Selecciona tu tarjeta de red
+  </Step>
+  <Step title="Actividad de disco">
+    **Categoría:** Disco Físico
+    
+    **Contador:** % de tiempo de lectura
+    
+    **Instancia:** Selecciona tu disco principal (0 C:)
+  </Step>
+</Steps>
+
+### Personalización
+
+Puedes modificar:
+
+- **Color**: Para distinguir fácilmente cada contador
+- **Escala**: Para visualizar mejor valores muy pequeños o grandes
+- **Equipo**: Para monitorizar máquinas remotas
+
+<Note>
+A medida que añades contadores, van apareciendo en el gráfico con diferentes colores. Puedes seleccionar cada contador en la lista inferior para ver su valor actual, mínimo, máximo y promedio.
+</Note>
+
+### Ejercicios
+
+#### Ejercicio 1: Monitor Básico
+
+Sigue los pasos descritos en la tarea y configura un monitor de rendimiento para tu instalación de Windows.
+
+**Documenta:**
+- Capturas de pantalla del monitor configurado
+- Valores observados en cada contador
+- Interpretación de los resultados
+
+#### Ejercicio 2: Servicios de Dominio
+
+Teniendo en cuenta que este servidor Windows ofrece servicios de Active Directory, realiza un monitor de rendimiento que visualice los servicios asociados:
+
+##### DHCP
+
+```
+Categoría: DHCPv4 Server
+Contadores sugeridos:
+- Packets Received/sec
+- Acks/sec
+- Active Queue Length
+```
+
+##### DNS
+
+```
+Categoría: DNS
+Contadores sugeridos:
+- Total Query Received/sec
+- Total Response Sent/sec
+- Recursive Queries/sec
+- Dynamic Update Received/sec
+```
+
+**Tareas:**
+1. Crea un nuevo monitor con estos contadores
+2. Genéralo tráfico DNS realizando consultas desde clientes
+3. Observa cómo se reflejan en las gráficas
+4. Documenta los resultados
+
+#### Ejercicio 3: Hyper-V (Ampliación)
+
+Supongamos que necesitas monitorizar un servidor de Virtualización que utiliza **Hyper-V**.
+
+<Steps>
+  <Step title="Investigar requisitos">
+    Busca en Internet cuáles son los cuellos de botella habituales en Hyper-V
+  </Step>
+  <Step title="Identificar contadores">
+    Determina qué contadores son relevantes para monitorizar:
+    - CPU de máquinas virtuales
+    - Memoria dinámica
+    - Disco virtual
+    - Red virtual
+  </Step>
+  <Step title="Configurar monitor">
+    Crea un monitor de rendimiento adecuado
+  </Step>
+  <Step title="Documentar">
+    Explica por qué has elegido esos contadores
+  </Step>
+</Steps>
+
+**Avisa al profesor cuando hayas realizado estos tres ejercicios.**
+
+#### Ejercicio 4: Ficheros Compartidos (Por Parejas)
+
+Por parejas, configurad un monitor de rendimiento que mida **5 indicadores** sobre los ficheros compartidos que habéis realizado en prácticas anteriores.
+
+**Sugerencias de contadores:**
+
+```
+Categoría: Server Work Queues
+- Queue Length
+- Active Threads
+
+Categoría: SMB Server Shares
+- Current Open File Count
+- Data Bytes/sec
+- Data Requests/sec
+```
+
+**Pasos:**
+1. Identifica la carpeta compartida a monitorizar
+2. Selecciona 5 contadores relevantes
+3. Configura el monitor
+4. Genera tráfico copiando archivos desde/hacia la carpeta compartida
+5. Analiza los resultados
+
+**Avisad al profesor cuando hayáis finalizado.**
+
+#### Ejercicio 5: iSCSI (Ampliación)
+
+Si habéis configurado el iniciador **iSCSI** de unidades anteriores, preparad un monitor de rendimiento para visualizar su uso.
+
+**Contadores sugeridos:**
+
+```
+Categoría: iSCSI Session
+- Bytes Received/sec
+- Bytes Sent/sec
+- Connection TimeOut Errors
+
+Categoría: Logical Disk (seleccionar el disco iSCSI)
+- % Disk Time
+- Avg. Disk Queue Length
+- Disk Transfers/sec
+```
+
+---
+
+## Tarea 2: Configuración de Tablets/Portátiles
+
+Cada vez es más común contar con portátiles que tienen una pantalla táctil, como las tablets.
+
+### Ejercicio 1: Manual de Modo Tableta
+
+Crea un pequeño manual de cómo activar el modo **tableta** en Windows 10.
+
+**El manual debe incluir:**
+
+<Steps>
+  <Step title="Acceso a la configuración">
+    Cómo acceder a la configuración del sistema
+  </Step>
+  <Step title="Activación del modo tableta">
+    Pasos para activar/desactivar el modo tableta
+  </Step>
+  <Step title="Configuración automática">
+    Cómo configurar el cambio automático al conectar/desconectar el teclado
+  </Step>
+  <Step title="Personalización">
+    Opciones de personalización del modo tableta
+  </Step>
+</Steps>
+
+**Formato:**
+- Documento con capturas de pantalla
+- Instrucciones claras paso a paso
+- Descripción de las ventajas del modo tableta
+- Diferencias con el modo escritorio
+
+---
+
+## Tarea 3: Monitorización de la Red
+
+El objetivo de esta tarea es conocer diferentes modos de monitorización de red y obtener datos útiles para diagnosticar problemas.
+
+<Warning>
+**Trabajo en parejas**: Esta tarea requiere colaboración para poder realizar todas las actividades.
+</Warning>
+
+### Preparación
+
+Configurad la tarjeta de red de las máquinas en **modo puente** de tal modo que podáis ver la máquina de vuestr@ compañer@.
+
+### Instalación del Software
+
+En una máquina Ubuntu instalad los siguientes paquetes:
+
+```bash
+sudo apt update
+sudo apt install bmon wireshark
+```
+
+<Note>
+**Pregunta durante la instalación:** ¿Permitir a usuarios no privilegiados capturar paquetes con Wireshark?
+
+Podéis elegir la opción que consideréis, pero tenerlo en cuenta al lanzar el programa.
+</Note>
+
+### Herramienta 1: bmon
+
+**bmon** (Bandwidth Monitor) es un software de monitorización de red básico pero efectivo, especialmente útil en dispositivos sin interfaz gráfica (Raspberry Pi, servidores remotos).
+
+#### Uso
+
+```bash
+sudo bmon
+```
+
+**Teclas útiles:**
+- **d**: Mostrar información detallada
+- **i**: Información de interfaz
+- **q**: Salir
+
+#### Generar Tráfico
+
+Para ver datos en el gráfico:
+
+1. Selecciona tu tarjeta de red principal (no loopback)
+2. Accede mediante navegador web al servidor del aula
+3. Descarga un archivo `.iso` para generar tráfico
+4. Observa el gráfico de tasa de transferencia
+
+<Note>
+**Colores en bmon:**
+- **Verde**: Tráfico de entrada (RX - Receive)
+- **Rojo**: Tráfico de salida (TX - Transmit)
+</Note>
+
+#### Ejercicio 1: Comparación de Velocidades
+
+¿Qué podemos apreciar en el gráfico?
+
+Realizad la actividad descargando una imagen `.iso`:
+1. Desde el servidor del aula
+2. Desde Internet
+
+**Comparad resultados y documentad:**
+- Velocidad máxima alcanzada en cada caso
+- Diferencias observadas
+- Explicación de por qué hay diferencias
+
+#### Ejercicio 2: Monitorización de Streaming
+
+Dejar el monitor `bmon` ejecutándose durante un periodo de tiempo mientras navegáis por Internet.
+
+**Tareas:**
+1. Acceded a un vídeo de YouTube
+2. Comprobad cuántos bytes ha descargado durante el vídeo
+3. Calculad la tasa media de descarga
+4. Documentad los resultados
+
+### Herramienta 2: Wireshark
+
+**Wireshark** es uno de los analizadores de red más famosos del mundo. Permite capturar y analizar el tráfico de red a nivel de paquetes.
+
+#### Lanzar Wireshark
+
+Según la configuración elegida durante la instalación:
+
+```bash
+# Con privilegios (si no se permitió a usuarios normales)
+sudo wireshark
+
+# Sin privilegios (si se permitió captura a usuarios)
+wireshark
+```
+
+<Warning>
+**Importante:** Los permisos de grupo no se aplican hasta que sales y vuelves a entrar en la sesión.
+</Warning>
+
+#### Capturar Tráfico
+
+<Steps>
+  <Step title="Seleccionar interfaz">
+    En la pantalla inicial, selecciona tu tarjeta de red (enp0s3, eth0, etc.)
+  </Step>
+  <Step title="Iniciar captura">
+    Haz doble clic en la interfaz o pulsa el botón azul de inicio
+  </Step>
+  <Step title="Generar tráfico">
+    Minimiza Wireshark y navega por Internet durante unos minutos
+  </Step>
+  <Step title="Detener captura">
+    Vuelve a Wireshark y pulsa el botón rojo de parada
+  </Step>
+</Steps>
+
+#### Estadísticas
+
+Accede a: **Statistics** → **IPv4 Statistics** → **Destinations and Ports**
+
+Esta vista muestra:
+- IPs de destino contactadas
+- Número de paquetes transferidos
+- Puertos utilizados
+- Porcentaje de tráfico por destino
+
+<Note>
+Esto es especialmente útil para:
+- Identificar tráfico sospechoso
+- Diagnosticar problemas de conectividad
+- Analizar qué servicios se están utilizando
+- Detectar malware (conexiones a IPs extrañas)
+</Note>
+
+#### Ejercicio 3: Análisis de Puertos
+
+Realiza los pasos descritos y guarda el resumen en un fichero.
+
+**Preguntas:**
+1. ¿Qué 3 puertos aparecen más habitualmente?
+2. ¿A qué servicios corresponden esos puertos?
+3. ¿Tiene sentido según la actividad que habéis realizado?
+
+**Puertos comunes a buscar:**
+
+| Puerto | Servicio | Descripción |
+|--------|----------|---------------|
+| 80 | HTTP | Web sin cifrar |
+| 443 | HTTPS | Web cifrada (SSL/TLS) |
+| 53 | DNS | Resolución de nombres |
+| 22 | SSH | Conexión remota segura |
+| 445 | SMB | Carpetas compartidas Windows |
+| 3389 | RDP | Escritorio remoto Windows |
+
+#### Ejercicio 4: Telnet Collaborativo
+
+Desde la máquina del compañer@ realiza diferentes `telnet` a diversos puertos:
+
+```bash
+# Sintaxis
+telnet <IP_COMPANERO> <PUERTO>
+
+# Ejemplos
+telnet 192.168.1.100 80
+telnet 192.168.1.100 22
+telnet 192.168.1.100 3389
+telnet 192.168.1.100 8080
+```
+
+**Objetivo:**
+Que aparezcan conexiones en el resumen de Wireshark de tu compañer@.
+
+**Preguntas:**
+1. ¿Aparecen las conexiones telnet en Wireshark?
+2. ¿Qué información se puede ver sobre esas conexiones?
+3. ¿Podéis ver diferencias entre puertos abiertos y cerrados?
+
+**Avisad al profesor cuando lo logréis.**
+
+---
+
+## Tarea 4: Nagios
+
+En esta tarea entraréis en la página de alertas de Nagios de uno de los ordenadores del aula y evaluaréis los datos más importantes, así como las alertas configuradas.
+
+### Acceso al Sistema
+
+**Dirección del Servidor Nagios:**
+```
+http://172.29.0.254/nagios3
+```
+
+**Credenciales:**
+```
+Usuario: alumno01, alumno02, alumno03...
+Contraseña: alumn01, alumn02, alumn03...
+```
+
+<Note>
+Cada alumno tiene asignado un equipo según el orden establecido en clase.
+</Note>
+
+### Navegación por Nagios
+
+<Steps>
+  <Step title="Página de inicio">
+    Revisa la información general del servidor Nagios
+  </Step>
+  <Step title="Hosts">
+    Accede a la lista de hosts monitorizados
+  </Step>
+  <Step title="Tu equipo">
+    Localiza el equipo que te corresponde
+  </Step>
+  <Step title="Servicios">
+    Examina todos los servicios monitorizados en ese equipo
+  </Step>
+  <Step title="Estado">
+    Revisa el estado actual de cada servicio (OK, WARNING, CRITICAL)
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1: Descripción de Comprobaciones
+
+Describe de manera detallada las diferentes comprobaciones que se realizan sobre tu equipo.
+
+**Para cada servicio monitorizado:**
+- Nombre del servicio
+- Qué comprueba exactamente
+- Cuáles son los umbrales de WARNING y CRITICAL
+- Estado actual
+
+**Pregunta de reflexión:** ¿Por qué crees que son importantes esas alertas?
+
+#### Ejercicio 2: Resolución de Problemas
+
+En caso de que los indicadores de alerta avisaran de que algo fuera mal:
+
+**Tareas:**
+1. Identifica un posible problema (puede ser simulado)
+2. Describe los pasos que seguirías para resolverlo
+3. ¿Qué información adicional buscarías?
+4. ¿Cómo verificarías que el problema está resuelto?
+
+**Escenarios posibles:**
+- Servicio caído (SSH, HTTP, MySQL)
+- Disco lleno al 90%
+- Alta carga de CPU
+- Memoria insuficiente
+- Pérdida de paquetes en red
+
+#### Ejercicio 3: Búsqueda de Plugins
+
+Existen muchísimas comprobaciones que podemos realizar, adecuándonos a la realidad y al problema que intentamos resolver.
+
+Busca en la página web de Nagios plugins para:
+
+<CardGroup cols={2}>
+  <Card title="Antivirus" icon="shield-virus">
+    Plugin que monitorice el estado de antivirus (definiciones actualizadas, escaneos completados)
+  </Card>
+  <Card title="NTP" icon="clock">
+    Plugin que verifique sincronización de tiempo con servidores NTP
+  </Card>
+  <Card title="SSH" icon="terminal">
+    Plugin que compruebe disponibilidad del servicio SSH
+  </Card>
+  <Card title="LDAP" icon="address-book">
+    Plugin que verifique conectividad con un servidor LDAP
+  </Card>
+</CardGroup>
+
+**Para cada plugin documenta:**
+- Nombre del plugin
+- URL de descarga
+- Parámetros principales
+- Ejemplo de uso
+- Umbrales recomendados
+
+#### Ejercicio 4: Instalar Cliente Nagios
+
+Instala el cliente de Nagios en la máquina Xubuntu y configúralo para que el Servidor Nagios del Aula pueda monitorizarlo.
+
+<Steps>
+  <Step title="Instalar NRPE">
+    ```bash
+    sudo apt update
+    sudo apt install nagios-nrpe-server nagios-plugins
+    ```
+  </Step>
+  <Step title="Configurar NRPE">
+    Edita `/etc/nagios/nrpe.cfg`:
+    ```ini
+    # Permitir conexiones desde el servidor Nagios
+    allowed_hosts=127.0.0.1,172.29.0.254
+    
+    # Habilitar argumentos en comandos
+    dont_blame_nrpe=1
+    ```
+  </Step>
+  <Step title="Configurar comandos">
+    Revisa los comandos disponibles en:
+    ```bash
+    /etc/nagios/nrpe.cfg
+    ```
+    
+    Comandos comunes:
+    ```ini
+    command[check_users]=/usr/lib/nagios/plugins/check_users -w 5 -c 10
+    command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+    command[check_disk]=/usr/lib/nagios/plugins/check_disk -w 20% -c 10% -p /
+    ```
+  </Step>
+  <Step title="Reiniciar servicio">
+    ```bash
+    sudo systemctl restart nagios-nrpe-server
+    ```
+  </Step>
+  <Step title="Probar localmente">
+    ```bash
+    /usr/lib/nagios/plugins/check_nrpe -H localhost
+    ```
+  </Step>
+</Steps>
+
+**Avisa al profesor cuando lo hayas realizado. Prepara la IP de la máquina.**
+
+---
+
+## Tarea 5: Registros de Linux (Ampliación)
+
+### Ejercicio 1: Análisis de Logs de Autenticación
+
+Analiza el fichero `/var/log/auth.log` (o journalctl) para:
+
+```bash
+# Ver intentos de login fallidos
+sudo grep "Failed password" /var/log/auth.log
+
+# Contar intentos por usuario
+sudo grep "Failed password" /var/log/auth.log | awk '{print $9}' | sort | uniq -c | sort -rn
+
+# Ver intentos de sudo
+sudo grep "sudo" /var/log/auth.log
+```
+
+**Documenta:**
+1. Número de intentos fallidos encontrados
+2. Usuarios más atacados
+3. IPs de origen de los intentos
+4. Patrones detectados
+
+### Ejercicio 2: Registros de Servicios
+
+Analiza los logs de un servicio específico:
+
+```bash
+# Logs de SSH
+sudo journalctl -u ssh.service
+
+# Logs de Apache (si está instalado)
+sudo tail -f /var/log/apache2/access.log
+sudo tail -f /var/log/apache2/error.log
+
+# Logs del sistema
+sudo journalctl -p err -b
+```
+
+**Tareas:**
+1. Identifica 5 eventos relevantes
+2. Explica qué significa cada evento
+3. Determina si requieren acción
+
+### Ejercicio 3: Análisis Forense Básico
+
+Simula un incidente y realiza un análisis forense básico:
+
+<Steps>
+  <Step title="Recopilar información del sistema">
+    ```bash
+    # Fecha y hora actual
+    date > evidencia.txt
+    
+    # Información del sistema
+    uname -a >> evidencia.txt
+    
+    # Usuarios conectados
+    who >> evidencia.txt
+    w >> evidencia.txt
+    
+    # Procesos en ejecución
+    ps auxf >> evidencia.txt
+    ```
+  </Step>
+  <Step title="Recopilar información de red">
+    ```bash
+    # Conexiones activas
+    netstat -antp >> evidencia.txt
+    
+    # Configuración de red
+    ip addr >> evidencia.txt
+    
+    # Tabla de enrutamiento
+    ip route >> evidencia.txt
+    ```
+  </Step>
+  <Step title="Buscar archivos sospechosos">
+    ```bash
+    # Archivos modificados en las últimas 24 horas
+    find / -mtime -1 -ls 2>/dev/null >> evidencia.txt
+    
+    # Archivos SUID (potencialmente peligrosos)
+    find / -perm -4000 -ls 2>/dev/null >> evidencia.txt
+    ```
+  </Step>
+  <Step title="Generar hash de integridad">
+    ```bash
+    sha256sum evidencia.txt > evidencia.txt.sha256
+    ```
+  </Step>
+</Steps>
+
+**Documenta:**
+- Proceso seguido
+- Hallazgos relevantes
+- Recomendaciones de seguridad
+
+---
+
+## Recursos Adicionales
+
+<CardGroup cols={2}>
+  <Card title="Wireshark Wiki" icon="book" href="https://wiki.wireshark.org/">
+    Guías y tutoriales de Wireshark
+  </Card>
+  <Card title="Nagios Exchange" icon="puzzle-piece" href="https://exchange.nagios.org/">
+    Repositorio de plugins de Nagios
+  </Card>
+  <Card title="Windows Performance" icon="windows" href="https://docs.microsoft.com/en-us/windows-server/administration/performance-tuning/">
+    Guía de optimización de rendimiento Windows Server
+  </Card>
+  <Card title="Linux Performance" icon="linux" href="https://www.brendangregg.com/linuxperf.html">
+    Análisis de rendimiento en Linux
+  </Card>
+</CardGroup>

@@ -1,0 +1,658 @@
+---
+title: Tareas - Seguridad y Protección de Datos
+description: Ejercicios prácticos sobre copias de seguridad, RAID y cuotas
+---
+
+# Tareas Prácticas - UD08
+
+## Tarea 1: Copias de Seguridad en Windows Server
+
+### Descripción
+
+Configuraremos copias de seguridad en Windows Server y utilizaremos la copia generada para restaurar un fichero que el usuario ha modificado.
+
+### Parte A: Preparación del Destino
+
+<Steps>
+  <Step title="Añadir disco adicional">
+    Conecta un disco duro virtual de 50GB a tu máquina Windows Server
+  </Step>
+  
+  <Step title="Formatear con ReFS">
+    En el Administrador de Discos:
+    - Inicializa el disco como GPT
+    - Crea un volumen simple
+    - Formátalo con sistema de ficheros **ReFS**
+    - Asigna letra de unidad
+  </Step>
+  
+  <Step title="Verificar">
+    Comprueba que el disco está accesible en el Explorador de archivos
+  </Step>
+</Steps>
+
+### Parte B: Configuración de la Copia
+
+<Steps>
+  <Step title="Acceder al asistente">
+    En el Dashboard del Administrador del Servidor:
+    - Selecciona "Configurar copia de seguridad del servidor"
+  </Step>
+  
+  <Step title="Seleccionar destino">
+    - Marca "Mostrar todas las unidades que se pueden utilizar"
+    - Selecciona el disco ReFS creado
+    - Etiqueta: `CopiaDiariaISO`
+  </Step>
+  
+  <Step title="Configurar frecuencia">
+    - Establece una hora a la que estés en clase
+    - Ejemplo: 11:00 AM diariamente
+  </Step>
+  
+  <Step title="Seleccionar datos">
+    - Primera copia: Selecciona TODO (copia completa inicial)
+    - Confirma la configuración
+  </Step>
+</Steps>
+
+<Note>
+  Windows Server requiere una copia inicial completa antes de permitir copias incrementales.
+</Note>
+
+### Parte C: Ejecutar Copia Manual
+
+<Steps>
+  <Step title="Abrir herramientas">
+    Herramientas Administrativas → Windows Server Backup
+  </Step>
+  
+  <Step title="Ejecutar copia ahora">
+    Panel derecho → "Copia de seguridad ahora..."
+    - Usa opciones de copia programada
+  </Step>
+  
+  <Step title="Monitorizar progreso">
+    Observa el progreso de la copia
+  </Step>
+  
+  <Step title="Verificar completado">
+    Cuando termine, verifica el resumen
+    - Avisa al profesor sin cerrar la ventana
+  </Step>
+</Steps>
+
+### Parte D: Restauración de Ficheros
+
+<Steps>
+  <Step title="Crear fichero de prueba">
+    ```powershell
+    # En el escritorio del usuario netadminiso
+    New-Item -Path "$env:USERPROFILE\Desktop\claves.txt" -ItemType File
+    Set-Content -Path "$env:USERPROFILE\Desktop\claves.txt" -Value @"
+Write-Host "Algunas claves son"
+Write-Host "amazon.es:laDeAmazon"
+Write-Host "paypal.es:laDePaypal"
+"@
+    ```
+  </Step>
+  
+  <Step title="Hacer copia de seguridad">
+    Ejecuta otra copia de seguridad manual
+  </Step>
+  
+  <Step title="Modificar fichero">
+    ```powershell
+    Set-Content -Path "$env:USERPROFILE\Desktop\claves.txt" -Value @"
+Write-Host "Algunas claves son"
+Write-Host "amazon.es:laDeAmazonMasSegura"
+Write-Host "paypal.es:laDePaypal"
+"@
+    ```
+  </Step>
+  
+  <Step title="Iniciar restauración">
+    Windows Server Backup → Recuperar...
+    - Selecciona origen: Este servidor
+    - Selecciona fecha de copia anterior a la modificación
+    - Tipo: Archivos y carpetas
+  </Step>
+  
+  <Step title="Seleccionar archivo">
+    - Navega a la carpeta del usuario
+    - Selecciona `claves.txt`
+    - Destino: Crear copias junto a originales
+  </Step>
+  
+  <Step title="Comparar versiones">
+    Compara el contenido de ambos archivos
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta todos los pasos realizados para configurar la copia de seguridad con capturas de pantalla.
+
+#### Ejercicio 2
+Realiza la restauración de ficheros y avisa al profesor cuando lo hayas completado.
+
+#### Ejercicio 3
+Investiga sobre ReFS:
+- ¿Qué es ReFS?
+- ¿Qué ventajas tiene sobre NTFS?
+- ¿Por qué es buena idea usarlo en un servidor?
+
+#### Ejercicio 4
+Documenta el proceso de creación, copia, modificación y restauración del archivo `claves.txt`.
+
+## Tarea 2: Copias de Seguridad en Linux
+
+### Parte A: Copias con tar
+
+<Steps>
+  <Step title="Crear datos de prueba">
+    ```bash
+    mkdir -p ~/backup_test/documentos
+    cd ~/backup_test/documentos
+    echo "Documento importante" > importante.txt
+    echo "Notas de clase" > notas.txt
+    mkdir informes
+    echo "Informe mensual" > informes/mensual.txt
+    ```
+  </Step>
+  
+  <Step title="Copia completa sin compresión">
+    ```bash
+    cd ~
+    tar -cvf backup_completo.tar backup_test/
+    ls -lh backup_completo.tar
+    ```
+  </Step>
+  
+  <Step title="Copia con compresión gzip">
+    ```bash
+    tar -czf backup_gzip.tar.gz backup_test/
+    ls -lh backup_gzip.tar.gz
+    ```
+  </Step>
+  
+  <Step title="Copia con compresión bzip2">
+    ```bash
+    tar -cjf backup_bzip2.tar.bz2 backup_test/
+    ls -lh backup_bzip2.tar.bz2
+    ```
+  </Step>
+  
+  <Step title="Copia con compresión xz">
+    ```bash
+    tar -cJf backup_xz.tar.xz backup_test/
+    ls -lh backup_xz.tar.xz
+    ```
+  </Step>
+  
+  <Step title="Comparar tamaños">
+    ```bash
+    ls -lh backup_*
+    ```
+  </Step>
+</Steps>
+
+### Parte B: Restauración
+
+<Steps>
+  <Step title="Eliminar datos originales">
+    ```bash
+    rm -rf backup_test/
+    ```
+  </Step>
+  
+  <Step title="Restaurar desde backup">
+    ```bash
+    # Para .tar.gz
+    tar -xzf backup_gzip.tar.gz
+    
+    # Verificar
+    ls -R backup_test/
+    ```
+  </Step>
+  
+  <Step title="Extraer archivo específico">
+    ```bash
+    # Listar contenido
+    tar -tzf backup_gzip.tar.gz
+    
+    # Extraer solo un archivo
+    tar -xzf backup_gzip.tar.gz backup_test/documentos/importante.txt
+    ```
+  </Step>
+</Steps>
+
+### Parte C: rsync para Copias Incrementales
+
+<Steps>
+  <Step title="Instalar rsync">
+    ```bash
+    sudo apt install rsync
+    ```
+  </Step>
+  
+  <Step title="Crear copia inicial">
+    ```bash
+    mkdir ~/backups
+    rsync -av ~/backup_test/ ~/backups/backup_inicial/
+    ```
+  </Step>
+  
+  <Step title="Modificar datos">
+    ```bash
+    echo "Nueva línea" >> ~/backup_test/documentos/importante.txt
+    echo "Archivo nuevo" > ~/backup_test/documentos/nuevo.txt
+    ```
+  </Step>
+  
+  <Step title="Copia incremental">
+    ```bash
+    rsync -av --delete ~/backup_test/ ~/backups/backup_incremental/
+    ```
+  </Step>
+  
+  <Step title="Comparar">
+    ```bash
+    diff -r ~/backups/backup_inicial/ ~/backups/backup_incremental/
+    ```
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Crea una tabla comparativa de los tamaños de los diferentes métodos de compresión.
+
+#### Ejercicio 2
+Documenta el proceso de restauración completa y parcial.
+
+#### Ejercicio 3
+Crea un script que:
+- Haga copia de seguridad de tu carpeta personal
+- Use compresión bzip2
+- Incluya la fecha en el nombre del archivo
+- Ejemplo: `backup_2026-03-06.tar.bz2`
+
+## Tarea 3: RAID en Windows
+
+### Parte A: RAID 0 (Distribución)
+
+<Steps>
+  <Step title="Añadir discos">
+    Añade 2 discos virtuales de 10GB cada uno a la VM
+  </Step>
+  
+  <Step title="Abrir Administrador de Discos">
+    - Inicializa los discos como dinámicos
+  </Step>
+  
+  <Step title="Crear RAID 0">
+    - Click derecho en un disco → "Nuevo volumen seccionado"
+    - Selecciona ambos discos
+    - Asigna letra de unidad
+    - Formatear NTFS
+  </Step>
+  
+  <Step title="Verificar">
+    - Comprueba el tamaño total (debe ser ~20GB)
+    - Crea archivos de prueba
+  </Step>
+</Steps>
+
+<Warning>
+  **RAID 0**: Sin redundancia. Si falla un disco, se pierden todos los datos.
+</Warning>
+
+### Parte B: RAID 1 (Espejo)
+
+<Steps>
+  <Step title="Añadir discos">
+    Añade 2 discos virtuales de 10GB adicionales
+  </Step>
+  
+  <Step title="Crear RAID 1">
+    - Click derecho en un disco → "Nuevo volumen reflejado"
+    - Selecciona ambos discos
+    - Asigna letra de unidad
+    - Formatear NTFS
+  </Step>
+  
+  <Step title="Verificar">
+    - Comprueba el tamaño (debe ser ~10GB)
+    - Crea archivos de prueba
+  </Step>
+  
+  <Step title="Probar tolerancia a fallos">
+    - Apaga la VM
+    - Quita un disco del RAID 1
+    - Arranca la VM
+    - Verifica que los datos siguen accesibles
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta la creación de RAID 0 y RAID 1 con capturas.
+
+#### Ejercicio 2
+Crea una tabla comparativa:
+- Capacidad total
+- Capacidad utilizable
+- Ventajas
+- Desventajas
+- Casos de uso
+
+#### Ejercicio 3
+Prueba el fallo de disco en RAID 1 y documenta:
+- Estado del volumen tras quitar disco
+- Accesibilidad de datos
+- Proceso de recuperación
+
+## Tarea 4: RAID en Linux (mdadm)
+
+### Parte A: Instalación de mdadm
+
+```bash
+sudo apt update
+sudo apt install mdadm
+```
+
+### Parte B: RAID 1 con mdadm
+
+<Steps>
+  <Step title="Añadir discos">
+    Añade 2 discos virtuales (/dev/sdb y /dev/sdc) de 10GB
+  </Step>
+  
+  <Step title="Crear RAID 1">
+    ```bash
+    sudo mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+    ```
+  </Step>
+  
+  <Step title="Verificar estado">
+    ```bash
+    sudo mdadm --detail /dev/md0
+    cat /proc/mdstat
+    ```
+  </Step>
+  
+  <Step title="Formatear y montar">
+    ```bash
+    sudo mkfs.ext4 /dev/md0
+    sudo mkdir /mnt/raid1
+    sudo mount /dev/md0 /mnt/raid1
+    ```
+  </Step>
+  
+  <Step title="Hacer permanente">
+    ```bash
+    # Guardar configuración
+    sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
+    
+    # Añadir a fstab
+    echo '/dev/md0 /mnt/raid1 ext4 defaults 0 2' | sudo tee -a /etc/fstab
+    ```
+  </Step>
+</Steps>
+
+### Parte C: RAID 0 con mdadm
+
+<Steps>
+  <Step title="Añadir discos">
+    Añade 2 discos adicionales (/dev/sdd y /dev/sde)
+  </Step>
+  
+  <Step title="Crear RAID 0">
+    ```bash
+    sudo mdadm --create /dev/md1 --level=0 --raid-devices=2 /dev/sdd /dev/sde
+    ```
+  </Step>
+  
+  <Step title="Formatear y montar">
+    ```bash
+    sudo mkfs.ext4 /dev/md1
+    sudo mkdir /mnt/raid0
+    sudo mount /dev/md1 /mnt/raid0
+    ```
+  </Step>
+</Steps>
+
+### Parte D: Simular Fallo de Disco
+
+<Steps>
+  <Step title="Marcar disco como fallido">
+    ```bash
+    sudo mdadm --manage /dev/md0 --fail /dev/sdc
+    ```
+  </Step>
+  
+  <Step title="Verificar estado">
+    ```bash
+    sudo mdadm --detail /dev/md0
+    cat /proc/mdstat
+    ```
+  </Step>
+  
+  <Step title="Quitar disco fallido">
+    ```bash
+    sudo mdadm --manage /dev/md0 --remove /dev/sdc
+    ```
+  </Step>
+  
+  <Step title="Añadir disco nuevo">
+    ```bash
+    # Si tienes /dev/sdf disponible
+    sudo mdadm --manage /dev/md0 --add /dev/sdf
+    ```
+  </Step>
+  
+  <Step title="Monitorizar reconstrucción">
+    ```bash
+    watch cat /proc/mdstat
+    ```
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta la creación de RAID 0 y RAID 1 con mdadm.
+
+#### Ejercicio 2
+Simula y documenta:
+- Fallo de disco
+- Estado del RAID degradado
+- Proceso de sustitución
+- Reconstrucción del array
+
+#### Ejercicio 3
+Investiga y documenta:
+- ¿Qué es un disco de repuesto (spare)?
+- ¿Cómo añadir un spare a un RAID?
+- Ventajas de tener spares
+
+## Tarea 5: Cuotas de Disco en Linux
+
+### Parte A: Instalación y Configuración
+
+<Steps>
+  <Step title="Instalar herramientas">
+    ```bash
+    sudo apt install quota quotatool
+    ```
+  </Step>
+  
+  <Step title="Habilitar cuotas en partición">
+    Edita `/etc/fstab`:
+    ```bash
+    # Añadir usrquota,grpquota a opciones de montaje
+    UUID=xxx / ext4 defaults,usrquota,grpquota 0 1
+    ```
+  </Step>
+  
+  <Step title="Remontar partición">
+    ```bash
+    sudo mount -o remount /
+    ```
+  </Step>
+  
+  <Step title="Crear archivos de cuotas">
+    ```bash
+    sudo quotacheck -cug /
+    sudo quotacheck -avugm
+    ```
+  </Step>
+  
+  <Step title="Activar cuotas">
+    ```bash
+    sudo quotaon -v /
+    ```
+  </Step>
+</Steps>
+
+### Parte B: Configurar Cuotas
+
+<Steps>
+  <Step title="Crear usuario de prueba">
+    ```bash
+    sudo adduser testquota
+    ```
+  </Step>
+  
+  <Step title="Establecer cuotas">
+    ```bash
+    sudo edquota testquota
+    ```
+    
+    Configurar:
+    - Soft limit (bloques): 100000 (aprox. 100MB)
+    - Hard limit (bloques): 120000 (aprox. 120MB)
+    - Soft limit (inodos): 1000
+    - Hard limit (inodos): 1200
+  </Step>
+  
+  <Step title="Verificar cuotas">
+    ```bash
+    sudo quota -vs testquota
+    ```
+  </Step>
+</Steps>
+
+### Parte C: Probar Cuotas
+
+<Steps>
+  <Step title="Cambiar a usuario">
+    ```bash
+    su - testquota
+    ```
+  </Step>
+  
+  <Step title="Crear archivo grande">
+    ```bash
+    dd if=/dev/zero of=~/archivo_grande bs=1M count=110
+    ```
+  </Step>
+  
+  <Step title="Verificar advertencia">
+    ```bash
+    quota -vs
+    ```
+  </Step>
+  
+  <Step title="Intentar superar hard limit">
+    ```bash
+    dd if=/dev/zero of=~/archivo_muy_grande bs=1M count=130
+    ```
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta el proceso de instalación y configuración de cuotas.
+
+#### Ejercicio 2
+Prueba y documenta:
+- Qué sucede al superar soft limit
+- Qué sucede al intentar superar hard limit
+- Mensajes de error
+
+#### Ejercicio 3
+Configura cuotas de grupo:
+- Crea un grupo `proyectos`
+- Establece cuota de 500MB
+- Añade usuarios al grupo
+- Prueba el funcionamiento
+
+## Criterios de Evaluación
+
+<Accordion title="Documentación (30%)">
+  - Capturas de pantalla claras
+  - Explicaciones de cada paso
+  - Tablas comparativas
+  - Conclusiones
+</Accordion>
+
+<Accordion title="Ejecución (40%)">
+  - Correcta configuración de copias
+  - Creación exitosa de RAIDs
+  - Implementación de cuotas
+  - Pruebas de funcionamiento
+</Accordion>
+
+<Accordion title="Análisis (20%)">
+  - Comparación de métodos
+  - Ventajas y desventajas
+  - Casos de uso apropiados
+  - Recomendaciones
+</Accordion>
+
+<Accordion title="Resolución de Problemas (10%)">
+  - Identificación de errores
+  - Soluciones aplicadas
+  - Documentación de problemas
+</Accordion>
+
+## Entrega
+
+<Steps>
+  <Step title="Formato">
+    Documento PDF con todas las tareas
+  </Step>
+  
+  <Step title="Contenido mínimo">
+    - Portada con datos del alumno
+    - Índice
+    - Desarrollo de cada tarea
+    - Capturas de pantalla
+    - Conclusiones
+  </Step>
+  
+  <Step title="Nomenclatura">
+    `UD08_Apellidos_Nombre.pdf`
+  </Step>
+  
+  <Step title="Archivos adicionales">
+    Scripts creados en formato .sh o .ps1
+  </Step>
+</Steps>
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Volver a Teoría" icon="book" href="/units/ud08/theory">
+    Repasa los conceptos teóricos
+  </Card>
+  
+  <Card title="Siguiente Unidad" icon="arrow-right" href="/units/ud09/overview">
+    Continúa con UD09 - Administración del Dominio
+  </Card>
+</CardGroup>

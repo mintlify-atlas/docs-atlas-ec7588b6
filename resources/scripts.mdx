@@ -1,0 +1,250 @@
+---
+title: Utility Scripts
+description: Collection of shell scripts for documentation generation and image processing
+icon: terminal
+---
+
+## Overview
+
+The ASIR-ISO project includes several utility scripts in the `bin/` directory that automate various documentation tasks, from PDF generation to image processing.
+
+## PDF Generation
+
+### md-to-pdf.sh
+
+The main script for converting Markdown documentation to PDF format using Pandoc and XeLaTeX.
+
+<Note>
+This script requires the following dependencies:
+- pandoc
+- texlive-extra-utils
+- texlive-xetex
+- fonts-ubuntu
+</Note>
+
+#### Features
+
+- Converts theory documents (Teoria_*.md) to PDF
+- Processes practice assignments (Tarea_*.md)
+- Generates installation guides for various operating systems
+- Supports 12 different teaching units (UD01-UD12)
+- Custom LaTeX templates for different document types
+
+#### Usage
+
+<CodeGroup>
+
+```bash Generate all units
+./bin/md-to-pdf.sh all
+```
+
+```bash Generate specific unit
+./bin/md-to-pdf.sh 01
+```
+
+```bash Generate units 03-05
+./bin/md-to-pdf.sh 03
+./bin/md-to-pdf.sh 04
+./bin/md-to-pdf.sh 05
+```
+
+</CodeGroup>
+
+#### Document Types Generated
+
+<CardGroup cols={3}>
+
+<Card title="Theory PDFs" icon="book">
+Combines all `Teoria_*.md` files into comprehensive unit theories
+</Card>
+
+<Card title="Practice Tasks" icon="clipboard-check">
+Converts individual `Tarea_*.md` files into numbered assignments
+</Card>
+
+<Card title="Installation Guides" icon="download">
+Generates guides for Ubuntu, Xubuntu, Windows 10/2016/2019, and OpenMediaVault
+</Card>
+
+</CardGroup>
+
+#### Templates
+
+- **temas-tpl.latex** - Theory documents template
+- **tareas-tpl.latex** - Practice assignments template  
+- **anexos-tpl.latex** - Annexes template
+
+#### Output
+
+All generated PDFs are organized in the `PDFS/` directory, structured by teaching unit:
+
+```
+PDFS/
+├── UD01_IntroduccionSistemasOperativos/
+├── UD02_Virtualizacion/
+├── UD03_Instalacion_Arranque/
+└── ...
+```
+
+## Image Processing
+
+### imgs-dropshadow.sh
+
+Adds professional drop shadow effects to images using ImageMagick.
+
+#### Usage
+
+```bash
+./bin/imgs-dropshadow.sh path/to/image.png
+```
+
+#### Parameters
+
+- **Border**: 13px white border
+- **Shadow**: 80% opacity, 3px blur, 2px offset
+- **Output**: Overwrites original image
+
+<Note>
+The script modifies images in-place. Make sure to backup originals if needed.
+</Note>
+
+### tool-img-md.sh
+
+Generates Markdown image syntax from a directory of images.
+
+#### Usage
+
+```bash
+./bin/tool-img-md.sh /path/to/images custom/path/prefix
+```
+
+#### Example
+
+```bash Input
+./bin/tool-img-md.sh ./screenshots img/
+```
+
+```markdown Output
+![screenshot 1](img/screenshot_1.png)
+![screenshot 2](img/screenshot_2.png)
+![network config](img/network_config.png)
+```
+
+The script automatically:
+- Converts underscores to spaces in alt text
+- Removes file extensions from captions
+- Prepends custom path prefix to image paths
+
+### listar-imagenes.sh
+
+Creates Markdown image references with line breaks for documentation.
+
+#### Usage
+
+```bash
+./bin/listar-imagenes.sh /path/to/directory
+```
+
+#### Output Format
+
+```markdown
+![directory](path/image1.png)\
+
+![directory](path/image2.png)\
+
+```
+
+## Documentation Quality
+
+### test-header.sh
+
+Validates Markdown files for proper YAML front matter formatting.
+
+#### Features
+
+<Accordion title="Validation Checks">
+- Verifies first line is `---` (YAML front matter start)
+- Compares header against standardized `Header.yml` template
+- Provides color-coded output (green for OK, red for errors)
+- Supports batch processing of directories
+</Accordion>
+
+#### Usage
+
+<CodeGroup>
+
+```bash Test single file
+./bin/test-header.sh document.md
+```
+
+```bash Test entire directory
+./bin/test-header.sh UD01_IntroduccionSistemasOperativos/
+```
+
+</CodeGroup>
+
+#### Output Example
+
+```
+ [ Testing ] Working with UD01/Teoria_01.md
+ * [ OK ] : Firstline
+ * [ OK ] : Header YML ok
+```
+
+## Document Assembly
+
+### make-intros.sh
+
+Compiles all unit introductions into a single overview document.
+
+#### Process
+
+1. Finds all `Teoria_00_Introduccion.md` files
+2. Concatenates them in sorted order
+3. Cleans metadata (removes YAML front matter, page breaks)
+4. Converts title fields to headers
+5. Generates `00_Introducciones.pdf`
+
+#### Usage
+
+```bash
+./bin/make-intros.sh
+```
+
+#### Output
+
+```
+PDFS/00_Introducciones.pdf
+```
+
+## Synchronization
+
+### sync-dropbox.sh
+
+Synchronizes generated PDFs to Dropbox for distribution.
+
+<Note>
+This script contains hardcoded paths specific to the original developer's environment. You'll need to modify the paths for your setup.
+</Note>
+
+#### Usage
+
+```bash
+./bin/sync-dropbox.sh
+```
+
+#### Functionality
+
+- Uses `rsync` with archive mode and delete option
+- Ensures Dropbox folder mirrors local PDFS directory
+- Provides confirmation message on completion
+
+## Script Customization
+
+All scripts use standard bash utilities and can be customized by modifying the variables at the top of each file:
+
+```bash Example: md-to-pdf.sh variables
+TEMPLATE_TEX="../rsrc/templates/temas-tpl.latex"
+PDF_PATH="$(readlink -f PDFS)"
+PANDOC_OPTIONS="-V fontsize=12pt -V mainfont=\"Ubuntu\" --pdf-engine=xelatex"
+```

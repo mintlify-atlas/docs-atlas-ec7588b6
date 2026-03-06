@@ -1,0 +1,463 @@
+---
+title: 'Teoría: Instalación y Arranque'
+description: 'Fundamental concepts of OS installation, boot processes, and system initialization'
+---
+
+# Introducción a la Instalación y Arranque
+
+En esta unidad veremos cómo instalar los diferentes sistemas operativos que utilizaremos a lo largo del módulo.
+
+## Objetivos de la Unidad
+
+<Steps>
+  <Step title="Obtención de Imágenes">
+    Aprender a obtener las imágenes de instalación de sistemas operativos
+  </Step>
+  
+  <Step title="Procesos de Instalación">
+    Comprender los pasos para iniciar e instalar sistemas operativos
+  </Step>
+  
+  <Step title="Sistemas LIVE">
+    Entender qué son y cómo utilizar sistemas Live
+  </Step>
+  
+  <Step title="Procesos de Arranque">
+    Revisar cómo arrancan los sistemas operativos
+  </Step>
+  
+  <Step title="Configuración de Arranque">
+    Aprender a configurar el arranque para cargar software específico
+  </Step>
+  
+  <Step title="Gestores de Arranque">
+    Conocer sus funciones y cómo configurarlos
+  </Step>
+</Steps>
+
+---
+
+# Obtención de Sistemas Operativos
+
+## Obtener Windows
+
+### Windows 10/11
+
+Microsoft proporciona herramientas oficiales para descargar Windows:
+
+<Accordion title="Media Creation Tool">
+  Herramienta oficial de Microsoft que permite:
+  - Descargar la última versión de Windows
+  - Crear USB de instalación
+  - Descargar archivo ISO
+  - Actualizar el equipo actual
+</Accordion>
+
+<Note>
+  Las imágenes ISO de Windows son legítimas y gratuitas de descargar. Necesitarás una licencia válida para activar el sistema.
+</Note>
+
+### Windows Server
+
+Disponible a través de:
+- **Evaluation Center**: Versiones de evaluación gratuitas (180 días)
+- **MSDN**: Para suscriptores de desarrollo
+- **Volume Licensing**: Para organizaciones
+
+## Obtener GNU/Linux
+
+### Distribuciones Populares
+
+Cada distribución tiene su sitio web oficial con descargas:
+
+<CardGroup cols={2}>
+  <Card title="Ubuntu" icon="ubuntu">
+    [ubuntu.com](https://ubuntu.com/download)
+    
+    Versiones LTS (Long Term Support) cada 2 años
+  </Card>
+  
+  <Card title="Debian" icon="linux">
+    [debian.org](https://www.debian.org/distrib/)
+    
+    Estable, testing y unstable
+  </Card>
+  
+  <Card title="Fedora" icon="fedora">
+    [fedoraproject.org](https://getfedora.org/)
+    
+    Tecnología de vanguardia
+  </Card>
+  
+  <Card title="openSUSE" icon="suse">
+    [opensuse.org](https://www.opensuse.org/)
+    
+    Leap (estable) y Tumbleweed (rolling)
+  </Card>
+</CardGroup>
+
+---
+
+# Grabación de Imágenes
+
+## Herramientas de Grabación
+
+### Para Windows
+
+<CodeGroup>
+```powershell Rufus (Recomendado)
+1. Descargar Rufus desde rufus.ie
+2. Seleccionar dispositivo USB
+3. Seleccionar imagen ISO
+4. Elegir esquema de partición (MBR/GPT)
+5. Iniciar proceso
+```
+
+```powershell Media Creation Tool
+1. Ejecutar Media Creation Tool
+2. Elegir "Crear medio de instalación"
+3. Seleccionar USB
+4. Esperar a que finalice
+```
+</CodeGroup>
+
+### Para GNU/Linux
+
+<CodeGroup>
+```bash dd (Línea de comandos)
+# Identificar dispositivo USB
+lsblk
+
+# Grabar imagen (CUIDADO: destruye datos)
+sudo dd if=imagen.iso of=/dev/sdX bs=4M status=progress
+sudo sync
+```
+
+```bash Etcher (Gráfico)
+1. Descargar balenaEtcher
+2. Seleccionar imagen ISO
+3. Seleccionar unidad USB
+4. Flash!
+```
+
+```bash woeusb (Para Windows en Linux)
+# Instalar WoeUSB
+sudo apt install woeusb
+
+# Crear USB de Windows
+sudo woeusb --device windows.iso /dev/sdX
+```
+</CodeGroup>
+
+<Warning>
+  **IMPORTANTE**: El comando `dd` destruirá todos los datos del dispositivo especificado. Verifica cuidadosamente el dispositivo de destino con `lsblk` antes de ejecutar.
+</Warning>
+
+---
+
+# Sistemas LIVE
+
+## ¿Qué es un Sistema LIVE?
+
+Un **sistema LIVE** permite ejecutar un sistema operativo completo desde un medio extraíble (USB, DVD) sin instalarlo en el disco duro.
+
+### Características
+
+<Steps>
+  <Step title="No Modifica el Disco">
+    El sistema en el disco duro permanece intacto
+  </Step>
+  
+  <Step title="Funcional Completo">
+    Acceso a todas las funcionalidades del sistema operativo
+  </Step>
+  
+  <Step title="Temporal">
+    Los cambios se pierden al apagar (a menos que se use persistencia)
+  </Step>
+  
+  <Step title="Portátil">
+    Lleva tu entorno de trabajo contigo
+  </Step>
+</Steps>
+
+### Usos Comunes
+
+<Accordion title="Evaluación">
+  Probar una distribución Linux antes de instalarla permanentemente.
+</Accordion>
+
+<Accordion title="Recuperación">
+  Acceder a archivos cuando el sistema instalado no arranca.
+</Accordion>
+
+<Accordion title="Diagnóstico">
+  - Probar hardware
+  - Ejecutar memtest86+
+  - Verificar problemas de disco
+</Accordion>
+
+<Accordion title="Tareas Anónimas">
+  Uso de sistemas como Tails para privacidad y anonimato.
+</Accordion>
+
+---
+
+# Particionado de Discos
+
+## Esquemas de Particionado
+
+### MBR (Master Boot Record)
+
+<Note>
+  MBR es el esquema tradicional, utilizado con BIOS.
+</Note>
+
+**Limitaciones:**
+- Máximo 2TB por disco
+- Máximo 4 particiones primarias
+- Para más particiones: usar particiones extendidas y lógicas
+
+**Estructura:**
+```text
+MBR (512 bytes)
+├─ Código de arranque (446 bytes)
+├─ Tabla de particiones (64 bytes)
+└─ Firma (2 bytes: 0x55AA)
+```
+
+### GPT (GUID Partition Table)
+
+<Note>
+  GPT es el estándar moderno, utilizado con UEFI.
+</Note>
+
+**Ventajas:**
+- Discos de hasta 9.4 ZB
+- Hasta 128 particiones
+- Checksums para detección de errores
+- Tabla de particiones redundante
+
+**Estructura:**
+```text
+GPT
+├─ Protective MBR
+├─ GPT Header (Primary)
+├─ Partition Entry Array
+├─ Particiones
+├─ Backup Partition Entry Array
+└─ Backup GPT Header
+```
+
+## Particiones Típicas
+
+### Windows
+
+<CodeGroup>
+```text BIOS/MBR
+Partición 1: System Reserved (500MB)
+  - BOOTMGR
+  - BCD
+  
+Partición 2: Windows (C:) (Resto)
+  - Sistema operativo
+  - Programas
+  - Datos de usuario
+```
+
+```text UEFI/GPT
+Partición 1: EFI System Partition (100MB)
+  - FAT32
+  - Archivos de arranque UEFI
+  
+Partición 2: MSR (Microsoft Reserved) (16MB)
+  - Reservada para uso de Windows
+  
+Partición 3: Windows (C:) (Resto)
+  - Sistema operativo
+  
+Partición 4: Recovery (Opcional)
+  - Herramientas de recuperación
+```
+</CodeGroup>
+
+### Linux
+
+<CodeGroup>
+```text Esquema Básico
+/dev/sda1: / (raíz) (20-50GB)
+  - ext4
+  - Sistema completo
+  
+/dev/sda2: swap (2x RAM)
+  - Memoria virtual
+```
+
+```text Esquema Avanzado
+/dev/sda1: /boot (500MB)
+  - ext4
+  - Kernel e initramfs
+  
+/dev/sda2: / (raíz) (20-30GB)
+  - ext4
+  - Sistema base
+  
+/dev/sda3: swap (8GB)
+  - Memoria virtual
+  
+/dev/sda4: /home (Resto)
+  - ext4
+  - Datos de usuario
+```
+
+```text UEFI/GPT
+/dev/sda1: EFI (512MB)
+  - FAT32
+  - Punto de montaje: /boot/efi
+  
+/dev/sda2: /boot (1GB)
+  - ext4
+  
+/dev/sda3: / (30GB)
+  - ext4
+  
+/dev/sda4: swap (8GB)
+  
+/dev/sda5: /home (Resto)
+  - ext4
+```
+</CodeGroup>
+
+---
+
+# Requisitos de Instalación
+
+## Windows 10/11
+
+### Requisitos Mínimos Windows 10
+
+| Componente | Mínimo | Recomendado |
+|------------|---------|-------------|
+| **Procesador** | 1 GHz | 2 GHz+ dual-core |
+| **RAM** | 2GB (64-bit) | 8GB+ |
+| **Disco** | 20GB | 64GB+ SSD |
+| **Gráficos** | DirectX 9 | DirectX 12 |
+| **Pantalla** | 800x600 | 1920x1080 |
+
+### Requisitos Adicionales Windows 11
+
+<Warning>
+  Windows 11 tiene requisitos más estrictos que Windows 10.
+</Warning>
+
+- **TPM**: TPM 2.0 requerido
+- **UEFI**: Arranque UEFI con Secure Boot
+- **Procesador**: CPUs de últimas generaciones (lista de compatibilidad)
+- **RAM**: Mínimo 4GB
+- **Disco**: 64GB mínimo
+
+## Windows Server
+
+| Componente | Mínimo | Recomendado |
+|------------|---------|-------------|
+| **Procesador** | 1.4 GHz 64-bit | 2 GHz+ multi-core |
+| **RAM** | 512MB (Server Core) / 2GB (GUI) | 8GB+ |
+| **Disco** | 32GB | 100GB+ |
+
+## GNU/Linux
+
+### Ubuntu Desktop
+
+| Componente | Mínimo | Recomendado |
+|------------|---------|-------------|
+| **Procesador** | 2 GHz dual-core | 2 GHz+ quad-core |
+| **RAM** | 4GB | 8GB+ |
+| **Disco** | 25GB | 50GB+ |
+| **Gráficos** | 1024x768 | 1920x1080 |
+
+### Debian
+
+<Note>
+  Debian es más ligero y puede funcionar con requisitos menores.
+</Note>
+
+| Componente | Mínimo | Recomendado |
+|------------|---------|-------------|
+| **Procesador** | 1 GHz | 2 GHz+ |
+| **RAM** | 512MB (sin GUI) / 2GB (con GUI) | 4GB+ |
+| **Disco** | 10GB | 20GB+ |
+
+---
+
+# Proceso de Instalación
+
+## Fases Comunes
+
+Independientemente del sistema operativo, la instalación sigue fases similares:
+
+<Steps>
+  <Step title="Fase de Copia">
+    Copiar archivos del sistema desde el medio de instalación al disco
+  </Step>
+  
+  <Step title="Fase de Configuración">
+    - Zona horaria
+    - Idioma y teclado
+    - Nombre de equipo
+    - Usuario y contraseña
+  </Step>
+  
+  <Step title="Fase de Instalación de Gestor de Arranque">
+    Instalar GRUB (Linux) o BOOTMGR (Windows)
+  </Step>
+  
+  <Step title="Fase de Finalización">
+    - Instalación de drivers
+    - Actualizaciones iniciales
+    - Configuración final del sistema
+  </Step>
+</Steps>
+
+---
+
+## Instalaciones Desatendidas
+
+### Windows
+
+<Accordion title="Archivos de Respuesta (unattend.xml)">
+  Archivo XML que automatiza la instalación de Windows respondiendo automáticamente a las preguntas del instalador.
+  
+  **Herramientas:**
+  - Windows System Image Manager (SIM)
+  - Deployment Image Servicing and Management (DISM)
+</Accordion>
+
+### Linux
+
+<Accordion title="Preseed (Debian/Ubuntu)">
+  Archivo de preconfiguración que automatiza instalaciones de Debian/Ubuntu.
+  
+  **Ejemplo básico:**
+  ```text
+  d-i debian-installer/locale string es_ES
+  d-i keyboard-configuration/xkb-keymap select es
+  d-i netcfg/get_hostname string debian-server
+  ```
+</Accordion>
+
+<Accordion title="Kickstart (Red Hat/Fedora)">
+  Sistema de instalación automatizada para distribuciones basadas en Red Hat.
+</Accordion>
+
+---
+
+## Próximos Temas
+
+<CardGroup cols={2}>
+  <Card title="BIOS/UEFI" icon="microchip" href="/units/ud03/bios-uefi">
+    Profundiza en los sistemas de firmware
+  </Card>
+  <Card title="Gestores de Arranque" icon="power-off" href="/units/ud03/boot-managers">
+    Aprende sobre GRUB y BOOTMGR
+  </Card>
+</CardGroup>

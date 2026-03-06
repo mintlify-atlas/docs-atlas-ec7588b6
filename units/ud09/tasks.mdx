@@ -1,0 +1,626 @@
+---
+title: Tareas - Administración del Dominio
+description: Ejercicios prácticos sobre Active Directory y OpenLDAP
+---
+
+# Tareas Prácticas - UD09
+
+## Tarea 1: Creación de Dominio Windows
+
+### Objetivo
+
+Configurar Windows Server como controlador de dominio del bosque `iso.com`.
+
+### Preparación
+
+<Steps>
+  <Step title="Verificar requisitos">
+    - Windows Server 2019/2022 instalado
+    - 4GB RAM mínimo
+    - Red NAT configurada
+  </Step>
+  
+  <Step title="Configurar nombre">
+    Cambiar nombre del equipo a: `ServerISO`
+  </Step>
+  
+  <Step title="Configurar red">
+    | Parámetro | Valor |
+    |-----------|-------|
+    | IP | 10.0.2.42 |
+    | Máscara | 255.255.255.0 |
+    | Puerta de enlace | 10.0.2.1 |
+    | DNS primario | 127.0.0.1 |
+    | DNS secundario | 1.1.1.1 |
+  </Step>
+</Steps>
+
+### Parte A: Instalación de Roles
+
+<Steps>
+  <Step title="Agregar roles">
+    Administrador del Servidor → Agregar roles y características
+    
+    Seleccionar:
+    - ☑ Servicios de dominio de Active Directory
+    - ☑ Servidor DNS
+    - ☑ Servidor DHCP
+  </Step>
+  
+  <Step title="Completar instalación">
+    Seguir asistente hasta completar
+  </Step>
+  
+  <Step title="Reiniciar">
+    Reiniciar el servidor
+  </Step>
+</Steps>
+
+### Parte B: Promoción a Controlador de Dominio
+
+<Steps>
+  <Step title="Iniciar promoción">
+    En el Administrador del Servidor:
+    - Click en notificaciones
+    - "Promover este servidor a controlador de dominio"
+  </Step>
+  
+  <Step title="Configuración del bosque">
+    - Seleccionar: **Agregar un nuevo bosque**
+    - Nombre del dominio raíz: `iso.com`
+  </Step>
+  
+  <Step title="Opciones del controlador">
+    - Nivel funcional del bosque: Windows Server 2016
+    - Nivel funcional del dominio: Windows Server 2016
+    - Capacidades: DNS + Catálogo global
+    - Contraseña DSRM: `#netAdmin1s0#`
+  </Step>
+  
+  <Step title="Nombre NetBIOS">
+    Aceptar: `ISO`
+  </Step>
+  
+  <Step title="Rutas">
+    Dejar rutas por defecto
+  </Step>
+  
+  <Step title="Guardar script">
+    **Importante**: Guardar el script de PowerShell generado
+  </Step>
+  
+  <Step title="Instalar y reiniciar">
+    Completar instalación (el equipo se reiniciará)
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta todo el proceso de instalación con capturas de pantalla de cada paso importante.
+
+#### Ejercicio 2
+Entrega el script de PowerShell generado durante la promoción.
+
+#### Ejercicio 3
+Verifica que el dominio está activo:
+- ¿El login muestra `ISO\Administrador`?
+- Captura de pantalla del login
+
+## Tarea 2: Gestión de Usuarios en Active Directory
+
+### Parte A: Crear Estructura de OUs
+
+<Steps>
+  <Step title="Abrir herramienta">
+    Usuarios y equipos de Active Directory
+  </Step>
+  
+  <Step title="Crear OUs">
+    Crear la siguiente estructura:
+    ```
+    iso.com
+      ├── Departamentos
+      │   ├── Tecnologia
+      │   ├── Administracion
+      │   └── Ventas
+      └── Recursos
+          ├── Impresoras
+          └── Carpetas_Compartidas
+    ```
+  </Step>
+</Steps>
+
+### Parte B: Crear Usuarios
+
+Crear los siguientes usuarios en sus respectivas OUs:
+
+<Accordion title="Tecnología (3 usuarios)">
+  1. **Juan Pérez** (jperez)
+     - Departamento: Tecnología
+     - Cargo: Técnico de Sistemas
+     - Email: jperez@iso.com
+  
+  2. **María García** (mgarcia)
+     - Departamento: Tecnología
+     - Cargo: Desarrolladora
+     - Email: mgarcia@iso.com
+  
+  3. **Carlos López** (clopez)
+     - Departamento: Tecnología
+     - Cargo: Administrador de Redes
+     - Email: clopez@iso.com
+</Accordion>
+
+<Accordion title="Administración (2 usuarios)">
+  1. **Ana Martínez** (amartinez)
+     - Departamento: Administración
+     - Cargo: Contable
+  
+  2. **Pedro Sánchez** (psanchez)
+     - Departamento: Administración
+     - Cargo: Gerente
+</Accordion>
+
+### Parte C: Crear Grupos
+
+<Steps>
+  <Step title="Crear grupos de seguridad">
+    En cada OU de departamento, crear un grupo:
+    - **GRP_Tecnologia** (Global, Seguridad)
+    - **GRP_Administracion** (Global, Seguridad)
+    - **GRP_Ventas** (Global, Seguridad)
+  </Step>
+  
+  <Step title="Asignar usuarios a grupos">
+    Añadir cada usuario a su grupo de departamento
+  </Step>
+</Steps>
+
+### Parte D: Usuario Plantilla
+
+<Steps>
+  <Step title="Crear usuario plantilla">
+    Crear: `_PlantillaTecnico`
+    
+    Configurar:
+    - Perfil: `\\ServerISO\perfiles$\%username%`
+    - Carpeta principal: `\\ServerISO\homes$\%username%`
+    - Miembro de: GRP_Tecnologia
+  </Step>
+  
+  <Step title="Crear usuario desde plantilla">
+    Click derecho en plantilla → Copiar
+    
+    Crear: **Luis Fernández** (lfernandez)
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta la creación de la estructura de OUs con capturas.
+
+#### Ejercicio 2
+Lista todos los usuarios creados con sus propiedades principales.
+
+#### Ejercicio 3
+Usando PowerShell, crea un usuario adicional:
+
+```powershell
+New-ADUser -Name "Elena Torres" `
+  -GivenName "Elena" `
+  -Surname "Torres" `
+  -SamAccountName "etorres" `
+  -UserPrincipalName "etorres@iso.com" `
+  -Path "OU=Tecnologia,OU=Departamentos,DC=iso,DC=com" `
+  -AccountPassword (ConvertTo-SecureString "P@ssw0rd" -AsPlainText -Force) `
+  -Enabled $true
+```
+
+Documenta el proceso y verifica la creación.
+
+## Tarea 3: Instalación de OpenLDAP
+
+### Objetivo
+
+Configurar un servidor OpenLDAP en Xubuntu para el dominio `valencia.iso.com`.
+
+### Parte A: Instalación Básica
+
+<Steps>
+  <Step title="Actualizar sistema">
+    ```bash
+    sudo apt update
+    sudo apt upgrade
+    ```
+  </Step>
+  
+  <Step title="Instalar slapd">
+    ```bash
+    sudo apt install slapd
+    ```
+    
+    Contraseña del administrador: `admin1s0`
+  </Step>
+  
+  <Step title="Verificar">
+    ```bash
+    sudo systemctl status slapd
+    ```
+  </Step>
+</Steps>
+
+### Parte B: Reconfiguración
+
+<Steps>
+  <Step title="Ejecutar reconfiguración">
+    ```bash
+    sudo dpkg-reconfigure slapd
+    ```
+  </Step>
+  
+  <Step title="Responder preguntas">
+    - ¿Omitir configuración? **No**
+    - Nombre DNS: `valencia.iso.com`
+    - Organización: `iso`
+    - Contraseña: `admin1s0`
+    - Motor: **HDB**
+    - ¿Eliminar BD al purgar? **No**
+    - ¿Mover BD antigua? **Sí**
+  </Step>
+</Steps>
+
+### Parte C: Instalar phpLDAPadmin
+
+<Steps>
+  <Step title="Instalar paquete">
+    ```bash
+    sudo apt install phpldapadmin
+    ```
+  </Step>
+  
+  <Step title="Configurar">
+    Editar `/etc/phpldapadmin/config.php`:
+    
+    ```php
+    $servers->setValue('server','base',array('dc=valencia,dc=iso,dc=com'));
+    $servers->setValue('login','bind_id','cn=admin,dc=valencia,dc=iso,dc=com');
+    ```
+  </Step>
+  
+  <Step title="Reiniciar Apache">
+    ```bash
+    sudo systemctl restart apache2
+    ```
+  </Step>
+  
+  <Step title="Acceder">
+    Navegador: `http://localhost/phpldapadmin/`
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta el proceso completo de instalación y configuración.
+
+#### Ejercicio 2
+Accede a phpLDAPadmin y captura pantalla del árbol LDAP inicial.
+
+#### Ejercicio 3
+Ejecuta el siguiente comando y documenta la salida:
+
+```bash
+ldapsearch -x -h localhost -p 389 -b "dc=valencia,dc=iso,dc=com"
+```
+
+## Tarea 4: Gestión de Usuarios en OpenLDAP
+
+### Parte A: Crear Estructura
+
+Crear en phpLDAPadmin:
+
+<Steps>
+  <Step title="Crear OU esbirros">
+    - Tipo: Unidad Organizativa
+    - ou: `esbirros`
+  </Step>
+  
+  <Step title="Crear grupo">
+    Dentro de ou=esbirros:
+    - Tipo: Grupo POSIX
+    - cn: `esbirrosldap`
+    - gidNumber: `10000`
+  </Step>
+</Steps>
+
+### Parte B: Crear Usuarios
+
+Crear 3 usuarios dentro del grupo:
+
+<Accordion title="Usuario 1: esbirroldap01">
+  ```
+  cn: esbirroldap01
+  givenName: Esbirro
+  sn: LDAP Uno
+  uid: esbirroldap01
+  uidNumber: 10001
+  gidNumber: 10000
+  homeDirectory: /home/esbirroldap01
+  loginShell: /bin/bash
+  userPassword: esbirro123
+  ```
+</Accordion>
+
+<Accordion title="Usuario 2: esbirroldap02">
+  ```
+  cn: esbirroldap02
+  givenName: Esbirro
+  sn: LDAP Dos
+  uid: esbirroldap02
+  uidNumber: 10002
+  gidNumber: 10000
+  homeDirectory: /home/esbirroldap02
+  loginShell: /bin/bash
+  userPassword: esbirro456
+  ```
+</Accordion>
+
+<Accordion title="Usuario 3: esbirroldap03">
+  ```
+  cn: esbirroldap03
+  givenName: Esbirro
+  sn: LDAP Tres
+  uid: esbirroldap03
+  uidNumber: 10003
+  gidNumber: 10000
+  homeDirectory: /home/esbirroldap03
+  loginShell: /bin/bash
+  userPassword: esbirro789
+  ```
+</Accordion>
+
+### Parte C: Operaciones con ldap-utils
+
+<Steps>
+  <Step title="Instalar herramientas">
+    ```bash
+    sudo apt install ldap-utils
+    ```
+  </Step>
+  
+  <Step title="Buscar todos los usuarios">
+    ```bash
+    ldapsearch -x -h localhost -p 389 \
+      -b "dc=valencia,dc=iso,dc=com" \
+      "(objectClass=posixAccount)"
+    ```
+  </Step>
+  
+  <Step title="Buscar usuario específico">
+    ```bash
+    ldapsearch -x -h localhost -p 389 \
+      -b "dc=valencia,dc=iso,dc=com" \
+      "(uid=esbirroldap01)"
+    ```
+  </Step>
+</Steps>
+
+### Parte D: Añadir Usuario con LDIF
+
+Crear archivo `nuevo_usuario.ldif`:
+
+```ldif
+dn: uid=esbirroldap04,cn=esbirrosldap,ou=esbirros,dc=valencia,dc=iso,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+cn: esbirroldap04
+givenName: Esbirro
+sn: LDAP Cuatro
+uid: esbirroldap04
+uidNumber: 10004
+gidNumber: 10000
+homeDirectory: /home/esbirroldap04
+loginShell: /bin/bash
+userPassword: esbirro000
+```
+
+Añadir al directorio:
+
+```bash
+ldapadd -x -D "cn=admin,dc=valencia,dc=iso,dc=com" \
+  -W -f nuevo_usuario.ldif
+```
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta la creación de la estructura y usuarios en phpLDAPadmin.
+
+#### Ejercicio 2
+Ejecuta y documenta todas las búsquedas con ldapsearch.
+
+#### Ejercicio 3
+Crea un usuario adicional usando LDIF y verifica su creación.
+
+## Tarea 5: Unir Cliente Windows al Dominio
+
+### Requisitos
+
+- VM Windows 10/11
+- Misma red NAT que el servidor
+- Configuración de red adecuada
+
+### Configuración del Cliente
+
+<Steps>
+  <Step title="Configurar red">
+    | Parámetro | Valor |
+    |-----------|-------|
+    | IP | 10.0.2.50 |
+    | Máscara | 255.255.255.0 |
+    | Puerta de enlace | 10.0.2.1 |
+    | DNS primario | 10.0.2.42 (IP del DC) |
+  </Step>
+  
+  <Step title="Verificar conectividad">
+    ```cmd
+    ping ServerISO.iso.com
+    nslookup iso.com
+    ```
+  </Step>
+  
+  <Step title="Unir al dominio">
+    - Sistema → Configuración avanzada
+    - Nombre de equipo → Cambiar
+    - Miembro de: **Dominio** → `iso.com`
+    - Credenciales: Administrador del dominio
+  </Step>
+  
+  <Step title="Reiniciar">
+    Reiniciar el equipo
+  </Step>
+  
+  <Step title="Iniciar sesión">
+    Iniciar sesión con usuario del dominio:
+    - `ISO\jperez`
+    - Contraseña del usuario
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Documenta el proceso de unión al dominio con capturas.
+
+#### Ejercicio 2
+Inicia sesión con diferentes usuarios del dominio y verifica:
+- Acceso al equipo
+- Permisos aplicados
+- Carpetas de usuario
+
+## Tarea 6: Compartir Recursos en el Dominio
+
+### Parte A: Crear Carpeta Compartida
+
+<Steps>
+  <Step title="Crear carpeta">
+    En el servidor, crear: `C:\Recursos\Compartida`
+  </Step>
+  
+  <Step title="Compartir">
+    Click derecho → Propiedades → Compartir
+    
+    - Nombre del recurso: `Compartida$`
+    - Permisos de compartición: Control total a Todos
+  </Step>
+  
+  <Step title="Permisos NTFS">
+    Pestaña Seguridad:
+    - GRP_Tecnologia: Modificar
+    - GRP_Administracion: Lectura
+    - GRP_Ventas: Lectura
+  </Step>
+</Steps>
+
+### Parte B: Mapear Unidad de Red
+
+En cliente Windows:
+
+<Steps>
+  <Step title="Conectar unidad de red">
+    - Explorador de archivos
+    - Este equipo → Conectar a unidad de red
+  </Step>
+  
+  <Step title="Configurar">
+    - Unidad: `Z:`
+    - Carpeta: `\\ServerISO\Compartida$`
+    - ☑ Volver a conectar al iniciar sesión
+  </Step>
+</Steps>
+
+### Ejercicios
+
+#### Ejercicio 1
+Crea dos carpetas compartidas adicionales con diferentes permisos.
+
+#### Ejercicio 2
+Verifica que los permisos funcionan correctamente:
+- Usuario de Tecnología puede modificar
+- Usuario de Administración solo puede leer
+
+## Criterios de Evaluación
+
+<Accordion title="Instalación y Configuración (40%)">
+  - Correcta instalación de roles
+  - Promoción exitosa a DC
+  - Configuración adecuada de OpenLDAP
+  - Parámetros de red correctos
+</Accordion>
+
+<Accordion title="Gestión de Usuarios (30%)">
+  - Estructura de OUs lógica
+  - Usuarios creados correctamente
+  - Grupos configurados apropiadamente
+  - Uso correcto de plantillas
+</Accordion>
+
+<Accordion title="Integración (20%)">
+  - Cliente unido correctamente al dominio
+  - Autenticación funcional
+  - Recursos compartidos accesibles
+  - Permisos aplicados correctamente
+</Accordion>
+
+<Accordion title="Documentación (10%)">
+  - Capturas claras y relevantes
+  - Explicaciones de cada paso
+  - Comandos documentados
+  - Problemas y soluciones
+</Accordion>
+
+## Entrega
+
+<Steps>
+  <Step title="Formato">
+    Documento PDF con todas las tareas
+  </Step>
+  
+  <Step title="Contenido">
+    - Portada con datos del alumno
+    - Índice
+    - Cada tarea en sección separada
+    - Capturas de pantalla
+    - Scripts y archivos de configuración
+    - Conclusiones
+  </Step>
+  
+  <Step title="Nomenclatura">
+    `UD09_Apellidos_Nombre.pdf`
+  </Step>
+  
+  <Step title="Archivos adicionales">
+    - Script PowerShell de promoción
+    - Archivos LDIF creados
+    - Cualquier script personalizado
+  </Step>
+</Steps>
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Active Directory" icon="windows" href="/units/ud09/active-directory">
+    Consulta la guía de Active Directory
+  </Card>
+  
+  <Card title="OpenLDAP" icon="linux" href="/units/ud09/openldap">
+    Consulta la guía de OpenLDAP
+  </Card>
+</CardGroup>
+
+<Note>
+  **Recuerda**: La administración de dominios es una habilidad fundamental. Practica en entornos de prueba antes de aplicar en producción.
+</Note>
